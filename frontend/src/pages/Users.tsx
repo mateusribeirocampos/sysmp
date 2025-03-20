@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
-import { userService } from '../services/api'
-import type { User } from '../types'
+import { user } from '../Data/users.ts'
 
 export function Users() {
-  const [users, setUsers] = useState<User[]>([])
+  const [users, setUsers] = useState(user)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
 
@@ -13,8 +12,7 @@ export function Users() {
 
   const loadUsers = async () => {
     try {
-      const data = await userService.getAll()
-      setUsers(data)
+      setUsers(user)
     } catch (err) {
       setError('Erro ao carregar usuários')
     } finally {
@@ -22,9 +20,8 @@ export function Users() {
     }
   }
 
-  const handleStatusChange = async (userId: number, newStatus: User['status']) => {
+  const handleStatusChange = async (userId: string, newStatus: typeof user[0]['status']) => {
     try {
-      await userService.update(userId, { status: newStatus })
       setUsers(users.map(user => 
         user.id === userId ? { ...user, status: newStatus } : user
       ))

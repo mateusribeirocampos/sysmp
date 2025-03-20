@@ -6,7 +6,8 @@ import { Login } from './pages/Login'
 import { Register } from './pages/Register'
 import { Dashboard } from './pages/Dashboard'
 import { Users } from './pages/Users'
-import { Documents } from './pages/Documents'
+import { Extras } from './pages/extras'
+import { Fisicos } from './pages/fisicos'
 
 function App() {
   return (
@@ -24,8 +25,9 @@ function App() {
             }
           >
             <Route index element={<Dashboard />} />
-            <Route path="users" element={<Users />} />
-            <Route path="documents" element={<Documents />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/extras" element={<Extras />} />
+            <Route path="/fisicos" element={<Fisicos />} />
           </Route>
         </Routes>
       </AuthProvider>
