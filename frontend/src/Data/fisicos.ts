@@ -59,7 +59,14 @@ export const fisicos: Fisicos[] = [
     internalDelivery: "Juliana Almeida",
     message: "Atualização do manual de segurança da informação",
     countDaysDelivery: calculateDaysBetween(new Date(2025, 3, 1))
+  },
+  {
+    receivedAt: new Date(2025, 5, 1), // 01/06/2025
+    idDocument: 23016,
+    classeDocument: "Atualização de Manuais",
+    DeliveryDeadline: new Date(2025, 4, 1), // 01/07/2025
+    internalDelivery: "Juliana Almeida",
+    message: "Atualização do manual de segurança da informação",
+    countDaysDelivery: calculateDaysBetween(new Date(2025, 4, 1))
   }
 ];
-
-

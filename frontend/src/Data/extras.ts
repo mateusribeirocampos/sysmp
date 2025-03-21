@@ -1,4 +1,4 @@
-export interface extras {
+export interface Extras {
   receivedAt: Date; // dd/mm/yyyy
   idDocument: number; // 25 caracteres
   classeDocument: string; // dropdown button with the name of the class of the document
@@ -14,7 +14,7 @@ const calculateDaysBetween = (endDate: Date): number => {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 };
 
-export const extras: extras[] = [
+export const extras: Extras[] = [
   {
     receivedAt: new Date(2025, 2, 18), // 18/06/2025
     idDocument: 23011,

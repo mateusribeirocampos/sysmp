@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { User, Document, AuthResponse, LoginCredentials, RegisterData } from '@/types'
+import type { User, Extras, Fisicos, AuthResponse, LoginCredentials, RegisterData } from '@/types'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -37,6 +37,12 @@ export const authService = {
 
 // Serviços de Usuários
 export const userService = {
+
+  getCount: async (): Promise<number> => {
+    const response = await api.get<User[]>('/users')
+    return response.data.length
+  },
+
   getAll: async (): Promise<User[]> => {
     const response = await api.get<User[]>('/users')
     return response.data
@@ -62,20 +68,26 @@ export const userService = {
   },
 }
 
-// Serviços de Documentos
-export const documentService = {
-  getAll: async (): Promise<Document[]> => {
-    const response = await api.get<Document[]>('/documents')
+// Serviços de Extras
+export const extrasService = {
+
+  getCount: async (): Promise<number> => {
+    const response = await api.get<Extras[]>('/extras')
+    return response.data.length
+  },
+
+  getAll: async (): Promise<Extras[]> => {
+    const response = await api.get<Extras[]>('/extras')
     return response.data
   },
 
-  getById: async (id: number): Promise<Document> => {
-    const response = await api.get<Document>(`/documents/${id}`)
+  getById: async (id: number): Promise<Extras> => {
+    const response = await api.get<Extras>(`/extras/${id}`)
     return response.data
   },
 
-  create: async (documentData: FormData): Promise<Document> => {
-    const response = await api.post<Document>('/documents', documentData, {
+  create: async (documentData: FormData): Promise<Extras> => {
+    const response = await api.post<Extras>('/extras', documentData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -83,8 +95,8 @@ export const documentService = {
     return response.data
   },
 
-  update: async (id: number, documentData: FormData): Promise<Document> => {
-    const response = await api.put<Document>(`/documents/${id}`, documentData, {
+  update: async (id: number, documentData: FormData): Promise<Extras> => {
+    const response = await api.put<Extras>(`/extras/${id}`, documentData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -93,14 +105,48 @@ export const documentService = {
   },
 
   delete: async (id: number): Promise<void> => {
-    await api.delete(`/documents/${id}`)
+    await api.delete(`/extras/${id}`)
+  },
+}
+
+// Serviços de Fisicos
+export const fisicosService = {
+
+  getCount: async (): Promise<number> => {
+    const response = await api.get<Fisicos[]>('/fisicos')
+    return response.data.length
   },
 
-  download: async (id: number): Promise<Blob> => {
-    const response = await api.get(`/documents/${id}/download`, {
-      responseType: 'blob',
+  getAll: async (): Promise<Fisicos[]> => {
+    const response = await api.get<Fisicos[]>('/fisicos')
+    return response.data
+  },
+
+  getById: async (id: number): Promise<Fisicos> => {
+    const response = await api.get<Fisicos>(`/fisicos/${id}`)
+    return response.data
+  },
+
+  create: async (documentData: FormData): Promise<Fisicos> => {
+    const response = await api.post<Fisicos>('/fisicos', documentData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     })
     return response.data
+  },
+
+  update: async (id: number, documentData: FormData): Promise<Fisicos> => {
+    const response = await api.put<Fisicos>(`/fisicos/${id}`, documentData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    return response.data
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/fisicos/${id}`)
   },
 }
 

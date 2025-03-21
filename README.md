@@ -52,7 +52,7 @@ yarn build
 
 ## Estrutura do Projeto
 
-```
+```tree
 src/
   ├── components/     # Componentes reutilizáveis
   ├── contexts/      # Contextos do React

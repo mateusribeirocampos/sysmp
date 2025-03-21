@@ -8,16 +8,23 @@ export interface User {
   updatedAt: string
 }
 
-export interface Document {
-  id: number
-  name: string
-  type: 'contrato' | 'relatorio' | 'proposta' | 'outro'
-  status: 'pendente' | 'aprovado' | 'rejeitado'
-  description?: string
-  fileUrl: string
-  responsible: string
-  createdAt: string
-  updatedAt: string
+export interface Extras {
+  receivedAt: Date; 
+  idDocument: number; 
+  classeDocument: string; 
+  countDaysDelivery: number; 
+  DeliveryDeadline: Date; 
+  internalDelivery: string; 
+  message: string; 
+}
+export interface Fisicos {
+  receivedAt: Date; 
+  idDocument: number; 
+  classeDocument: string; 
+  countDaysDelivery: number; 
+  DeliveryDeadline: Date; 
+  internalDelivery: string; 
+  message: string; 
 }
 
 export interface AuthResponse {

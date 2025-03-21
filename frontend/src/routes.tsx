@@ -6,8 +6,8 @@ import { Login } from './pages/Login'
 import { Register } from './pages/Register'
 import { Dashboard } from './pages/Dashboard'
 import { Users } from './pages/Users'
-import { Extras } from './pages/extras'
-import { Fisicos } from './pages/fisicos'
+import { Extras } from './pages/Extras'
+import { Fisicos } from './pages/Fisicos'
 
 function App() {
   return (

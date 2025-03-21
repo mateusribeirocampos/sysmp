@@ -12,10 +12,13 @@ export function Fisicos() {
 
   const loadDocuments = async () => {
     try {
+      setLoading(true)
       // Por enquanto, usando os dados mockados
       setFisicosList(fisicos)
+
+      localStorage.setItem('fisicosCount', fisicos.length.toString())
     } catch (err) {
-      setError('Erro ao carregar documentos')
+      setError('Erro ao carregar processos físicos')
     } finally {
       setLoading(false)
     }

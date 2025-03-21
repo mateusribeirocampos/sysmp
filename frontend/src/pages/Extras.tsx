@@ -12,8 +12,12 @@ export function Extras() {
 
   const loadDocuments = async () => {
     try {
-      // Por enquanto, usando os dados mockados
+      setLoading(true)
+      // Usando dados mockados
       setExtrasList(extras)
+      
+      // Atualiza o localStorage para o Dashboard acessar
+      localStorage.setItem('extrasCount', extras.length.toString())
     } catch (err) {
       setError('Erro ao carregar documentos')
     } finally {

@@ -31,7 +31,7 @@ export function Layout() {
       >
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between h-16 px-4 border-b">
-            <img src="/logo.svg" alt="SYSMP" className="h-8 w-auto" />
+            <img src="/mpmgi.png" alt="SYSMP" className="h-8 w-auto" />
             <button
               onClick={() => setIsSidebarOpen(false)}
               className="p-2 rounded-md text-gray-300 hover:text-gray-100"
