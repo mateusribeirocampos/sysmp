@@ -10,7 +10,7 @@ export interface user {
 export const user: user[] = [
   {
     id: '1',
-    name: 'Laura Maria de Mello Azevedo',
+    name: 'Laura Azevedo',
     email: 'laura.azevedo@example.com',
     password: 'password',
     role: 'admin',
@@ -30,7 +30,7 @@ export const user: user[] = [
     email: 'milena.lima@example.com',
     password: 'password',
     role: 'user',
-    status: 'inactive'
+    status: 'active'
   },
   {
     id: '4',
