@@ -1,10 +1,19 @@
 import { useState, useEffect } from 'react'
 import { extras } from '../Data/extras'
+import { user as usersData } from '../Data/users';
 
 export function Extras() {
   const [extrasList, setExtrasList] = useState(extras)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>('')
+
+  const activeUsers = usersData.filter(usersData => usersData.status === 'active');
+
+  const handleInternalDeliveryChange = (id: number, newUser: string) => {
+    setExtrasList(extrasList.map(doc => 
+      doc.idDocument === id ? {...doc, internalDelivery: newUser} : doc
+    ));
+  }
 
   useEffect(() => {
     loadDocuments()
@@ -145,7 +154,20 @@ export function Extras() {
                           )}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {doc.internalDelivery}
+                          <select 
+                          name="internal delivery" 
+                          id="interanl delivery"
+                          value={doc.internalDelivery}
+                          onChange={(e) => handleInternalDeliveryChange(doc.idDocument, e.target.value)}
+                          className='w-full p-1 border rounded bg-white'
+                          >
+                            <option value="">Selecionar usuário</option>
+                            {activeUsers.map((user) => (
+                              <option key={user.id} value={user.name}>
+                                {user.name}
+                              </option>
+                            ))}
+                          </select>
                         </td>
                         <td className="whitespace-normal px-3 py-4 text-sm text-gray-500">
                           <textarea
@@ -200,4 +222,4 @@ export function Extras() {
       </div>
     </div>
   )
-} 
+}
