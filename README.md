@@ -1,84 +1,105 @@
-# SYSMP - Frontend
+# SYSMP - Document Management System (Frontend)
 
-Frontend do sistema de gerenciamento de documentos SYSMP, desenvolvido com React e Vite.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-## Tecnologias Utilizadas
+Modern frontend for SYSMP - A lightweight document management system designed for small teams and workgroups. Built with React and Vite.
 
-- React 18
-- Vite
-- Tailwind CSS
-- React Router DOM
-- Axios
-- Headless UI
-- Heroicons
+![SYSMP Preview](https://via.placeholder.com/800x400.png?text=SYSMP+Interface+Preview)
 
-## Pré-requisitos
+## Features
 
-- Node.js 16 ou superior
-- npm ou yarn
+- **User Authentication** - Secure login/registration system
+- **Dashboard Analytics** - Visual document statistics and activity tracking
+- **Document Management** - CRUD operations for documents
+- **File Operations** - Secure upload/download with progress tracking
+- **User Management** - Role-based access control (Admin/User)
+- **Responsive Design** - Mobile-friendly interface
+- **Search & Filter** - Quick document retrieval system
 
-## Instalação
+## Technology Stack
 
-1. Clone o repositório
-2. Instale as dependências:
+- React ^18 + TypeScript 5.8.2
+- Vite 6.2.2
+- Tailwind CSS 3.4.17
+- React Router 6.30.0
+- Axios 1.8.4
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 22.11.0
+- npm 9.x+ or yarn 1.x+
+- Backend API (see [backend repository](https://github.com/mateusribeirocampos/sysmp/tree/main/backend))
+
+### Setup
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/mateusribeirocampos/sysmp.git
+cd sysmp/frontend
+```
+
+Install dependencies:
 
 ```bash
 npm install
-# ou
-yarn install
-```
+# or
+yarn
+````
 
-## Desenvolvimento
+Create environment file:
 
-Para iniciar o servidor de desenvolvimento:
+```bash
+cp .env.example .env.local
+Update environment variables in .env.local
+````
+
+Development
 
 ```bash
 npm run dev
-# ou
+# or
 yarn dev
 ```
 
-O servidor estará disponível em `http://localhost:5173`
-
-## Build
-
-Para criar uma build de produção:
-
-```bash
-npm run build
-# ou
-yarn build
-```
-
-## Estrutura do Projeto
+Project Structure
 
 ```tree
 src/
-  ├── components/     # Componentes reutilizáveis
-  ├── contexts/      # Contextos do React
-  ├── pages/         # Páginas da aplicação
-  ├── services/      # Serviços e APIs
-  ├── App.jsx        # Componente principal
-  └── main.jsx       # Ponto de entrada
+├── assets/           # Static assets
+├── components/       # Reusable UI components
+├── contexts/         # React context providers
+├── hooks/            # Custom hooks
+├── layouts/          # Application layouts
+├── pages/            # Route components
+├── services/         # API services
+├── types/            # TypeScript definitions
+├── utils/            # Utility functions
+├── App.tsx           # Root component
+└── main.tsx          # Entry point
 ```
 
-## Funcionalidades
+## Documentation
 
-- Autenticação de usuários
-- Dashboard com estatísticas
-- Gerenciamento de usuários
-- Gerenciamento de documentos
-- Upload e download de arquivos
-- Interface responsiva
+API Integration
 
-## Contribuição
+Component Library
 
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+Deployment Guide
 
-## Licença
+## Contributing
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+### We welcome contributions! Please follow these steps
+
+>`Fork the repository`
+>>Create feature branch: `git checkout -b feature/your-feature`
+>>>Commit changes: `git commit -m 'Add awesome feature'`
+>>>>Push to branch: `git push origin feature/your-feature`
+>>>>>`Open a Pull Request`
+
+**_Please adhere to our code of conduct._**
+
+License
+Distributed under the MIT License. See LICENSE for more information.
