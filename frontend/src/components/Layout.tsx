@@ -1,25 +1,26 @@
-import { useState } from 'react'
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
+import { useState } from 'react';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 export function Layout() {
-  const { user, logout } = useAuth()
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
-  const location = useLocation()
-  const navigate = useNavigate()
+  const { user, logout } = useAuth();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const nomeInstituicao = import.meta.env.VITE_INSTITUICAO_NOME;
 
   const handleLogout = async () => {
     try {
-      await logout()
-      navigate('/login')
+      await logout();
+      navigate('/login');
     } catch (error) {
-      console.error('Erro ao fazer logout:', error)
+      console.error('Erro ao fazer logout:', error);
     }
-  }
+  };
 
   const isActive = (path: string) => {
-    return location.pathname === path
-  }
+    return location.pathname === path;
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -31,17 +32,9 @@ export function Layout() {
       >
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between h-16 px-4 border-b">
-            <img src="/mpmgi.png" alt="SYSMP" className="h-8 w-auto" />
-            <button
-              onClick={() => setIsSidebarOpen(false)}
-              className="p-2 rounded-md text-gray-300 hover:text-gray-100"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+            <img src="/mpmgi.png" alt="SYSMP" className="h-12 w-auto" />
+            <button onClick={() => setIsSidebarOpen(false)} className="p-2 btn btn-primary me-2">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -61,12 +54,7 @@ export function Layout() {
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <svg
-                className="mr-3 h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -86,12 +74,7 @@ export function Layout() {
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
-                <svg
-                  className="mr-3 h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -111,12 +94,7 @@ export function Layout() {
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <svg
-                className="mr-3 h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -134,12 +112,7 @@ export function Layout() {
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <svg
-                className="mr-3 h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -147,7 +120,7 @@ export function Layout() {
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              Processos físicos
+              Judiciais físicos
             </Link>
           </nav>
 
@@ -177,16 +150,8 @@ export function Layout() {
       >
         <header className="bg-white shadow">
           <div className="flex items-center justify-between h-16 px-4">
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="p-2 rounded-md text-gray-300 hover:text-gray-100"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+            <button onClick={() => setIsSidebarOpen(true)} className="p-2 btn btn-primary me-2">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -196,16 +161,15 @@ export function Layout() {
               </svg>
             </button>
 
+            <div className="grid items-center justify-between h-16 w-auto px-4 border-b sm:w-auto font-bold">
+              <h2>{nomeInstituicao}</h2>
+            </div>
+
             <button
               onClick={handleLogout}
-              className="flex items-center px-4 py-2 text-sm font-medium text-gray-300 hover:text-gray-100"
+              className="flex items-center px-4 py-2 text-sm font-medium btn btn-primary me-2"
             >
-              <svg
-                className="mr-2 h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -223,5 +187,5 @@ export function Layout() {
         </main>
       </div>
     </div>
-  )
-} 
+  );
+}

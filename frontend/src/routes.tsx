@@ -8,6 +8,8 @@ import { Dashboard } from './pages/Dashboard'
 import { Users } from './pages/Users'
 import { Extras } from './pages/Extras'
 import { Fisicos } from './pages/Fisicos'
+import { ExtraAdd } from './pages/Extra-add'
+import { FisicosAdd } from './pages/Fisicos-add'
 
 function App() {
   return (
@@ -28,6 +30,8 @@ function App() {
             <Route path="/users" element={<Users />} />
             <Route path="/extras" element={<Extras />} />
             <Route path="/fisicos" element={<Fisicos />} />
+            <Route path='/extra-add' element={<ExtraAdd/>} />
+            <Route path='/fisico-add' element={<FisicosAdd />} />
           </Route>
         </Routes>
       </AuthProvider>
