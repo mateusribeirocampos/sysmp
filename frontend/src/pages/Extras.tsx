@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { extras } from '../Data/extras'
+
 import { user as usersData } from '@/Data/users'
+
 
 export function Extras() {
   const [extrasList, setExtrasList] = useState(extras)
@@ -12,6 +14,7 @@ export function Extras() {
   const activeUsers = useMemo(() => usersData.filter(user => user.status === 'active'), [])
 
   const dropdownRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
 
   useEffect(() => {
     loadDocuments()
@@ -133,7 +136,7 @@ export function Extras() {
                     <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                       Prazo de entrega
                     </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <th scope="col" className="px-12 py-3.5 text-left text-sm font-semibold text-gray-900">
                       Distribuição interna
                     </th>
                     <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
@@ -191,6 +194,7 @@ export function Extras() {
                           )}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+
                           <div 
                             className='relative' 
                             ref={(ref) => setDropdownRef(doc.idDocument, ref)}
