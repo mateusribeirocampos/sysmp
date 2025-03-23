@@ -23,5 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
-frontend/.env.development
-frontend/.env.production
+# Environment files
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
