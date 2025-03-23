@@ -198,7 +198,7 @@ export function Extras() {
                             <button 
                               onClick={() => toggleDropdown(doc.idDocument)}
                               title='Escolha o usuário'
-                              className='flex items-center justify-center bg-gray-300 p-2 rounded text-gray-700 hover:bg-gray-400 w-full'
+                              className='flex items-center justify-center bg-gray-100 p-2 rounded text-gray-700 hover:bg-gray-200 w-full'
                             >
                               {doc.internalDelivery ? getSelectedUserName(doc.internalDelivery) : 'Selecionar Usuário'}
                             </button>
