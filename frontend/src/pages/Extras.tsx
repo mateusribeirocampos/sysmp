@@ -1,20 +1,14 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { extras } from '../Data/extras';
 import { user as usersData } from '../Data/users';
 import { Link } from 'react-router-dom';
-import { createPortal } from 'react-dom';
 
 export function Extras() {
   const [extrasList, setExtrasList] = useState(extras);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
 
-  // Updated type to string | null to match the string-based idDocument
-  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const activeUsers = useMemo(() => usersData.filter((user) => user.status === 'active'), []);
-
-  // Updated to use string keys for the document IDs
-  const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     loadDocuments();
@@ -43,45 +37,12 @@ export function Extras() {
     );
   };
 
-  const handleUserSelection = (docId: string, userId: string) => {
+  const handleInternalDeliveryChange = (idDocument: string, userId: string) => {
     setExtrasList(
       extrasList.map((doc) =>
-        doc.idDocument === docId ? { ...doc, internalDelivery: userId } : doc
+        doc.idDocument === idDocument ? { ...doc, internalDelivery: userId } : doc
       )
     );
-    setOpenDropdownId(null);
-  };
-
-  // Modified to handle clicks outside of any dropdown
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (openDropdownId !== null && event.target instanceof Node) {
-        const target = event.target; // Capture the Node type
-        if (!Object.values(dropdownRefs.current).some((ref) => ref && ref.contains(target))) {
-          setOpenDropdownId(null);
-        }
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [openDropdownId]);
-
-  // Updated parameter type from number to string
-  const toggleDropdown = (docId: string) => {
-    setOpenDropdownId(openDropdownId === docId ? null : docId);
-  };
-
-  // Updated parameter type from number to string
-  const setDropdownRef = (docId: string, ref: HTMLDivElement | null) => {
-    dropdownRefs.current[docId] = ref;
-  };
-
-  // Helper para obter o nome do usuário selecionado
-  const getSelectedUserName = (userId: string) => {
-    const selectedUser = usersData.find((user) => user.id === userId);
-    return selectedUser ? selectedUser.name : 'Selecionar Usuário';
   };
 
   if (loading) {
@@ -222,56 +183,25 @@ export function Extras() {
                           )}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <div
-                            className="relative"
-                            ref={(ref) => setDropdownRef(doc.idDocument, ref)}
-                          >
-                            <button
-                              onClick={() => toggleDropdown(doc.idDocument)}
-                              title="Escolha o usuário"
-                              className="flex items-center justify-center bg-gray-100 p-2 rounded text-gray-700 hover:bg-gray-200 w-full"
-                            >
-                              {doc.internalDelivery
-                                ? getSelectedUserName(doc.internalDelivery)
-                                : 'Selecionar Usuário'}
-                            </button>
-                            {openDropdownId === doc.idDocument &&
-                              createPortal(
-                                <div
-                                  className="fixed bg-white rounded-md shadow-lg z-50"
-                                  style={{
-                                    top:
-                                      (dropdownRefs.current[doc.idDocument]
-                                        ? (
-                                            dropdownRefs.current[doc.idDocument] as HTMLDivElement
-                                          ).getBoundingClientRect().top - 150
-                                        : 0) + 'px',
-                                    left:
-                                      (dropdownRefs.current[doc.idDocument]
-                                        ? (
-                                            dropdownRefs.current[doc.idDocument] as HTMLDivElement
-                                          ).getBoundingClientRect().left
-                                        : 0) + 'px',
-                                    width: '15rem',
-                                  }}
-                                >
-                                  <ul className="py-1 max-h-48 overflow-y-auto">
-                                    {activeUsers.map((user) => (
-                                      <li key={user.id}>
-                                        <button
-                                          onClick={() =>
-                                            handleUserSelection(doc.idDocument, user.id)
-                                          }
-                                          className="block w-full text-left px-4 py-2 text-sm bg-white text-gray-700 hover:bg-gray-200"
-                                        >
-                                          {user.name}
-                                        </button>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>,
-                                document.body
-                              )}
+                          <div className="relative">
+                            <div>
+                              <select
+                                name={`user-${doc.idDocument}`}
+                                id={`user-${doc.idDocument}`}
+                                value={doc.internalDelivery}
+                                onChange={(e) =>
+                                  handleInternalDeliveryChange(doc.idDocument, e.target.value)
+                                }
+                                className="mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md"
+                              >
+                                <option value="">Selecione o usuário</option>
+                                {activeUsers.map((u) => (
+                                  <option key={u.id} value={u.id}>
+                                    {u.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
                           </div>
                         </td>
                         <td className="whitespace-normal px-3 py-4 text-sm text-gray-500">
