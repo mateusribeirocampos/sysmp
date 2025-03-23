@@ -1,145 +1,163 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
-import { extras } from '../Data/extras'
-
-import { user as usersData } from '@/Data/users'
-
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { extras } from '../Data/extras';
+import { user as usersData } from '../Data/users';
+import { Link } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 
 export function Extras() {
-  const [extrasList, setExtrasList] = useState(extras)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string>('')
+  const [extrasList, setExtrasList] = useState(extras);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>('');
 
-  // Replace boolean state with document ID state (null means no dropdown is open)
-  const [openDropdownId, setOpenDropdownId] = useState<number | null>(null)
-  const activeUsers = useMemo(() => usersData.filter(user => user.status === 'active'), [])
+  // Updated type to string | null to match the string-based idDocument
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const activeUsers = useMemo(() => usersData.filter((user) => user.status === 'active'), []);
 
-  const dropdownRefs = useRef<Record<number, HTMLDivElement | null>>({});
-
+  // Updated to use string keys for the document IDs
+  const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
-    loadDocuments()
-  }, [])
+    loadDocuments();
+  }, []);
 
   const loadDocuments = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       // Usando dados mockados
-      setExtrasList(extras)
-      
+      setExtrasList(extras);
+
       // Atualiza o localStorage para o Dashboard acessar
-      localStorage.setItem('extrasCount', extras.length.toString())
+      localStorage.setItem('extrasCount', extras.length.toString());
     } catch (err) {
-      setError('Erro ao carregar documentos')
+      setError('Erro ao carregar documentos');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const handleMessageChange = (idDocument: number, newMessage: string) => {
-    setExtrasList(extrasList.map(doc => 
-      doc.idDocument === idDocument ? { ...doc, message: newMessage } : doc
-    ))
-  }
+  const handleMessageChange = (idDocument: string, newMessage: string) => {
+    setExtrasList(
+      extrasList.map((doc) =>
+        doc.idDocument === idDocument ? { ...doc, message: newMessage } : doc
+      )
+    );
+  };
 
-  const handleUserSelection = (docId: number, userId: string) => {
-    setExtrasList(extrasList.map(doc => 
-      doc.idDocument === docId ? { ...doc, internalDelivery: userId } : doc
-    ))
-    setOpenDropdownId(null)
-  }
+  const handleUserSelection = (docId: string, userId: string) => {
+    setExtrasList(
+      extrasList.map((doc) =>
+        doc.idDocument === docId ? { ...doc, internalDelivery: userId } : doc
+      )
+    );
+    setOpenDropdownId(null);
+  };
 
   // Modified to handle clicks outside of any dropdown
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (openDropdownId !== null && event.target instanceof Node) {
         const target = event.target; // Capture the Node type
-        if (!Object.values(dropdownRefs.current).some(ref => ref && ref.contains(target))) {
+        if (!Object.values(dropdownRefs.current).some((ref) => ref && ref.contains(target))) {
           setOpenDropdownId(null);
         }
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, [openDropdownId]);
 
-  // Helper to toggle dropdown for a specific document
-  const toggleDropdown = (docId: number) => {
+  // Updated parameter type from number to string
+  const toggleDropdown = (docId: string) => {
     setOpenDropdownId(openDropdownId === docId ? null : docId);
-  }
+  };
 
-  // Helper to set ref for a specific document's dropdown
-  const setDropdownRef = (docId: number, ref: HTMLDivElement | null) => {
+  // Updated parameter type from number to string
+  const setDropdownRef = (docId: string, ref: HTMLDivElement | null) => {
     dropdownRefs.current[docId] = ref;
-  }
+  };
 
   // Helper para obter o nome do usuário selecionado
   const getSelectedUserName = (userId: string) => {
-    const selectedUser = usersData.find(user => user.id === userId);
+    const selectedUser = usersData.find((user) => user.id === userId);
     return selectedUser ? selectedUser.name : 'Selecionar Usuário';
-  }
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
-    )
+    );
   }
 
   if (error) {
-    return (
-      <div className="text-center text-red-500 p-4">
-        {error}
-      </div>
-    )
+    return <div className="text-center text-red-500 p-4">{error}</div>;
   }
 
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-xl font-semibold text-gray-900">Processos extrajudicais</h1>
+          <h1 className="text-xl font-semibold text-gray-900">Extrajudicais</h1>
           <p className="mt-2 text-sm text-gray-700">
             Lista de todos os processos extrajudicais cadastrados no sistema.
           </p>
         </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <button
-            type="button"
-            className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
-          >
-            Adicionar documento
-          </button>
-        </div>
+
+        <Link to="/extra-add">
+          <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
+            >
+              Adicionar documento
+            </button>
+          </div>
+        </Link>
       </div>
       <div className="mt-8 flex flex-col">
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg py-12 px-2">
+            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
               <table className="min-w-full divide-y divide-gray-300">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
+                    <th
+                      scope="col"
+                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                    >
                       Data da Comunicação
                     </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <th
+                      scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
                       Número ID
                     </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      Classe do Documento
-                    </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <th
+                      scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
                       Dias até o prazo
                     </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <th
+                      scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
                       Prazo de entrega
                     </th>
-                    <th scope="col" className="px-12 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <th
+                      scope="col"
+                      className="px-12 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
                       Distribuição interna
                     </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <th
+                      scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
                       Mensagem
                     </th>
                     <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
@@ -152,7 +170,7 @@ export function Extras() {
                     const isExpired = new Date() > doc.DeliveryDeadline;
                     const isAlmostDead = doc.countDaysDelivery <= 5 && doc.countDaysDelivery > 0;
                     const isDelivered = doc.countDaysDelivery <= 0;
-                    
+
                     return (
                       <tr key={doc.idDocument}>
                         <td className="whitespace-nowrap py-10 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
@@ -161,67 +179,99 @@ export function Extras() {
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                           {doc.idDocument}
                         </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {doc.classeDocument}
-                        </td>
-                        <td className={`whitespace-nowrap px-3 py-4 text-sm text-gray-500 ${
-                          isExpired 
-                            ? 'bg-red-100 text-red-800' 
-                            : isDelivered 
-                            ? 'bg-green-100 text-green-800'
-                            : isAlmostDead
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : ''
-                        }`}>
+                        <td
+                          className={`whitespace-nowrap px-4 py-4 text-sm text-gray-500 ${
+                            isExpired
+                              ? 'bg-red-100 text-red-800'
+                              : isDelivered
+                                ? 'bg-green-100 text-green-800'
+                                : isAlmostDead
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : ''
+                          }`}
+                        >
                           {doc.countDaysDelivery}
                         </td>
-                        <td className={`whitespace-nowrap px-3 py-4 text-sm text-gray-500 ${
-                          isExpired 
-                            ? 'bg-red-100 text-red-800' 
-                            : isDelivered 
-                            ? 'bg-green-100 text-green-800'
-                            : isAlmostDead
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : ''
-                        }`}>
+                        <td
+                          className={`whitespace-nowrap px-3 py-4 text-sm text-gray-500 ${
+                            isExpired
+                              ? 'bg-red-100 text-red-800'
+                              : isDelivered
+                                ? 'bg-green-100 text-green-800'
+                                : isAlmostDead
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : ''
+                          }`}
+                        >
                           {doc.DeliveryDeadline.toLocaleDateString('pt-BR')}
                           {isExpired && (
                             <span className="ml-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4 inline"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                  clipRule="evenodd"
+                                />
                               </svg>
                             </span>
                           )}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-
-                          <div 
-                            className='relative' 
+                          <div
+                            className="relative"
                             ref={(ref) => setDropdownRef(doc.idDocument, ref)}
                           >
-                            <button 
+                            <button
                               onClick={() => toggleDropdown(doc.idDocument)}
-                              title='Escolha o usuário'
-                              className='flex items-center justify-center bg-gray-100 p-2 rounded text-gray-700 hover:bg-gray-200 w-full'
+                              title="Escolha o usuário"
+                              className="flex items-center justify-center bg-gray-100 p-2 rounded text-gray-700 hover:bg-gray-200 w-full"
                             >
-                              {doc.internalDelivery ? getSelectedUserName(doc.internalDelivery) : 'Selecionar Usuário'}
+                              {doc.internalDelivery
+                                ? getSelectedUserName(doc.internalDelivery)
+                                : 'Selecionar Usuário'}
                             </button>
-                            {openDropdownId === doc.idDocument && (
-                              <div className='absolute bottom-full left-0 mb-2 w-48 bg-white rounded-md shadow-lg z-50'>
-                                <ul className='py-1 max-h-48 overflow-y-auto'>
-                                  {activeUsers.map(user => (
-                                    <li key={user.id}>
-                                      <button
-                                        onClick={() => handleUserSelection(doc.idDocument, user.id)}
-                                        className='block w-full text-left px-4 py-2 text-sm bg-white text-gray-700 hover:bg-gray-200'
-                                      >
-                                        {user.name}
-                                      </button>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
+                            {openDropdownId === doc.idDocument &&
+                              createPortal(
+                                <div
+                                  className="fixed bg-white rounded-md shadow-lg z-50"
+                                  style={{
+                                    top:
+                                      (dropdownRefs.current[doc.idDocument]
+                                        ? (
+                                            dropdownRefs.current[doc.idDocument] as HTMLDivElement
+                                          ).getBoundingClientRect().top - 150
+                                        : 0) + 'px',
+                                    left:
+                                      (dropdownRefs.current[doc.idDocument]
+                                        ? (
+                                            dropdownRefs.current[doc.idDocument] as HTMLDivElement
+                                          ).getBoundingClientRect().left
+                                        : 0) + 'px',
+                                    width: '15rem',
+                                  }}
+                                >
+                                  <ul className="py-1 max-h-48 overflow-y-auto">
+                                    {activeUsers.map((user) => (
+                                      <li key={user.id}>
+                                        <button
+                                          onClick={() =>
+                                            handleUserSelection(doc.idDocument, user.id)
+                                          }
+                                          className="block w-full text-left px-4 py-2 text-sm bg-white text-gray-700 hover:bg-gray-200"
+                                        >
+                                          {user.name}
+                                        </button>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>,
+                                document.body
+                              )}
                           </div>
                         </td>
                         <td className="whitespace-normal px-3 py-4 text-sm text-gray-500">
@@ -237,31 +287,60 @@ export function Extras() {
                           <div className="flex justify-end space-x-3">
                             {!isDelivered && (
                               <button
-                                onClick={() => {/* TODO: Implementar entrega */}}
+                                onClick={() => {
+                                  /* TODO: Implementar entrega */
+                                }}
                                 className="text-white bg-green-600 hover:bg-green-100 border border-transparent hover:text-green-600"
                                 title="Marcar como entregue"
                               >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clipRule="evenodd"
+                                  />
                                 </svg>
                               </button>
                             )}
                             <button
-                              onClick={() => {/* TODO: Implementar edição */}}
+                              onClick={() => {
+                                /* TODO: Implementar edição */
+                              }}
                               className="text-white bg-blue-700 hover:bg-slate-100 border border-transparent hover:text-blue-700"
                               title="Editar documento"
                             >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
                                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                               </svg>
                             </button>
                             <button
-                              onClick={() => {/* TODO: Implementar exclusão */}}
+                              onClick={() => {
+                                /* TODO: Implementar exclusão */
+                              }}
                               className="text-white bg-red-600 hover:bg-red-100 border border-transparent hover:text-red-600"
                               title="Excluir documento"
                             >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                  clipRule="evenodd"
+                                />
                               </svg>
                             </button>
                           </div>
@@ -276,5 +355,5 @@ export function Extras() {
         </div>
       </div>
     </div>
-  )
+  );
 }
