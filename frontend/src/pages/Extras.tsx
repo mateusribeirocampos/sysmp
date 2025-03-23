@@ -1,19 +1,20 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { extras } from '../Data/extras'
-import { user as usersData } from '../Data/users';
+
+import { user as usersData } from '@/Data/users'
+
 
 export function Extras() {
   const [extrasList, setExtrasList] = useState(extras)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>('')
 
-  const activeUsers = usersData.filter(usersData => usersData.status === 'active');
+  // Replace boolean state with document ID state (null means no dropdown is open)
+  const [openDropdownId, setOpenDropdownId] = useState<number | null>(null)
+  const activeUsers = useMemo(() => usersData.filter(user => user.status === 'active'), [])
 
-  const handleInternalDeliveryChange = (id: number, newUser: string) => {
-    setExtrasList(extrasList.map(doc => 
-      doc.idDocument === id ? {...doc, internalDelivery: newUser} : doc
-    ));
-  }
+  const dropdownRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
 
   useEffect(() => {
     loadDocuments()
@@ -38,6 +39,45 @@ export function Extras() {
     setExtrasList(extrasList.map(doc => 
       doc.idDocument === idDocument ? { ...doc, message: newMessage } : doc
     ))
+  }
+
+  const handleUserSelection = (docId: number, userId: string) => {
+    setExtrasList(extrasList.map(doc => 
+      doc.idDocument === docId ? { ...doc, internalDelivery: userId } : doc
+    ))
+    setOpenDropdownId(null)
+  }
+
+  // Modified to handle clicks outside of any dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (openDropdownId !== null && event.target instanceof Node) {
+        const target = event.target; // Capture the Node type
+        if (!Object.values(dropdownRefs.current).some(ref => ref && ref.contains(target))) {
+          setOpenDropdownId(null);
+        }
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [openDropdownId]);
+
+  // Helper to toggle dropdown for a specific document
+  const toggleDropdown = (docId: number) => {
+    setOpenDropdownId(openDropdownId === docId ? null : docId);
+  }
+
+  // Helper to set ref for a specific document's dropdown
+  const setDropdownRef = (docId: number, ref: HTMLDivElement | null) => {
+    dropdownRefs.current[docId] = ref;
+  }
+
+  // Helper para obter o nome do usuário selecionado
+  const getSelectedUserName = (userId: string) => {
+    const selectedUser = usersData.find(user => user.id === userId);
+    return selectedUser ? selectedUser.name : 'Selecionar Usuário';
   }
 
   if (loading) {
@@ -77,7 +117,7 @@ export function Extras() {
       <div className="mt-8 flex flex-col">
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg py-12 px-2">
               <table className="min-w-full divide-y divide-gray-300">
                 <thead className="bg-gray-50">
                   <tr>
@@ -115,7 +155,7 @@ export function Extras() {
                     
                     return (
                       <tr key={doc.idDocument}>
-                        <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                        <td className="whitespace-nowrap py-10 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                           {doc.receivedAt.toLocaleDateString('pt-BR')}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
@@ -154,20 +194,35 @@ export function Extras() {
                           )}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <select 
-                          name="internal delivery" 
-                          id="interanl delivery"
-                          value={doc.internalDelivery}
-                          onChange={(e) => handleInternalDeliveryChange(doc.idDocument, e.target.value)}
-                          className='w-full p-1 border rounded bg-white'
+
+                          <div 
+                            className='relative' 
+                            ref={(ref) => setDropdownRef(doc.idDocument, ref)}
                           >
-                            <option value="">Selecionar usuário</option>
-                            {activeUsers.map((user) => (
-                              <option key={user.id} value={user.name}>
-                                {user.name}
-                              </option>
-                            ))}
-                          </select>
+                            <button 
+                              onClick={() => toggleDropdown(doc.idDocument)}
+                              title='Escolha o usuário'
+                              className='flex items-center justify-center bg-gray-100 p-2 rounded text-gray-700 hover:bg-gray-200 w-full'
+                            >
+                              {doc.internalDelivery ? getSelectedUserName(doc.internalDelivery) : 'Selecionar Usuário'}
+                            </button>
+                            {openDropdownId === doc.idDocument && (
+                              <div className='absolute bottom-full left-0 mb-2 w-48 bg-white rounded-md shadow-lg z-50'>
+                                <ul className='py-1 max-h-48 overflow-y-auto'>
+                                  {activeUsers.map(user => (
+                                    <li key={user.id}>
+                                      <button
+                                        onClick={() => handleUserSelection(doc.idDocument, user.id)}
+                                        className='block w-full text-left px-4 py-2 text-sm bg-white text-gray-700 hover:bg-gray-200'
+                                      >
+                                        {user.name}
+                                      </button>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
                         </td>
                         <td className="whitespace-normal px-3 py-4 text-sm text-gray-500">
                           <textarea
