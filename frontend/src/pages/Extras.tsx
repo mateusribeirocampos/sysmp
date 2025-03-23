@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { extras } from '../Data/extras'
-
-import { user as usersData } from '@/Data/users'
-
+import { user as usersData } from '../Data/users'
 
 export function Extras() {
   const [extrasList, setExtrasList] = useState(extras)
@@ -14,7 +12,6 @@ export function Extras() {
   const activeUsers = useMemo(() => usersData.filter(user => user.status === 'active'), [])
 
   const dropdownRefs = useRef<Record<number, HTMLDivElement | null>>({});
-
 
   useEffect(() => {
     loadDocuments()
