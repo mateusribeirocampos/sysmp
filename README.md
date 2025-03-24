@@ -2,28 +2,56 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-Modern frontend for SYSMP - A lightweight document management system designed for small teams and workgroups. Built with React and Vite.
+Modern document management system designed specifically for small teams and workgroups. SYSMP streamlines document tracking, internal delivery workflows, and deadline management without the complexity of enterprise solutions. Built with React frontend and Node.js backend.
 
 ![SYSMP Preview](https://via.placeholder.com/800x400.png?text=SYSMP+Interface+Preview)
 
 ## Features
 
-- **User Authentication** - Secure login and registration system with token-based authentication.
-- **Dashboard Analytics** - Visual document statistics and activity tracking for better insights.
-- **Document Management** - Perform CRUD operations on documents with ease.
-- **File Operations** - Secure file upload/download with progress tracking and error handling.
-- **User Management** - Role-based access control (Admin/User) for secure collaboration.
-- **Responsive Design** - Fully mobile-friendly interface for seamless use on any device.
-- **Search & Filter** - Quickly retrieve documents using advanced search and filtering options.
+- **User Authentication** - Secure login system with token-based authentication (no public registration - user accounts managed by admin)
+- **Dashboard Analytics** - Visual document statistics and deadline tracking for better team oversight
+- **Document Management** - Track document metadata, status, and ownership (document content remains external)
+- **Internal Delivery System** - Record and monitor document handoffs between team members
+- **Deadline Tracking** - Automated countdown for document due dates with visual indicators
+- **User Management** - Role-based access control (Admin/User) for appropriate permissions
+- **Responsive Design** - Fully mobile-friendly interface for access anywhere
+- **Search & Filter** - Quickly locate documents using advanced search and filtering options
+
+## How It Works
+
+SYSMP focuses on **document metadata management** rather than document storage:
+
+- Document details (title, owner, deadline, etc.) are stored in the database
+- Physical documents remain in your existing storage systems
+- The system tracks internal handoffs, reviews, and deadlines
+- Daily countdown tracking helps ensure timely deliveries
 
 ## Technology Stack
 
-- **Frontend Framework**: React ^18 + TypeScript 5.8.2
+### Frontend
+
+- **Framework**: React ^18 with TypeScript 5.8.2
 - **Build Tool**: Vite 6.2.2
 - **Styling**: Tailwind CSS 3.4.17
 - **Routing**: React Router 6.30.0
 - **HTTP Client**: Axios 1.8.4
-- Fronted (see [fronted repository](https://github.com/mateusribeirocampos/sysmp/tree/main/fronted))
+
+### Backend
+
+- **Runtime**: Node.js 22.x
+- **Framework**: Express.js
+- **Database**: SQLite
+- **Authentication**: JWT (JSON Web Tokens)
+
+## Project Structure
+
+```tree
+sysmp/
+├── frontend/        # React frontend application
+├── backend/         # Node.js API and server
+├── docs/            # Documentation for both components
+└── scripts/         # Utility scripts for development
+```
 
 ## Getting Started
 
@@ -33,9 +61,9 @@ Ensure you have the following installed:
 
 - Node.js 22.11.0
 - npm 9.x+ or yarn 1.x+
-- Backend API (see [backend repository](https://github.com/mateusribeirocampos/sysmp/tree/main/backend))
+- MongoDB (local or connection string)
 
-### Setup
+### Frontend Setup
 
 1. Clone the repository:
 
@@ -68,44 +96,45 @@ Ensure you have the following installed:
    yarn dev
    ```
 
-### Project Structure
+### Backend Setup
 
-```plaintext
-src/
-├── assets/           # Static assets (images, fonts, etc.)
-├── components/       # Reusable UI components
-├── contexts/         # React context providers
-├── hooks/            # Custom hooks
-├── layouts/          # Application layouts
-├── pages/            # Route components
-├── services/         # API services and integrations
-├── types/            # TypeScript type definitions
-├── utils/            # Utility functions
-├── App.tsx           # Root component
-└── main.tsx          # Entry point
-```
-
-## Documentation
-
-### API Integration
-
-Refer to the [API documentation](https://github.com/mateusribeirocampos/sysmp/tree/main/backend/docs) for details on backend endpoints and integration.
-
-### Component Library
-
-The project uses a custom component library built with Tailwind CSS. Refer to the `components/` directory for reusable components.
-
-### Deployment Guide
-
-1. Build the project:
+1. Navigate to the backend directory:
 
    ```bash
-   npm run build
-   # or
-   yarn build
+   cd ../backend
    ```
 
-2. Serve the build files using a static server or integrate them with your backend.
+2. Install dependencies:
+
+   ```bash
+   npm install
+   # or
+   yarn
+   ```
+
+3. Configure environment variables:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+4. Start the backend server:
+
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+## Roadmap
+
+Features planned for future releases:
+
+- **Email Notifications** - Automated alerts for approaching deadlines
+- **Document Templates** - Pre-configured metadata for common document types
+- **Reporting Module** - Generate insights on document workflows and bottlenecks
+- **API Integrations** - Connect with common storage providers (Google Drive, OneDrive, etc.)
+- **Audit Logging** - Comprehensive history of all document interactions
 
 ## Contributing
 
