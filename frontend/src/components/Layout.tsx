@@ -8,6 +8,7 @@ export function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const nomeInstituicao = import.meta.env.VITE_INSTITUICAO_NOME;
+  const logoPath = import.meta.env.VITE_LOGO_PATH;
 
   const handleLogout = async () => {
     try {
@@ -32,7 +33,7 @@ export function Layout() {
       >
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between h-16 px-4 border-b">
-            <img src="/mpmgi.png" alt="SYSMP" className="h-12 w-auto" />
+            <img src={logoPath} alt="logo da instituição" className="h-12 w-auto" />
             <button onClick={() => setIsSidebarOpen(false)} className="p-2 btn btn-primary me-2">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -161,8 +162,10 @@ export function Layout() {
               </svg>
             </button>
 
-            <div className="grid items-center justify-between h-16 w-auto px-4 border-b sm:w-auto font-bold">
-              <h2>{nomeInstituicao}</h2>
+            <div className="flex items-center justify-center h-16 px-4 border-b font-bold truncate">
+              <h2 className="text-xs sm:text-sm md:text-lg lg:text-xl xl:text-2xl truncate">
+                {nomeInstituicao}
+              </h2>
             </div>
 
             <button

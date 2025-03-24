@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { user } from '../Data/users.ts'
+import { Link } from 'react-router-dom'
 
 export function Users() {
   const [users, setUsers] = useState(user)
@@ -59,6 +60,8 @@ export function Users() {
             Lista de todos os usuários cadastrados no sistema.
           </p>
         </div>
+
+        <Link to={"/user/add"}>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <button
             type="button"
@@ -67,6 +70,8 @@ export function Users() {
             Adicionar usuário
           </button>
         </div>
+        </Link>
+
       </div>
       <div className="mt-8 flex flex-col">
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">

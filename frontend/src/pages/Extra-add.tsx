@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { IoReturnUpBackOutline } from "react-icons/io5";
+import { FaArrowLeftLong } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
-import { user as usersData } from '../Data/users'
+import { user as usersData } from '../Data/users';
 
 export function ExtraAdd() {
   const [receivedAt, setReceivedAt] = useState('');
@@ -9,14 +9,13 @@ export function ExtraAdd() {
   const [DeliveryDeadline, setDeliveryDeadline] = useState('');
   const [internalDelivery, setInternalDelivery] = useState('');
 
-  const activeUsers = useMemo(() => usersData.filter(user => user.status === 'active'), [])
-
+  const activeUsers = useMemo(() => usersData.filter((user) => user.status === 'active'), []);
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
       <Link to="/extras">
-        <div className="sm:mt-0 sm:ml-2 sm:flex-none">
-          <IoReturnUpBackOutline className="inline-flex text-2xl mb-8 rounded-md text-white bg-blue-500 hover:bg-blue-700" />
+        <div className="inline-flex bg-blue-500 hover:bg-blue-700 p-1 rounded-md mb-8 sm:mt-0 sm:ml-2 sm:flex-none">
+          <FaArrowLeftLong className="text-2xl text-white" />
         </div>
       </Link>
 
@@ -49,7 +48,7 @@ export function ExtraAdd() {
           type="text"
           className="mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md"
           name="idDocument"
-          placeholder='9999999-99.9999.9.99.9999'
+          placeholder="9999999-99.9999.9.99.9999"
           id="idDocument"
           value={idDocument}
           onChange={(e) => setIdDocument(e.target.value)}
@@ -75,12 +74,14 @@ export function ExtraAdd() {
           Distribuição interna:
         </label>
         <div>
-          <select 
-          name="internalDelivery" 
-          id="internalDelivery"
-          value={internalDelivery}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setInternalDelivery(e.target.value)}
-          className='mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md'
+          <select
+            name="internalDelivery"
+            id="internalDelivery"
+            value={internalDelivery}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              setInternalDelivery(e.target.value)
+            }
+            className="mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md"
           >
             <option value="0">Selecione o usuário</option>
             {activeUsers.map((user) => (
@@ -105,23 +106,21 @@ export function ExtraAdd() {
         </div>
       </div>
 
-      <div className='mt-4 border-t pt-4'>
-        <div className='d-flex justify-content-end'>
+      <div className="mt-4 border-t pt-4">
+        <div className="d-flex justify-content-end">
           <Link to={'/extras'}>
-            <button className='btn btn-primary me-2'>
-              Cancelar
-            </button>
+            <button className="btn btn-primary me-2">Cancelar</button>
           </Link>
 
           <button
-          onClick={() => console.log('Adicionado extrajudicial')}
-          className='btn btn-primary'
-          type='submit'
-          >Salvar dados
+            onClick={() => console.log('Adicionado extrajudicial')}
+            className="btn btn-primary"
+            type="submit"
+          >
+            Salvar dados
           </button>
         </div>
       </div>
-
     </div>
   );
 }
