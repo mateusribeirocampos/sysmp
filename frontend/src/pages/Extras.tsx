@@ -23,7 +23,7 @@ export function Extras() {
       // Atualiza o localStorage para o Dashboard acessar
       localStorage.setItem('extrasCount', extras.length.toString());
     } catch (err) {
-      setError('Erro ao carregar documentos');
+      setError('Erro ao carregar documentos extrajudiciais');
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ export function Extras() {
           </p>
         </div>
 
-        <Link to="/extra-add">
+        <Link to="/extra/add">
           <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
             <button
               type="button"
@@ -129,8 +129,9 @@ export function Extras() {
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {extrasList.map((doc) => {
                     const isExpired = new Date() > doc.DeliveryDeadline;
-                    const isAlmostDead = doc.countDaysDelivery <= 5 && doc.countDaysDelivery > 0;
+                    const isAlmostDead = doc.countDaysDelivery <= 3 && doc.countDaysDelivery > 0;
                     const isDelivered = doc.countDaysDelivery <= 0;
+
 
                     return (
                       <tr key={doc.idDocument}>
@@ -182,7 +183,7 @@ export function Extras() {
                             </span>
                           )}
                         </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-600">
                           <div className="relative">
                             <div>
                               <select

@@ -1,18 +1,14 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { fisicos } from '../Data/fisicos';
 import { user as userData } from '../Data/users';
 import { Link } from 'react-router-dom';
-import { createPortal } from 'react-dom';
 
 export function Fisicos() {
   const [fisicosList, setFisicosList] = useState(fisicos);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
 
-  const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const activeUsers = useMemo(() => userData.filter((user) => user.status === 'active'), []);
-
-  const dropdownRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
   useEffect(() => {
     loadDocuments();
@@ -26,55 +22,27 @@ export function Fisicos() {
 
       localStorage.setItem('fisicosCount', fisicos.length.toString());
     } catch (err) {
-      setError('Erro ao carregar processos físicos');
+      setError('Erro ao carregar documentos judiciais físicos');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleMessageChange = (idDocument: number, newMessage: string) => {
+  const handleMessageChange = (idDocument: string, newMessage: string) => {
     setFisicosList(
       fisicosList.map((doc) =>
-        doc.idDocument === idDocument ? { ...doc, message: newMessage } : doc
+        doc.idDocument === idDocument ?
+      { ...doc,  message: newMessage } : doc
       )
     );
   };
 
-  const handleUserSelection = (docId: number, userId: string) => {
+  const handleInternalDeliveryChange = (idDocument: string, userId: string) => {
     setFisicosList(
       fisicosList.map((doc) =>
-        doc.idDocument === docId ? { ...doc, internalDelivery: userId } : doc
+        doc.idDocument === idDocument ? { ...doc, internalDelivery: userId } : doc
       )
     );
-    setOpenDropdownId(null);
-  };
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (openDropdownId !== null && event.target instanceof Node) {
-        const target = event.target;
-        if (!Object.values(dropdownRefs.current).some((ref) => ref && ref.contains(target))) {
-          setOpenDropdownId(null);
-        }
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [openDropdownId]);
-
-  const toggleDropdown = (docId: number) => {
-    setOpenDropdownId(openDropdownId === docId ? null : docId);
-  };
-
-  const setDropdownRef = (docId: number, ref: HTMLDivElement | null) => {
-    dropdownRefs.current[docId] = ref;
-  };
-
-  const getSelectedUserName = (userId: string) => {
-    const selectedUser = userData.find((user) => user.id === userId);
-    return selectedUser ? selectedUser.name : 'Selecionar Usuário';
   };
 
   if (loading) {
@@ -99,7 +67,7 @@ export function Fisicos() {
           </p>
         </div>
 
-        <Link to={'/fisico-add'}>
+        <Link to={'/fisico/add'}>
           <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
             <button
               type="button"
@@ -113,7 +81,7 @@ export function Fisicos() {
       <div className="mt-8 flex flex-col">
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg py-16 px-2">
+            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
               <table className="min-w-full divide-y divide-gray-300">
                 <thead className="bg-gray-50">
                   <tr>
@@ -215,56 +183,23 @@ export function Fisicos() {
                           )}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <div
-                            className="relative"
-                            ref={(ref) => setDropdownRef(doc.idDocument, ref)}
-                          >
-                            <button
-                              onClick={() => toggleDropdown(doc.idDocument)}
-                              title="Escolha o usuário"
-                              className="flex items-center justify-center bg-gray-100 p-2 rounded text-gray-700 hover:bg-gray-200 w-full"
+                          <div>
+                            <select
+                              name={`user-${doc.idDocument}`}
+                              id={`user-${doc.idDocument}`}
+                              value={doc.internalDelivery}
+                              onChange={(e) =>
+                                handleInternalDeliveryChange(doc.idDocument, e.target.value)
+                              }
+                              className='mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md'
                             >
-                              {doc.internalDelivery
-                                ? getSelectedUserName(doc.internalDelivery)
-                                : 'Selecionar Usuário'}
-                            </button>
-                            {openDropdownId === doc.idDocument &&
-                              createPortal(
-                                <div
-                                  className="fixed bg-white rounded-md shadow-lg z-50"
-                                  style={{
-                                    top:
-                                      (dropdownRefs.current[doc.idDocument]
-                                        ? (
-                                            dropdownRefs.current[doc.idDocument] as HTMLDivElement
-                                          ).getBoundingClientRect().top - 150
-                                        : 0) + 'px',
-                                    left:
-                                      (dropdownRefs.current[doc.idDocument]
-                                        ? (
-                                            dropdownRefs.current[doc.idDocument] as HTMLDivElement
-                                          ).getBoundingClientRect().left
-                                        : 0) + 'px',
-                                    width: '15rem',
-                                  }}
-                                >
-                                  <ul className="py-1 max-h-48 overflow-y-auto">
-                                    {activeUsers.map((user) => (
-                                      <li key={user.id}>
-                                        <button
-                                          onClick={() =>
-                                            handleUserSelection(doc.idDocument, user.id)
-                                          }
-                                          className="block w-full text-left px-4 py-2 text-sm bg-white text-gray-700 hover:bg-gray-200"
-                                        >
-                                          {user.name}
-                                        </button>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>,
-                                document.body
-                              )}
+                              <option value="">Selecione o usuário</option>
+                              {activeUsers.map((u) => (
+                                <option key={u.id} value={u.id}>
+                                  {u.name}
+                                </option>
+                              ))}
+                            </select>
                           </div>
                         </td>
                         <td className="whitespace-normal px-3 py-4 text-sm text-gray-500">
