@@ -1,10 +1,10 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const path = require('path');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import routes from './routes/index.js';
 
 // Carrega as variáveis de ambiente
-dotenv.config();
+dotenv.config({ path: './src/.env' });
 
 const app = express();
 
@@ -12,16 +12,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Importa as rotas
-const authRoutes = require('./routes/auth');
-const documentRoutes = require('./routes/documents');
-
 // Usa as rotas
-app.use('/api/auth', authRoutes);
-app.use('/api/documents', documentRoutes);
+app.use(routes);
 
 // Rota para verificar se o servidor está rodando
-app.get('/api/health', (req, res) => {
+app.get('health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
