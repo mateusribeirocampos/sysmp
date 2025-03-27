@@ -3,12 +3,12 @@
 ```sql
 -- Tabela users corrigida
 CREATE TABLE users (
-    id         VARCHAR (50)  PRIMARY KEY,
+    id_user    INTEGER       PRIMARY KEY AUTOINCREMENT,
     name       VARCHAR (100) NOT NULL,
     email      VARCHAR (100) UNIQUE NOT NULL,
     password   VARCHAR (255) NOT NULL,
     role       VARCHAR (20)  NOT NULL,
-    status     VARCHAR (20)  NOT NULL  -- Vírgula extra removida
+    status     VARCHAR (20)  NOT NULL
 );
 
 -- Tabela fisicos corrigida (sem created_at)
@@ -17,9 +17,9 @@ CREATE TABLE fisicos (
     received_at               DATE          NOT NULL,
     id_document               VARCHAR (25)  UNIQUE NOT NULL,
     delivery_deadline         DATE          NOT NULL,
-    internal_delivery_user_id VARCHAR (50)  NOT NULL,
-    message                   VARCHAR (140),  -- Sem CURRENT_TIMESTAMP
-    FOREIGN KEY (internal_delivery_user_id) REFERENCES users (id) 
+    internal_delivery_user_id INTEGER       NOT NULL,
+    message                   VARCHAR (140),
+    FOREIGN KEY (internal_delivery_user_id) REFERENCES users (id_user) 
 );
 
 -- Tabela extras corrigida (sem created_at)
@@ -28,9 +28,9 @@ CREATE TABLE extras (
     received_at               DATE          NOT NULL,
     id_document               VARCHAR (25)  UNIQUE NOT NULL,
     delivery_deadline         DATE          NOT NULL,
-    internal_delivery_user_id VARCHAR (50)  NOT NULL,
-    message                   VARCHAR (140),  -- Sem CURRENT_TIMESTAMP
-    FOREIGN KEY (internal_delivery_user_id) REFERENCES users (id) 
+    internal_delivery_user_id INTEGER       NOT NULL,
+    message                   VARCHAR (140),
+    FOREIGN KEY (internal_delivery_user_id) REFERENCES users (id_user) 
 );
 
 -- Índices mantidos (já estavam corretos)

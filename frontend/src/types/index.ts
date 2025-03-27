@@ -2,8 +2,8 @@ export interface User {
   id: number
   name: string
   email: string
-  role: 'admin' | 'user' | 'manager'
-  status: 'active' | 'inactive'
+  role: string
+  status: string
 }
 
 export interface Extras {
@@ -26,6 +26,7 @@ export interface Fisicos {
 export interface AuthResponse {
   user: User
   token: string
+  message: string
 }
 
 export interface LoginCredentials {
