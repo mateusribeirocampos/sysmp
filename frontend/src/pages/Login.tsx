@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import type { LoginCredentials } from '../types'
+const logoPath = import.meta.env.VITE_LOGO_PATH; 
 
 export function Login() {
   const navigate = useNavigate()
@@ -39,7 +40,7 @@ export function Login() {
         <div>
           <img
             className="mx-auto h-12 w-auto"
-            src="/logo.svg"
+            src={logoPath}
             alt="SYSMP"
           />
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
