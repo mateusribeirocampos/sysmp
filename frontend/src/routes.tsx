@@ -3,7 +3,6 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
 import { Login } from './pages/Login';
-import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
 import { Users } from './pages/Users';
 import { Extras } from './pages/Extras';
@@ -16,7 +15,7 @@ import { UserAdd } from './pages/User-add';
 const NotFound = () => {
   return (
     <div className="p-96 sm:px-6 lg:px-8 max-w-4xl mx-auto text-center">
-      <h1 className="text-center p-4">404 - Page Not Found</h1>
+      <h1 className="text-center p-4">404 - Página não encontrada</h1>
       <p>A página que você procura não existe.</p>
     </div>
   );
@@ -31,7 +30,6 @@ function App() {
         <Routes>
           <Route path="*" element={<NotFound />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
           <Route
             path="/"
             element={
