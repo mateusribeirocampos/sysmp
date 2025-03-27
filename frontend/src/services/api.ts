@@ -2,7 +2,7 @@ import axios from 'axios'
 import type { User, Extras, Fisicos, AuthResponse, LoginCredentials} from '@/types'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL.replace(/\/$/, ''),
   headers: {
     'Content-Type': 'application/json',
   },
@@ -20,7 +20,7 @@ api.interceptors.request.use((config) => {
 // Serviços de Autenticação
 export const authService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>('/auth/login', credentials)
+    const response = await api.post<AuthResponse>('/login', credentials)
     return response.data
   },
 

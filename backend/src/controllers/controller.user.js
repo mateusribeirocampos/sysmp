@@ -8,14 +8,17 @@ async function login(req, res) {
       return res.status(400).json({ error: "Email e senha são obrigatórios" });
     }
     
-    const user = await serviceUser.login(email, password);
+    const result = await serviceUser.login(email, password);
 
-    if (!user) {
+    if (!result) {
       return res.status(401).json({ error: "Email ou senha inválidos" });
     }
 
+    const { token, ...user } = result;
+
     return res.status(200).json({
       user,
+      token,
       message: "Login realizado com sucesso"
     });
   } catch (error) {

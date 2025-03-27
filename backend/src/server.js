@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(routes);
 
 // Rota para verificar se o servidor está rodando
-app.get('health', (req, res) => {
+app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 

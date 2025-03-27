@@ -1,16 +1,54 @@
 import { useState } from 'react';
 import { FaArrowLeftLong } from 'react-icons/fa6';
 import { FaEye, FaEyeSlash } from 'react-icons/fa6';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import generator from 'generate-password-ts';
+import api from '../services/api';
 
 export function UserAdd() {
+  const navigate = useNavigate();
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
   const [userRole, setUserRole] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [userStatus, setUserStatus] = useState('active');
+  const [error, setError] = useState('');
+
+  const handleSubmit = async () => {
+    try {
+      // Validações básicas
+      if (!userName || !userEmail || !userPassword || !userRole) {
+        setError('Por favor, preencha todos os campos');
+        return;
+      }
+
+      // Criar objeto do usuário
+      const userData = {
+        name: userName,
+        email: userEmail,
+        password: userPassword,
+        role: userRole,
+        status: userStatus
+      };
+
+      // Enviar para a API
+      const response = await api.post('/users', userData);
+
+      if (response.status === 201) {
+        // Atualizar contagem de usuários no localStorage
+        const currentCount = localStorage.getItem('usersCount');
+        if (currentCount) {
+          localStorage.setItem('usersCount', (parseInt(currentCount) + 1).toString());
+        }
+
+        // Redirecionar para lista de usuários
+        navigate('/users');
+      }
+    } catch (error: any) {
+      setError(error.response?.data?.error || 'Erro ao criar usuário');
+    }
+  };
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
@@ -23,6 +61,7 @@ export function UserAdd() {
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-xl font-semibold text-gray-900">Adicione um novo usuário</h1>
+          {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
         </div>
       </div>
 
@@ -150,7 +189,7 @@ export function UserAdd() {
           </Link>
 
           <button
-            onClick={() => console.log('Adicionado extrajudicial')}
+            onClick={handleSubmit}
             className="btn btn-primary"
             type="submit"
           >
