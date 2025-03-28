@@ -15,6 +15,13 @@ async function listByEmail(email) {
   return result;
 }
 
+async function addUser(name, email, password, role, status) {
+  let sql = `INSERT INTO users (name, email, password, role, status) VALUES (?, ?, ?, ?, ?)`;
+  let params = [name, email, password, role, status];
+  
+  return query(sql, params);
+}
+
 async function updatePassword(userId, hashedPassword) {
   let sql = `UPDATE users SET password = ? WHERE id_user = ?`;
   let params = [hashedPassword, userId];
@@ -22,4 +29,23 @@ async function updatePassword(userId, hashedPassword) {
   return query(sql, params);
 }
 
-export default { listByEmail, updatePassword };
+async function ListUsers() {
+  let sql = `SELECT * FROM users`;
+  return query(sql);
+}
+
+async function editUserById(id, name, email, password, role, status) {  
+  let sql = `UPDATE users SET name = ?, email = ?, password = ?, role = ?, status = ? WHERE id_user = ?`;
+  let params = [name, email, password, role, status, id];
+  
+  return query(sql, params);
+}
+
+async function getUserById(id) {
+  let sql = `SELECT * FROM users WHERE id_user = ?`;
+  let params = [id];
+
+  return query(sql, params);
+}
+
+export default { listByEmail, updatePassword, addUser, ListUsers, editUserById, getUserById };

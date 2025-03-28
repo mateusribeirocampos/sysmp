@@ -1,37 +1,80 @@
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
+import logger from '../config/logger.js';
+import config from '../config/index.js';
 
-dotenv.config();
-
-const JWT_SECRET = process.env.JWT_SECRET;
-
-function CreateToken(id_user) { // Cria um token para o usuário
-  const token = jwt.sign({ id: id_user }, JWT_SECRET, { expiresIn: 999999 }); // 999999 é o tempo de expiração do token em segundos
-  if (!token) { // Se o token não for criado, retorna um erro
-    return { error: 'Erro ao criar token' }; // Retorna um erro
+// Classe de erros customizados
+class AuthError extends Error {
+  constructor(message, statusCode = 401) {
+    super(message);
+    this.statusCode = statusCode;
+    this.name = 'AuthError';
   }
+}
+
+// Funções auxiliares
+const extractTokenFromHeader = (authHeader) => {
+  if (!authHeader) {
+    throw new AuthError('Token não fornecido');
+  }
+
+  const [bearer, token] = authHeader.split(' ');
+  
+  if (bearer !== 'Bearer' || !token) {
+    throw new AuthError('Token malformado');
+  }
+
   return token;
-}
+};
 
-function ValidateToken(req, res, next) { // Valida o token do usuário
-  const authToken = req.headers.authorization; // Pega o token do usuário
+// Função principal para criar token
+const CreateToken = async (id_user) => {
+  try {
+    const token = jwt.sign(
+      { id: id_user },
+      config.jwt.secret,
+      {
+        expiresIn: config.jwt.expiresIn,
+        issuer: config.jwt.issuer
+      }
+    );
 
-  if (!authToken) { // Se o token não for fornecido, retorna um erro
-    return res.status(401).json({ error: 'Token não fornecido' }); // Retorna um erro
+    logger.info('Token criado com sucesso', { userId: id_user });
+    return token;
+  } catch (error) {
+    logger.error('Erro ao criar token', { error: error.message, userId: id_user });
+    throw new AuthError('Erro ao criar token', 500);
   }
+};
 
-  const [bearer, token] = authToken.split(' ');
+// Middleware de validação
+const ValidateToken = async (req, res, next) => {
+  try {
+    const token = extractTokenFromHeader(req.headers.authorization);
 
-  if (bearer !== 'Bearer') { // Se o token não for um Bearer, retorna um erro
-    return res.status(401).json({ error: 'Token malformado' }); // Retorna um erro
-  }
-  jwt.verify(token, JWT_SECRET, (err, tokenDecoded) => { // Verifica o token  
-    if (err) { // Se o token for inválido, retorna um erro
-      return res.status(401).json({ error: 'Token inválido' }); // Retorna um erro
+    const decoded = await jwt.verify(token, config.jwt.secret);
+    
+    // Adiciona informações do usuário ao request
+    req.user = {
+      id: decoded.id,
+      iat: decoded.iat,
+      exp: decoded.exp
+    };
+
+    logger.info('Token validado com sucesso', { userId: decoded.id });
+    next();
+  } catch (error) {
+    logger.error('Erro na validação do token', { error: error.message });
+    
+    if (error instanceof AuthError) {
+      return res.status(error.statusCode).json({ error: error.message });
     }
-    req.id_user = tokenDecoded.id_user; // Define o id do usuário
-    next(); // Chama a próxima função
-  });
-}
 
-export { CreateToken, ValidateToken };
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expirado' });
+    }
+
+    return res.status(401).json({ error: 'Token inválido' });
+  }
+};
+
+export { CreateToken, ValidateToken, AuthError };

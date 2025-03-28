@@ -45,21 +45,21 @@ export const userService = {
     return response.data
   },
 
-  // Busca um usuário pelo ID
   getById: async (id: number): Promise<User> => {
-    const response = await api.get<User>(`/users/${id}`)
+    console.log('Chamando API para buscar usuário:', id);
+    const response = await api.get<User>(`/users/edit/${id}`);
+    console.log('Resposta da API:', response.data);
+    return response.data;
+  },
+
+  update: async (id: number, userData: any) => {
+    const response = await api.put(`/users/edit/${id}`, userData)
     return response.data
   },
 
   // Cria um novo usuário
   create: async (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> => {
     const response = await api.post<User>('/users', userData)
-    return response.data
-  },
-
-  // Atualiza um usuário existente
-  update: async (id: number, userData: Partial<User>): Promise<User> => {
-    const response = await api.put<User>(`/users/${id}`, userData)
     return response.data
   },
 
@@ -92,7 +92,7 @@ export const extrasService = {
 
   // Cria um novo extra
   create: async (documentData: FormData): Promise<Extras> => {
-    const response = await api.post<Extras>('/extras', documentData, {
+    const response = await api.post<Extras>('/extras/add', documentData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -138,7 +138,7 @@ export const fisicosService = {
 
   // Cria um novo físico
   create: async (documentData: FormData): Promise<Fisicos> => {
-    const response = await api.post<Fisicos>('/fisicos', documentData, {
+    const response = await api.post<Fisicos>('/fisicos/add', documentData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
