@@ -15,12 +15,14 @@ export function Dashboard() {
     const extrasCount = localStorage.getItem('extrasCount')
     const fisicosCount = localStorage.getItem('fisicosCount')
     const usersCount = localStorage.getItem('usersCount')
+    //const pendentesDoc = localStorage.getItem('extrasCount' + 'fisicosCount')
 
     setCounts(prev => ({
       ...prev,
       extras: extrasCount ? parseInt(extrasCount) : 0,
       fisicos: fisicosCount ? parseInt(fisicosCount) : 0,
       users: usersCount ? parseInt(usersCount) : 0,
+      pendentes: (extrasCount && fisicosCount) ? parseInt(extrasCount) + parseInt(fisicosCount) : 0,
     }))
 
     // Opcional: adicionar um listener para atualizações em tempo real
@@ -28,11 +30,15 @@ export function Dashboard() {
       const updatedExtrasCount = localStorage.getItem('extrasCount')
       const updatedFisicosCount = localStorage.getItem('fisicosCount')
       const updatedUsersCount = localStorage.getItem('usersCount')
+      //const updatedPendentesDoc = localStorage.getItem('extrasCount' + 'fisicosCount')
       setCounts(prev => ({
         ...prev,
         extras: updatedExtrasCount ? parseInt(updatedExtrasCount) : prev.extras,
         fisicos: updatedFisicosCount ? parseInt(updatedFisicosCount) : prev.fisicos,
-        users: updatedUsersCount ? parseInt(updatedUsersCount) : prev.users
+        users: updatedUsersCount ? parseInt(updatedUsersCount) : prev.users,
+        pendentes: (updatedExtrasCount && updatedFisicosCount) 
+          ? parseInt(updatedExtrasCount) + parseInt(updatedFisicosCount) 
+          : prev.extras + prev.fisicos,
       }))
     }
     
