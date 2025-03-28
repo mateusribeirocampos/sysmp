@@ -1,25 +1,74 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaArrowLeftLong } from 'react-icons/fa6';
 import { FaEye, FaEyeSlash } from 'react-icons/fa6';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import generator from 'generate-password-ts';
-import api from '../services/api';
+import { userService } from '../services/api';
 
-export function UserAdd() {
+export function UsersEdit() {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
   const [userRole, setUserRole] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [userStatus, setUserStatus] = useState('active');
+  const [userStatus, setUserStatus] = useState<'active' | 'inactive' | 'ativo' | 'inativo'>('active');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (id) {
+      loadUser();
+    }
+  }, [id]);
+
+  const loadUser = async () => {
+    try {
+      if (!id) return;
+      
+      console.log('Carregando dados do usuário:', id);
+      const response = await userService.getById(parseInt(id));
+      console.log('Dados do usuário carregados:', response);
+      
+      // Verifica se a resposta é um array e pega o primeiro item
+      const userData = Array.isArray(response) ? response[0] : response;
+      
+      if (userData) {
+        console.log('Atualizando estados com os dados:', {
+          name: userData.name,
+          email: userData.email,
+          role: userData.role,
+          status: userData.status
+        });
+        
+        setUserName(userData.name || '');
+        setUserEmail(userData.email || '');
+        setUserRole(userData.role || '');
+        setUserStatus(userData.status || 'ativo');
+        
+        console.log('Estados atualizados:', {
+          userName,
+          userEmail,
+          userRole,
+          userStatus
+        });
+      }
+    } catch (err) {
+      console.error('Erro ao carregar usuário:', err);
+      setError('Erro ao carregar dados do usuário');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async () => {
     try {
+      if (!id) return;
+
       // Validações básicas
-      if (!userName || !userEmail || !userPassword || !userRole) {
-        setError('Por favor, preencha todos os campos');
+      if (!userName || !userEmail || !userRole) {
+        setError('Por favor, preencha todos os campos obrigatórios');
         return;
       }
 
@@ -27,28 +76,30 @@ export function UserAdd() {
       const userData = {
         name: userName,
         email: userEmail,
-        password: userPassword,
+        ...(userPassword && { password: userPassword }), // Inclui password apenas se foi preenchido
         role: userRole,
         status: userStatus
       };
 
-      // Enviar para a API
-      const response = await api.post('/users', userData);
+      console.log('Atualizando usuário:', userData);
+      await userService.update(parseInt(id), userData);
+      console.log('Usuário atualizado com sucesso');
 
-      if (response.status === 201) {
-        // Atualizar contagem de usuários no localStorage
-        const currentCount = localStorage.getItem('usersCount');
-        if (currentCount) {
-          localStorage.setItem('usersCount', (parseInt(currentCount) + 1).toString());
-        }
-
-        // Redirecionar para lista de usuários
-        navigate('/users');
-      }
+      // Redirecionar para lista de usuários
+      navigate('/users');
     } catch (error: any) {
-      setError(error.response?.data?.error || 'Erro ao criar usuário');
+      console.error('Erro ao atualizar usuário:', error);
+      setError(error.response?.data?.error || 'Erro ao atualizar usuário');
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
@@ -60,33 +111,33 @@ export function UserAdd() {
 
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-xl font-semibold text-gray-900">Adicione um novo usuário</h1>
+          <h1 className="text-xl font-semibold text-gray-900">Editar usuário existente</h1>
           {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
         </div>
       </div>
 
       <div className="w-full md:w-1/2 mt-8">
-        <label htmlFor="name" className="block text-lg font-medium text-gray-700 mb-1">
+        <label htmlFor="userName" className="block text-lg font-medium text-gray-700 mb-1">
           Nome:
         </label>
         <input
           type="text"
           className="mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md"
-          name="name"
-          id="name"
+          name="userName"
+          id="userName"
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
         />
       </div>
 
       <div className="w-full md:w-1/2 mt-8">
-        <label htmlFor="email" className="block text-lg font-medium text-gray-700 mb-1">
+        <label htmlFor="userEmail" className="block text-lg font-medium text-gray-700 mb-1">
           Email:
         </label>
         <input
-          type="email"
+          type="userEmail"
           className="mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md"
-          name="email"
+          name="userEmail"
           id="email"
           value={userEmail}
           onChange={(e) => setUserEmail(e.target.value)}
@@ -94,15 +145,15 @@ export function UserAdd() {
       </div>
 
       <div className="w-full md:w-1/2 mt-8">
-        <label htmlFor="password" className="block text-lg font-medium text-gray-700 mb-1">
+        <label htmlFor="userPassword" className="block text-lg font-medium text-gray-700 mb-1">
           Senha:
         </label>
         <div className="flex items-center">
           <input
             type={showPassword ? 'text' : 'password'} // Alterna entre text e password
             className="mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md"
-            name="password"
-            id="password"
+            name="userPassword"
+            id="userPassword"
             value={userPassword}
             onChange={(e) => setUserPassword(e.target.value)}
           />
@@ -153,32 +204,32 @@ export function UserAdd() {
       </div>
 
       <div className="w-full md:w-1/2 mt-8">
-        <label htmlFor="role" className="block text-lg font-medium text-gray-700 mb-1">
+        <label htmlFor="userRole" className="block text-lg font-medium text-gray-700 mb-1">
           Função ou cargo:
         </label>
         <input
           type="text"
           className="mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md"
-          name="role"
-          id="role"
+          name="userRole"
+          id="userRole"
           value={userRole}
           onChange={(e) => setUserRole(e.target.value)}
         />
       </div>
 
       <div className="w-full md:w-1/2 mt-8">
-        <label htmlFor="status" className="block text-lg font-md text-gray-700 mb-1">
+        <label htmlFor="userStatus" className="block text-lg font-md text-gray-700 mb-1">
           Ativo:
         </label>
         <select
-          name="status"
-          id="status"
+          name="userStatus"
+          id="userStatus"
           value={userStatus}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setUserStatus(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setUserStatus(e.target.value as 'active' | 'inactive' | 'ativo' | 'inativo')}
           className="mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md"
         >
-          <option value="active">Sim</option>
-          <option value="inactive">Não</option>
+          <option value="ativo">Sim</option>
+          <option value="inativo">Não</option>
         </select>
       </div>
 

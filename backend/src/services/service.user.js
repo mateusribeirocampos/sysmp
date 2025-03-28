@@ -41,18 +41,46 @@ async function login(email, password) {
   }
 
   delete user.password;
-  const token = CreateToken(user.id_user);
   
-  const { id_user, ...rest } = user;
-  
-  const result = {
-    id: id_user,
-    ...rest,
-    token
-  };
-  
-  console.log('Login bem sucedido, retornando:', { ...result, token: 'HIDDEN' });
+  try {
+    const token = await CreateToken(user.id_user);
+    
+    const { id_user, ...rest } = user;
+    
+    const result = {
+      id: id_user,
+      ...rest,
+      token
+    };
+    
+    console.log('Login bem sucedido, retornando:', { ...result, token: 'HIDDEN' });
+    return result;
+  } catch (error) {
+    console.error('Erro ao criar token:', error);
+    throw new Error('Erro ao processar login');
+  }
+}
+
+async function addUser(name, email, password, role, status) {
+  const hashedPassword = await hashPassword(password);
+  const result = await repoUser.addUser(name, email, hashedPassword, role, status);
   return result;
 }
 
-export default { login };
+async function listUsers() {
+  const result = await repoUser.ListUsers();
+  return result;
+}
+
+async function editUserById(id, name, email, password, role, status) {
+  const hashedPassword = await hashPassword(password);
+  const result = await repoUser.editUser(id, name, email, hashedPassword, role, status);
+  return result;
+}
+
+async function getUserById(id, name, email, password, role, status) {
+  const result = await repoUser.getUserById(id, name, email, password, role, status);
+  return result;
+}
+
+export default { login, addUser, listUsers, editUserById, getUserById };

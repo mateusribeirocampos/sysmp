@@ -1,12 +1,13 @@
 export interface User {
-  id: number
+  id_user: number
   name: string
   email: string
   role: string
-  status: string
+  status: 'active' | 'inactive' | 'ativo' | 'inativo'
 }
 
 export interface Extras {
+  id: number
   receivedAt: Date; 
   idDocument: number;
   countDaysDelivery: number; 
@@ -14,7 +15,9 @@ export interface Extras {
   internalDelivery: string; 
   message: string; 
 }
+
 export interface Fisicos {
+  id: number
   receivedAt: Date; 
   idDocument: number; 
   countDaysDelivery: number; 
@@ -24,9 +27,8 @@ export interface Fisicos {
 }
 
 export interface AuthResponse {
-  user: User
   token: string
-  message: string
+  user: User
 }
 
 export interface LoginCredentials {

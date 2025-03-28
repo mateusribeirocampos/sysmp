@@ -27,4 +27,73 @@ async function login(req, res) {
   }
 }
 
-export default { login };
+async function addUser(req, res) {
+  try {
+    const { name, email, password, role, status } = req.body;
+
+    if (!name || !email || !password || !role || !status) {
+      return res.status(400).json({ error: "Todos os campos são obrigatórios" });
+    }
+
+    const result = await serviceUser.addUser(name, email, password, role, status);
+
+    if (!result) {
+      return res.status(400).json({ error: "Erro ao adicionar usuário" });
+    }
+    
+    return res.status(200).json({
+      message: "Usuário adicionado com sucesso",
+      user: result
+    });
+  } catch (error) {
+    console.error('Erro no addUser:', error);
+    return res.status(500).json({ error: "Erro interno do servidor" });
+  }
+}
+
+async function listUsers(req, res) {
+  try {
+    const result = await serviceUser.listUsers();
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error('Erro no listUsers:', error);
+    return res.status(500).json({ error: "Erro interno do servidor" });
+  }
+}
+
+async function editUserById(req, res) {
+  try {
+    const { id } = req.params;
+    const { name, email, password, role, status } = req.body;
+
+    if (!id || !name || !email || !password || !role || !status) {
+      return res.status(400).json({ error: "Todos os campos são obrigatórios" });
+    }
+
+    const result = await serviceUser.editUserById(id, name, email, password, role, status);
+
+    if (!result) {
+      return res.status(400).json({ error: "Erro ao editar usuário" });
+    }
+
+    return res.status(200).json({ message: "Usuário editado com sucesso" });
+  } catch (error) {
+    console.error('Erro no editUser:', error);
+    return res.status(500).json({ error: "Erro interno do servidor" });
+  }
+}
+
+async function getUserById(req, res) {
+  try {
+    const { id } = req.params;
+    const result = await serviceUser.getUserById(id);
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error('Erro no getUserById:', error);
+    return res.status(500).json({ error: "Erro interno do servidor" });
+  }
+}
+
+
+
+export default { login, addUser, listUsers, editUserById, getUserById };
