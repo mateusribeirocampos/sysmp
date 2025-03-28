@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
+import { useAuth } from '../contexts/AuthContext'
 
 export function Dashboard() {
+  const { user } = useAuth()
   const [counts, setCounts] = useState({
     users: 0,
     extras: 0,
@@ -13,33 +15,39 @@ export function Dashboard() {
     const extrasCount = localStorage.getItem('extrasCount')
     const fisicosCount = localStorage.getItem('fisicosCount')
     const usersCount = localStorage.getItem('usersCount')
+    //const pendentesDoc = localStorage.getItem('extrasCount' + 'fisicosCount')
 
     setCounts(prev => ({
       ...prev,
       extras: extrasCount ? parseInt(extrasCount) : 0,
       fisicos: fisicosCount ? parseInt(fisicosCount) : 0,
       users: usersCount ? parseInt(usersCount) : 0,
+      pendentes: (extrasCount && fisicosCount) ? parseInt(extrasCount) + parseInt(fisicosCount) : 0,
     }))
 
-       // Opcional: adicionar um listener para atualizações em tempo real
-       const handleStorageChange = () => {
-        const updatedExtrasCount = localStorage.getItem('extrasCount')
-        const updatedFisicosCount = localStorage.getItem('fisicosCount')
-        const updatedUsersCount = localStorage.getItem('usersCount')
-        setCounts(prev => ({
-          ...prev,
-          extras: updatedExtrasCount ? parseInt(updatedExtrasCount) : prev.extras,
-          fisicos: updatedFisicosCount ? parseInt(updatedFisicosCount) : prev.fisicos,
-          users: updatedUsersCount ? parseInt(updatedUsersCount) : prev.users
-        }))
-      }
-      
-      // Ouvir mudanças no localStorage (se estiver em outra aba/janela)
-      window.addEventListener('storage', handleStorageChange)
-      
-      return () => {
-        window.removeEventListener('storage', handleStorageChange)
-      }
+    // Opcional: adicionar um listener para atualizações em tempo real
+    const handleStorageChange = () => {
+      const updatedExtrasCount = localStorage.getItem('extrasCount')
+      const updatedFisicosCount = localStorage.getItem('fisicosCount')
+      const updatedUsersCount = localStorage.getItem('usersCount')
+      //const updatedPendentesDoc = localStorage.getItem('extrasCount' + 'fisicosCount')
+      setCounts(prev => ({
+        ...prev,
+        extras: updatedExtrasCount ? parseInt(updatedExtrasCount) : prev.extras,
+        fisicos: updatedFisicosCount ? parseInt(updatedFisicosCount) : prev.fisicos,
+        users: updatedUsersCount ? parseInt(updatedUsersCount) : prev.users,
+        pendentes: (updatedExtrasCount && updatedFisicosCount) 
+          ? parseInt(updatedExtrasCount) + parseInt(updatedFisicosCount) 
+          : prev.extras + prev.fisicos,
+      }))
+    }
+    
+    // Ouvir mudanças no localStorage (se estiver em outra aba/janela)
+    window.addEventListener('storage', handleStorageChange)
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+    }
   }, [])
 
   return (
@@ -48,7 +56,7 @@ export function Dashboard() {
         <div className="sm:flex-auto">
           <h1 className="text-xl font-semibold text-gray-900">Painel</h1>
           <p className="mt-2 text-sm text-gray-700">
-            Bem-vindo ao sistema de gerenciamento de documentos.
+            Bem-vindo, {user?.name}! Sistema de gerenciamento de documentos.
           </p>
         </div>
       </div>
@@ -125,7 +133,7 @@ export function Dashboard() {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Documentos Pendentes</dt>
-                  <dd className="text-lg font-medium text-gray-900">0</dd>
+                  <dd className="text-lg font-medium text-gray-900">{counts.pendentes}</dd>
                 </dl>
               </div>
             </div>

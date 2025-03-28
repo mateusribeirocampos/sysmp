@@ -20,6 +20,9 @@ routes.use(GeneralLimiter);
 
 // Rotas públicas
 routes.post("/login", loginLimiter, trackLoginAttempts, controllerUser.login);
-
+routes.post("/user/add", ValidateToken, controllerUser.addUser);
+routes.get("/users", ValidateToken, controllerUser.listUsers);
+routes.put("/users/edit/:id", ValidateToken, controllerUser.editUserById);
+routes.get("/users/edit/:id", ValidateToken, controllerUser.getUserById);
 
 export default routes;

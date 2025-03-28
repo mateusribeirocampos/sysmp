@@ -1,38 +1,50 @@
-import { useState, useEffect } from 'react'
-import { user } from '../Data/users.ts'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { userService } from '@/services/api';
+import type { User } from '@/types';
 
 export function Users() {
-  const [users, setUsers] = useState(user)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string>('')
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>('');
+  const navigate = useNavigate();
 
   useEffect(() => {
-    loadUsers()
-  }, [])
+    loadUsers();
+  }, []);
 
   const loadUsers = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
+      console.log('Iniciando carregamento de usuários...');
 
-      setUsers(user)
+      const users = await userService.getAll();
+      console.log('Usuários carregados:', users);
+      setUsers(users);
 
-      localStorage.setItem('usersCount', users.length.toString())
+      const count = await userService.getCount();
+      console.log('Total de usuários:', count);
+      localStorage.setItem('usersCount', count.toString());
     } catch (err) {
-      setError('Erro ao carregar usuários')
+      console.error('Erro ao carregar usuários:', err);
+      setError('Erro ao carregar usuários');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const handleStatusChange = async (userId: string, newStatus: typeof user[0]['status']) => {
+  const handleStatusChange = async (userId: number, newStatus: 'active' | 'inactive') => {
     try {
-      setUsers(users.map(user => 
-        user.id === userId ? { ...user, status: newStatus } : user
-      ))
+      setUsers(
+        users.map((user) => (user.id_user === userId ? { ...user, status: newStatus } : user))
+      );
     } catch (err) {
-      setError('Erro ao atualizar status do usuário')
+      setError('Erro ao atualizar status do usuário');
     }
+  };
+
+  function handleEdit(userId: number) {
+    navigate(`/users/edit/${userId}`);
   }
 
   if (loading) {
@@ -40,15 +52,11 @@ export function Users() {
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
-    )
+    );
   }
 
   if (error) {
-    return (
-      <div className="text-center text-red-500 p-4">
-        {error}
-      </div>
-    )
+    return <div className="text-center text-red-500 p-4">{error}</div>;
   }
 
   return (
@@ -61,17 +69,16 @@ export function Users() {
           </p>
         </div>
 
-        <Link to={"/user/add"}>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <button
-            type="button"
-            className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
-          >
-            Adicionar usuário
-          </button>
-        </div>
+        <Link to={'/users/add'}>
+          <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
+            >
+              Adicionar usuário
+            </button>
+          </div>
         </Link>
-
       </div>
       <div className="mt-8 flex flex-col">
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -80,16 +87,28 @@ export function Users() {
               <table className="min-w-full divide-y divide-gray-300">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
+                    <th
+                      scope="col"
+                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                    >
                       Nome
                     </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <th
+                      scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
                       Email
                     </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <th
+                      scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
                       Função
                     </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <th
+                      scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
                       Status
                     </th>
                     <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
@@ -99,7 +118,7 @@ export function Users() {
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {users.map((user) => (
-                    <tr key={user.id}>
+                    <tr key={`user-${user.id_user}`}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                         {user.name}
                       </td>
@@ -122,34 +141,57 @@ export function Users() {
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <button
-                          onClick={() => handleStatusChange(user.id, user.status === 'active' ? 'inactive' : 'active')}
+                          onClick={() =>
+                            handleStatusChange(
+                              user.id_user,
+                              user.status === 'active' ? 'inactive' : 'active'
+                            )
+                          }
                           className="text-gray-300 hover:text-white"
                         >
                           {user.status === 'active' ? 'Desativar' : 'Ativar'}
                         </button>
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                          <div className="flex justify-end space-x-3">
-                            <button
-                              onClick={() => {/* TODO: Implementar edição */}}
-                              className="text-white bg-blue-700 hover:bg-slate-100 border border-transparent hover:text-blue-700"
-                              title="Editar documento"
+                        <div className="flex justify-end space-x-3">
+
+                          <button
+                            onClick={() => handleEdit(user.id_user)}
+                            className="text-white bg-blue-700 hover:bg-slate-100 border border-transparent hover:text-blue-700"
+                            title="Editar documento"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
                             >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                              </svg>
-                            </button>
-                            <button
-                              onClick={() => {/* TODO: Implementar exclusão */}}
-                              className="text-white bg-red-600 hover:bg-red-100 border border-transparent hover:text-red-600"
-                              title="Excluir documento"
+                              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              /* TODO: Implementar exclusão */
+                            }}
+                            className="text-white bg-red-600 hover:bg-red-100 border border-transparent hover:text-red-600"
+                            title="Excluir documento"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
                             >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                              </svg>
-                            </button>
-                          </div>
-                        </td>
+                              <path
+                                fillRule="evenodd"
+                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -159,5 +201,5 @@ export function Users() {
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}
