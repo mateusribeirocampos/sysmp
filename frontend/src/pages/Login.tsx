@@ -1,34 +1,45 @@
 import { useState } from 'react'
-import { useNavigate, useLocation, Link } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import type { LoginCredentials } from '../types'
-const logoPath = import.meta.env.VITE_LOGO_PATH; 
+import { authService } from '@/services/api'
+import type { LoginCredentials } from '@/types'
+
+const logoPath = import.meta.env.VITE_LOGO_PATH
 
 export function Login() {
   const navigate = useNavigate()
-  const location = useLocation()
   const { login } = useAuth()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState<string>('')
   const [loading, setLoading] = useState(false)
-
-  const from = location.state?.from?.pathname || '/'
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError('')
     setLoading(true)
 
-    const formData = new FormData(event.currentTarget)
-    const credentials: LoginCredentials = {
-      email: formData.get('email') as string,
-      password: formData.get('password') as string,
-    }
-
     try {
-      await login(credentials)
-      navigate(from, { replace: true })
-    } catch (err) {
-      setError('Email ou senha inválidos')
+      console.log('Tentando login com:', { email, password })
+      const credentials: LoginCredentials = { email, password }
+      const response = await authService.login(credentials)
+      
+      if (response) {
+        localStorage.setItem("token", response.token)
+        localStorage.setItem("user", JSON.stringify(response.user))
+        
+        // Atualiza o contexto de autenticação
+        await login(credentials)
+        
+        navigate("/")
+      }
+    } catch (error: any) {
+      console.error('Erro no login:', error)
+      if (error.response?.data?.error) {
+        setError(error.response.data.error)
+      } else {
+        setError('Email ou senha inválidos')
+      }
     } finally {
       setLoading(false)
     }
@@ -59,6 +70,8 @@ export function Login() {
                 type="email"
                 autoComplete="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Email"
               />
@@ -73,6 +86,8 @@ export function Login() {
                 type="password"
                 autoComplete="current-password"
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Senha"
               />

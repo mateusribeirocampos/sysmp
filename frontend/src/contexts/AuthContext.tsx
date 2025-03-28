@@ -1,12 +1,11 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { authService } from '../services/api'
-import type { User, LoginCredentials, RegisterData } from '../types'
+import type { User, LoginCredentials } from '../types'
+import api from '../services/api'
 
 interface AuthContextType {
   user: User | null
   isAuthenticated: boolean
   login: (credentials: LoginCredentials) => Promise<User>
-  register: (data: RegisterData) => Promise<User>
   logout: () => void
 }
 
@@ -14,17 +13,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 interface AuthProviderProps {
   children: ReactNode
-}
-
-// Mock de usuário para testes
-const mockUser: User = {
-  id: 1,
-  name: 'Usuário Teste',
-  email: 'teste@exemplo.com',
-  role: 'admin',
-  status: 'active',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
@@ -41,42 +29,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = async (credentials: LoginCredentials): Promise<User> => {
     try {
-      // Mock de login - aceita qualquer email/senha
-      const mockResponse = {
-        user: mockUser,
-        token: 'mock-token'
-      }
-      localStorage.setItem('token', mockResponse.token)
-      localStorage.setItem('user', JSON.stringify(mockResponse.user))
-      setUser(mockResponse.user)
-      return mockResponse.user
-    } catch (error) {
-      throw error
-    }
-  }
+      const response = await api.post('/login', credentials)
+      const { user, token } = response.data
 
-  const register = async (data: RegisterData): Promise<User> => {
-    try {
-      // Mock de registro - cria um usuário com os dados fornecidos
-      const mockResponse = {
-        user: {
-          ...mockUser,
-          name: data.name,
-          email: data.email,
-        },
-        token: 'mock-token'
-      }
-      localStorage.setItem('token', mockResponse.token)
-      localStorage.setItem('user', JSON.stringify(mockResponse.user))
-      setUser(mockResponse.user)
-      return mockResponse.user
+      localStorage.setItem('token', token)
+      localStorage.setItem('user', JSON.stringify(user))
+      setUser(user)
+      return user
     } catch (error) {
       throw error
     }
   }
 
   const logout = () => {
-    authService.logout()
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
     setUser(null)
   }
 
@@ -89,7 +56,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

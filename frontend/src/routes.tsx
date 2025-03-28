@@ -9,7 +9,9 @@ import { Extras } from './pages/Extras';
 import { Fisicos } from './pages/Fisicos';
 import { ExtraAdd } from './pages/Extra-add';
 import { FisicosAdd } from './pages/Fisicos-add';
-import { UserAdd } from './pages/User-add';
+import { UsersAdd } from './pages/Users-add';
+import { UsersEdit } from './pages/Users-edit';
+import { AdminRoute } from './components/AdminRoute';
 
 
 const NotFound = () => {
@@ -40,11 +42,22 @@ function App() {
           >
             <Route index element={<Dashboard />} />
             <Route path="/users" element={<Users />} />
-            <Route path="/user/add" element={<UserAdd />} />
+            <Route 
+            path="/users/add"
+            element={<AdminRoute>
+              <UsersAdd />
+            </AdminRoute>
+            } />
+            <Route 
+            path="/users/edit/:id"
+            element={<AdminRoute>
+              <UsersEdit />
+            </AdminRoute>
+            } />
             <Route path="/extras" element={<Extras />} />
-            <Route path="/extra/add" element={<ExtraAdd />} />
+            <Route path="/extras/add" element={<ExtraAdd />} />
             <Route path="/fisicos" element={<Fisicos />} />
-            <Route path="/fisico/add" element={<FisicosAdd />} />
+            <Route path="/fisicos/add" element={<FisicosAdd />} />
 
           </Route>
         </Routes>
