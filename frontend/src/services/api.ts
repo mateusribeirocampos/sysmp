@@ -58,8 +58,8 @@ export const userService = {
   },
 
   // Cria um novo usuário
-  create: async (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> => {
-    const response = await api.post<User>('/users', userData)
+  create: async (userData: Omit<User, 'id' >): Promise<User> => {
+    const response = await api.post<User>('/users/add', userData)
     return response.data
   },
 
