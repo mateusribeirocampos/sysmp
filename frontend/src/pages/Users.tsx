@@ -35,10 +35,15 @@ export function Users() {
 
   const handleStatusChange = async (userId: number, newStatus: 'active' | 'inactive') => {
     try {
-      setUsers(
-        users.map((user) => (user.id_user === userId ? { ...user, status: newStatus } : user))
-      );
+      // Primeiro atualiza no backend
+      const response = await userService.update(userId, { status: newStatus });
+      
+      if (response) {
+        // Recarrega a lista de usuários para garantir dados atualizados
+        await loadUsers();
+      }
     } catch (err) {
+      console.error('Erro ao atualizar status do usuário:', err);
       setError('Erro ao atualizar status do usuário');
     }
   };
@@ -141,13 +146,12 @@ export function Users() {
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <button
-                          onClick={() =>
-                            handleStatusChange(
-                              user.id_user,
-                              user.status === 'active' ? 'inactive' : 'active'
-                            )
-                          }
-                          className="text-gray-300 hover:text-white"
+                          onClick={() => handleEdit(user.id_user)}
+                          className={`px-3 py-1 rounded-md ${
+                            user.status === 'active'
+                              ? 'bg-red-600 hover:bg-red-700 text-white'
+                              : 'bg-green-600 hover:bg-green-700 text-white'
+                          }`}
                         >
                           {user.status === 'active' ? 'Desativar' : 'Ativar'}
                         </button>
