@@ -41,7 +41,12 @@ function App() {
             }
           >
             <Route index element={<Dashboard />} />
-            <Route path="/users" element={<Users />} />
+            <Route 
+            path="/users"
+            element={<AdminRoute>
+              <Users />
+            </AdminRoute>
+            } />
             <Route 
             path="/users/add"
             element={<AdminRoute>

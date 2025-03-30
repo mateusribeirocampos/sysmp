@@ -25,4 +25,7 @@ routes.get("/users", ValidateToken, controllerUser.listUsers);
 routes.put("/users/edit/:id", ValidateToken, controllerUser.editUserById);
 routes.get("/users/edit/:id", ValidateToken, controllerUser.getUserById);
 
+// Rota para atualização de status
+routes.put("/users/:id/status", ValidateToken, controllerUser.editUserStatus);
+
 export default routes;

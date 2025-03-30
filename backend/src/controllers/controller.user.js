@@ -94,6 +94,29 @@ async function getUserById(req, res) {
   }
 }
 
+async function editUserStatus(req, res) {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
 
+    if (!status || !['active', 'inactive'].includes(status)) {
+      return res.status(400).json({ error: "Status inválido" });
+    }
 
-export default { login, addUser, listUsers, editUserById, getUserById };
+    const result = await serviceUser.editUserStatus(id, status);
+    
+    if (!result) {
+      return res.status(404).json({ error: "Usuário não encontrado" });
+    }
+
+    return res.status(200).json({
+      message: "Status atualizado com sucesso",
+      status: status
+    });
+  } catch (error) {
+    console.error('Erro no editUserStatus:', error);
+    return res.status(500).json({ error: "Erro interno do servidor" });
+  }
+}
+
+export default { login, addUser, listUsers, editUserById, getUserById, editUserStatus };
