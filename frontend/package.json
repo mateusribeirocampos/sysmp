@@ -12,6 +12,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,md}\""
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.0",
     "@types/inputmask": "^5.0.7",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.6.7",

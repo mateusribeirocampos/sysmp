@@ -74,13 +74,18 @@ async function listUsers() {
 
 async function editUserById(id, name, email, password, role, status) {
   const hashedPassword = await hashPassword(password);
-  const result = await repoUser.editUser(id, name, email, hashedPassword, role, status);
+  const result = await repoUser.editUserById(id, name, email, hashedPassword, role, status);
   return result;
 }
 
-async function getUserById(id, name, email, password, role, status) {
-  const result = await repoUser.getUserById(id, name, email, password, role, status);
+async function getUserById(id) {
+  const result = await repoUser.getUserById(id);
   return result;
 }
 
-export default { login, addUser, listUsers, editUserById, getUserById };
+async function editUserStatus(id, status) { 
+  const result = await repoUser.editUserStatus(id, status);
+  return result;
+}
+
+export default { login, addUser, listUsers, editUserById, getUserById, editUserStatus };

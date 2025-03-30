@@ -33,18 +33,38 @@ export function Users() {
     }
   };
 
-  const handleStatusChange = async (userId: number, newStatus: 'active' | 'inactive') => {
-    try {
-      setUsers(
-        users.map((user) => (user.id_user === userId ? { ...user, status: newStatus } : user))
-      );
-    } catch (err) {
-      setError('Erro ao atualizar status do usuário');
-    }
-  };
-
   function handleEdit(userId: number) {
     navigate(`/users/edit/${userId}`);
+  }
+
+  async function handleStatusEdit(userId: number, status: string) {
+    try {
+      const newStatus = status === 'active' ? 'inactive' : 'active';
+      console.log("New status: " + newStatus);
+      await userService.updateStatus(userId, newStatus);
+      
+      // Atualiza o estado local dos usuários
+      setUsers(users.map(user => {
+        if (user.id_user === userId) {
+          return { ...user, status: newStatus };
+        }
+        return user;
+      }));
+    } catch (error: any) {
+      console.error('Erro ao atualizar status:', error);
+      if (error.response) {
+        // Erro da API
+        setError(`Erro ao atualizar status: ${error.response.data.error || 'Erro desconhecido'}`);
+      } else if (error.request) {
+        // Erro de rede
+        setError('Erro de conexão com o servidor. Verifique sua internet.');
+      } else {
+        // Outros erros
+        setError('Erro ao processar a requisição');
+      }
+      // Limpa a mensagem de erro após 5 segundos
+      setTimeout(() => setError(''), 5000);
+    }
   }
 
   if (loading) {
@@ -141,13 +161,13 @@ export function Users() {
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <button
-                          onClick={() =>
-                            handleStatusChange(
-                              user.id_user,
-                              user.status === 'active' ? 'inactive' : 'active'
-                            )
-                          }
-                          className="text-gray-300 hover:text-white"
+                          //onClick={() => handleEdit(user.id_user)}
+                          onClick={() => handleStatusEdit(user.id_user, user.status)}
+                          className={`px-3 py-1 rounded-md ${
+                            user.status === 'active'
+                              ? 'bg-red-600 hover:bg-red-700 text-white'
+                              : 'bg-green-600 hover:bg-green-700 text-white'
+                          }`}
                         >
                           {user.status === 'active' ? 'Desativar' : 'Ativar'}
                         </button>

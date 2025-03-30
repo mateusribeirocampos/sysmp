@@ -45,7 +45,7 @@ export function UsersEdit() {
         setUserName(userData.name || '');
         setUserEmail(userData.email || '');
         setUserRole(userData.role || '');
-        setUserStatus(userData.status || 'ativo');
+        setUserStatus(userData.status === 'active' ? 'active' : 'inactive');
         
         console.log('Estados atualizados:', {
           userName,
@@ -76,9 +76,9 @@ export function UsersEdit() {
       const userData = {
         name: userName,
         email: userEmail,
-        ...(userPassword && { password: userPassword }), // Inclui password apenas se foi preenchido
         role: userRole,
-        status: userStatus
+        status: userStatus,
+        ...(userPassword && { password: userPassword }) // Inclui password apenas se foi preenchido
       };
 
       console.log('Atualizando usuário:', userData);
@@ -228,8 +228,8 @@ export function UsersEdit() {
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setUserStatus(e.target.value as 'active' | 'inactive' | 'ativo' | 'inativo')}
           className="mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md"
         >
-          <option value="ativo">Sim</option>
-          <option value="inativo">Não</option>
+          <option value="active">Sim</option>
+          <option value="inactive">Não</option>
         </select>
       </div>
 
