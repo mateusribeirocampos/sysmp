@@ -48,4 +48,11 @@ async function getUserById(id) {
   return query(sql, params);
 }
 
-export default { listByEmail, updatePassword, addUser, ListUsers, editUserById, getUserById };
+async function editUserStatus(id, status) {
+  let sql = `UPDATE users SET status = ? WHERE id_user = ?`;
+  let params = [status, id];
+
+  return query(sql, params);
+}
+
+export default { listByEmail, updatePassword, addUser, ListUsers, editUserById, getUserById, editUserStatus };

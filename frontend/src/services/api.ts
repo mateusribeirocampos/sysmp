@@ -27,6 +27,8 @@ export const authService = {
   logout: () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+    // Limpa o header de autorização do axios
+    delete api.defaults.headers.common['Authorization']
   },
 }
 
@@ -54,6 +56,12 @@ export const userService = {
 
   update: async (id: number, userData: any) => {
     const response = await api.put(`/users/edit/${id}`, userData)
+    return response.data
+  },
+
+  updateStatus: async (id: number, status: string) => {
+    console.log('chamando api para atualizar status do usuário:', id, status)
+    const response = await api.put(`/users/${id}/status`, { status })
     return response.data
   },
 

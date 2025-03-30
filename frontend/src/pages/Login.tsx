@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { authService } from '@/services/api'
 import type { LoginCredentials } from '@/types'
 
 const logoPath = import.meta.env.VITE_LOGO_PATH
@@ -22,17 +21,11 @@ export function Login() {
     try {
       console.log('Tentando login com:', { email, password })
       const credentials: LoginCredentials = { email, password }
-      const response = await authService.login(credentials)
       
-      if (response) {
-        localStorage.setItem("token", response.token)
-        localStorage.setItem("user", JSON.stringify(response.user))
-        
-        // Atualiza o contexto de autenticação
-        await login(credentials)
-        
-        navigate("/")
-      }
+      // Usa apenas o login do AuthContext
+      await login(credentials)
+      navigate("/")
+      
     } catch (error: any) {
       console.error('Erro no login:', error)
       if (error.response?.data?.error) {
