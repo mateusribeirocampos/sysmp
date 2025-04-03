@@ -60,9 +60,9 @@ function App() {
             </AdminRoute>
             } />
             <Route path="/extras" element={<Extras />} />
-            <Route path="/extras/add" element={<ExtraAdd />} />
+            <Route path="/extra/add" element={<ExtraAdd />} />
             <Route path="/fisicos" element={<Fisicos />} />
-            <Route path="/fisicos/add" element={<FisicosAdd />} />
+            <Route path="/fisico/add" element={<FisicosAdd />} />
 
           </Route>
         </Routes>

@@ -9,6 +9,7 @@ import {
 } from '../middleware/index.js';
 import { loginLimiter } from '../middleware/loginAttempts.js';
 import controllerUser from '../controllers/controller.user.js';
+import controllerExtra from '../controllers/controller.extra.js'
 
 dotenv.config({ path: './src/.env' });
 
@@ -27,5 +28,9 @@ routes.get("/users/edit/:id", ValidateToken, controllerUser.getUserById);
 
 // Rota para atualização de status
 routes.put("/users/:id/status", ValidateToken, controllerUser.editUserStatus);
+
+// Rota para carregar extrajudiciais
+routes.get("/extras", ValidateToken, controllerExtra.listExtra);
+routes.post("/extra/add", ValidateToken, controllerExtra.addExtras);
 
 export default routes;
