@@ -7,30 +7,28 @@ export interface User {
 }
 
 export interface Extras {
-  id: number
+  id_extra: number
   receivedAt: Date; 
-  idDocument: number;
-  countDaysDelivery: number; 
-  DeliveryDeadline: Date; 
-  internalDelivery: string; 
+  idDocument: string;
+  countDaysDeLivery: number; 
+  deliveryDeadLine: Date; 
+  internalDeliveryUserId: number; 
   message: string; 
 }
 
 export interface Fisicos {
-  id: number
+  id_fisico: number
   receivedAt: Date; 
-  idDocument: number; 
-  countDaysDelivery: number; 
-  DeliveryDeadline: Date; 
-  internalDelivery: string; 
+  idDocument: string;
+  countDaysDeLivery: number; 
+  deliveryDeadLine: Date; 
+  internalDeliveryUserId: number; 
   message: string; 
 }
-
 export interface AuthResponse {
   token: string
   user: User
 }
-
 export interface LoginCredentials {
   email: string
   password: string

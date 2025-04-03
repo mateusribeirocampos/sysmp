@@ -1,29 +1,74 @@
-import { useState, useEffect, useMemo } from 'react';
-import { extras } from '../Data/extras';
-import { user as usersData } from '../Data/users';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { extrasService } from '@/services/api';
+import { userService } from '@/services/api';
+import type { User, Extras } from '@/types';
 
 export function Extras() {
-  const [extrasList, setExtrasList] = useState(extras);
+  const [users, setUsers] = useState<User[]>([]);
+  const [extrasList, setExtrasList] = useState<Extras[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
-
-  const activeUsers = useMemo(() => usersData.filter((user) => user.status === 'active'), []);
+  const [updatingDocuments, setUpdatingDocuments] = useState<string[]>([]);
 
   useEffect(() => {
     loadDocuments();
+    loadAllUsers(); // Carregar todos os usuários disponíveis
   }, []);
 
   const loadDocuments = async () => {
     try {
       setLoading(true);
-      // Usando dados mockados
-      setExtrasList(extras);
+      console.log('iniciando carregamento de documentos extras...');
 
-      // Atualiza o localStorage para o Dashboard acessar
-      localStorage.setItem('extrasCount', extras.length.toString());
+      const extrasDocs = await extrasService.getAll();
+      console.log('Extrajudicias carregados:', extrasDocs);
+
+      // Converter strings de data para objetos Date com ajustes de timezone
+      const processedExtras = extrasDocs.map((doc: Extras) => {
+        // Criar novas datas a partir das strings
+        const receivedDate = new Date(doc.receivedAt);
+        const deliveryDate = new Date(doc.deliveryDeadLine);
+
+        // Ajustar para o timezone local para evitar a defasagem de um dia
+        const adjustedReceivedDate = new Date(
+          receivedDate.getTime() + receivedDate.getTimezoneOffset() * 60000
+        );
+        const adjustedDeliveryDate = new Date(
+          deliveryDate.getTime() + deliveryDate.getTimezoneOffset() * 60000
+        );
+
+        return {
+          ...doc,
+          receivedAt: adjustedReceivedDate,
+          deliveryDeadLine: adjustedDeliveryDate,
+        };
+      });
+
+      setExtrasList(processedExtras); // Usar os dados processados
+
+      const countExtras = await extrasService.getCount();
+      console.log('Total de extrajudiciais: ', countExtras);
+      localStorage.setItem('extrasCount', countExtras.toString());
     } catch (err) {
       setError('Erro ao carregar documentos extrajudiciais');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadAllUsers = async () => {
+    try {
+      setLoading(true);
+      // Buscar todos os usuários ativos
+      const allUsers = await userService.getAll();
+      const activeUsers = allUsers.filter(
+        (user) => user.status === 'active' || user.status === 'ativo'
+      );
+      setUsers(activeUsers);
+    } catch (err) {
+      console.log('Erro ao carregar usuários:', err);
+      setError('Erro ao carregar lista de usuários');
     } finally {
       setLoading(false);
     }
@@ -37,12 +82,45 @@ export function Extras() {
     );
   };
 
-  const handleInternalDeliveryChange = (idDocument: string, userId: string) => {
-    setExtrasList(
-      extrasList.map((doc) =>
-        doc.idDocument === idDocument ? { ...doc, internalDelivery: userId } : doc
-      )
-    );
+  // Atualizar a função handleInternalDeliveryChange para persistir a mudança
+  const handleInternalDeliveryChange = async (idDocument: string, userId: number) => {
+    try {
+      // Indicar que está atualizando este documento
+      setUpdatingDocuments((prev) => [...prev, idDocument]);
+
+      // Atualizar localmente
+      setExtrasList(
+        extrasList.map((doc) =>
+          doc.idDocument === idDocument ? { ...doc, internalDeliveryUserId: userId } : doc
+        )
+      );
+
+      // Enviar atualização para o backend
+      await extrasService.updateInternalDelivery(idDocument, userId);
+    } catch (error) {
+      console.error('Erro ao atualizar responsável:', error);
+      // Reverter a mudança em caso de erro
+      loadDocuments();
+    } finally {
+      // Remover o indicador de atualização
+      setUpdatingDocuments((prev) => prev.filter((id) => id !== idDocument));
+    }
+  };
+
+  const calculateDaysRemaining = (deliveryDeadline: Date): number => {
+    // Obter a data atual sem componente de hora (apenas o dia)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Obter apenas o componente de dia da data de prazo
+    const deadline = new Date(deliveryDeadline);
+    deadline.setHours(0, 0, 0, 0);
+
+    // Calcular a diferença em milissegundos
+    const timeDiff = deadline.getTime() - today.getTime();
+
+    // Converter para dias (86400000 = 24 * 60 * 60 * 1000)
+    return Math.ceil(timeDiff / 86400000);
   };
 
   if (loading) {
@@ -63,7 +141,7 @@ export function Extras() {
         <div className="sm:flex-auto">
           <h1 className="text-xl font-semibold text-gray-900">Extrajudicais</h1>
           <p className="mt-2 text-sm text-gray-700">
-            Lista de todos os processos extrajudicais cadastrados no sistema.
+            Lista de todos os extrajudicais cadastrados no sistema.
           </p>
         </div>
 
@@ -128,10 +206,13 @@ export function Extras() {
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {extrasList.map((doc) => {
-                    const isExpired = new Date() > doc.DeliveryDeadline;
-                    const isAlmostDead = doc.countDaysDelivery <= 3 && doc.countDaysDelivery > 0;
-                    const isDelivered = doc.countDaysDelivery <= 0;
+                    // Calcular dias restantes
+                    const daysRemaining = calculateDaysRemaining(doc.deliveryDeadLine);
 
+                    // Definir status
+                    const isExpired = daysRemaining < 0; // Prazo expirado (negativo)
+                    const isAlmostDead = daysRemaining > 0 && daysRemaining <= 3; // 3 dias ou menos
+                    const isDelivered = false; // Substitua por lógica real baseada em algum campo de status
 
                     return (
                       <tr key={doc.idDocument}>
@@ -152,7 +233,7 @@ export function Extras() {
                                   : ''
                           }`}
                         >
-                          {doc.countDaysDelivery}
+                          {daysRemaining}
                         </td>
                         <td
                           className={`whitespace-nowrap px-3 py-4 text-sm text-gray-500 ${
@@ -165,7 +246,7 @@ export function Extras() {
                                   : ''
                           }`}
                         >
-                          {doc.DeliveryDeadline.toLocaleDateString('pt-BR')}
+                          {doc.deliveryDeadLine.toLocaleDateString('pt-BR')}
                           {isExpired && (
                             <span className="ml-1">
                               <svg
@@ -185,24 +266,29 @@ export function Extras() {
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-600">
                           <div className="relative">
-                            <div>
-                              <select
-                                name={`user-${doc.idDocument}`}
-                                id={`user-${doc.idDocument}`}
-                                value={doc.internalDelivery}
-                                onChange={(e) =>
-                                  handleInternalDeliveryChange(doc.idDocument, e.target.value)
-                                }
-                                className="mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md"
-                              >
-                                <option value="">Selecione o usuário</option>
-                                {activeUsers.map((u) => (
-                                  <option key={u.id} value={u.id}>
-                                    {u.name}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
+                            {updatingDocuments.includes(doc.idDocument) && (
+                              <div className="absolute right-2 top-2">
+                                <div className="animate-spin h-4 w-4 border-b-2 border-blue-500 rounded-full"></div>
+                              </div>
+                            )}
+
+                            <select
+                              name={`user-${doc.idDocument}`}
+                              id={`user-${doc.idDocument}`}
+                              value={doc.internalDeliveryUserId || ''}
+                              onChange={(e) =>
+                                handleInternalDeliveryChange(doc.idDocument, Number(e.target.value))
+                              }
+                              disabled={updatingDocuments.includes(doc.idDocument)}
+                              className="mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md"
+                            >
+                              <option value="">Selecione o usuário</option>
+                              {users.map((user) => (
+                                <option key={user.id_user} value={user.id_user}>
+                                  {user.name}
+                                </option>
+                              ))}
+                            </select>
                           </div>
                         </td>
                         <td className="whitespace-normal px-3 py-4 text-sm text-gray-500">
