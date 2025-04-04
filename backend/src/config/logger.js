@@ -28,7 +28,7 @@ const logger = createLogger({
     new DailyRotateFile({
       filename: path.join('logs', 'combined-%DATE%.log'),
       datePattern: 'YYYY-MM-DD',
-      maxFiles: '30d',
+      maxFiles: '10d',
       zippedArchive: true
     }),
     new transports.File({ 
