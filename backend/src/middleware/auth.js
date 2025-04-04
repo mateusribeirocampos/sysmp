@@ -51,7 +51,7 @@ const ValidateToken = async (req, res, next) => {
   try {
     const token = extractTokenFromHeader(req.headers.authorization);
 
-    const decoded = await jwt.verify(token, config.jwt.secret);
+    const decoded = jwt.verify(token, config.jwt.secret);
     
     // Adiciona informações do usuário ao request
     req.user = {
