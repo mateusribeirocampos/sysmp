@@ -22,7 +22,7 @@ export interface Fisicos {
   idDocument: string;
   countDaysDeLivery: number; 
   deliveryDeadLine: Date; 
-  internalDeliveryUserId: number; 
+  internalDeliveryUserId: number;
   message: string; 
 }
 export interface AuthResponse {
