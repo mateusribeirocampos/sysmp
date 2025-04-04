@@ -112,9 +112,10 @@ export const extrasService = {
     });
     return response.data;
   },
-  // Adicionar esta função ao extrasService
+
   updateInternalDelivery: async (idDocument: string, userId: number): Promise<any> => {
-    const response = await api.put(`/extra/${idDocument}/assign`, {
+    const response = await api.put(`/extras/assign`, {
+      idDocument: idDocument,
       internalDeliveryUserId: userId,
     });
     return response.data;

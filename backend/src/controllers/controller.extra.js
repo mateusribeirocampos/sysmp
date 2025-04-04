@@ -38,4 +38,28 @@ async function addExtras(req, res) {
   }
 }
 
-export default { listExtra, addExtras };
+// Função modificada para receber parâmetros no corpo da requisição
+async function assignInternalDelivery(req, res) {
+  try {
+    const { idDocument, internalDeliveryUserId } = req.body;
+    
+    if (!idDocument || !internalDeliveryUserId) {
+      return res.status(400).json({ error: 'ID do documento e ID do usuário são obrigatórios' });
+    }
+    
+    console.log(`Tentando atribuir documento ${idDocument} ao usuário ${internalDeliveryUserId}`);
+    
+    const result = await serviceExtra.updateInternalDelivery(idDocument, internalDeliveryUserId);
+    
+    return res.status(200).json({ 
+      success: true, 
+      message: 'Responsável atualizado com sucesso',
+      data: result
+    });
+  } catch (error) {
+    console.error('Erro ao atribuir responsável:', error);
+    return res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+}
+
+export default { listExtra, addExtras, assignInternalDelivery };
