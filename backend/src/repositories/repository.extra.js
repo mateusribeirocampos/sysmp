@@ -10,4 +10,9 @@ async function addExtras(receivedAt, idDocument, deliveryDeadLine, internalDeliv
   return query(sql, [receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message]);
 }
 
-export default { listExtra, addExtras };
+async function updateInternalDelivery(idDocument, userId) {
+  let sql = 'UPDATE extras SET internalDeliveryUserId = ? WHERE idDocument = ?'
+  return query(sql, [userId, idDocument]);
+}
+
+export default { listExtra, addExtras, updateInternalDelivery };
