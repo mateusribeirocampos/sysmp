@@ -10,4 +10,9 @@ async function addExtras(receivedAt, idDocument, deliveryDeadLine, internalDeliv
   return result;
 }
 
-export default { listExtra, addExtras };
+async function updateInternalDelivery(idDocument, userId) {
+  const result = await repoExtra.updateInternalDelivery(idDocument, userId);
+  return result;
+}
+
+export default { listExtra, addExtras, updateInternalDelivery };

@@ -32,5 +32,8 @@ routes.put("/users/:id/status", ValidateToken, controllerUser.editUserStatus);
 // Rota para carregar extrajudiciais
 routes.get("/extras", ValidateToken, controllerExtra.listExtra);
 routes.post("/extra/add", ValidateToken, controllerExtra.addExtras);
+// Rota para atribuir responsável a um documento
+// Usando rota sem parâmetros no path para evitar problemas com caracteres especiais
+routes.put("/extras/assign", ValidateToken, controllerExtra.assignInternalDelivery);
 
 export default routes;

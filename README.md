@@ -6,6 +6,54 @@ Modern document management system designed specifically for small teams and work
 
 ![SYSMP Preview](https://via.placeholder.com/800x400.png?text=SYSMP+Interface+Preview)
 
+## Arquitetura do Sistema
+
+```mermaid
+graph TD
+    subgraph Frontend
+        A[App React] --> B[API Service]
+        B --> C[AuthService]
+        B --> D[UserService]
+        B --> E[ExtrasService]
+        B --> F[FisicosService]
+    end
+
+    subgraph Backend
+        G[Express Server] --> H[Routes]
+        H --> I[Controllers]
+        I --> J[Services]
+        J --> K[Repositories]
+        K --> L[(SQLite Database)]
+    end
+
+    B <-->|HTTP/JWT| G
+
+    style A fill:#48781e,stroke:#333,stroke-width:2px
+    style G fill:#422673,stroke:#333,stroke-width:2px
+    style L fill:#003b57,stroke:#333,stroke-width:2px
+```
+
+## Communication Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant React as Frontend React
+    participant API as API Service
+    participant Express as Backend Express
+    participant DB as SQLite Database
+
+    User->>React: User interaction
+   React->>API: service call (axios)
+   API->>Express: HTTP request with JWT
+   Express->>Express: token validation
+   Express->>DB: Query/Operation
+   DB->>Express: Result
+   Express->>API: JSON response
+   API->>React: Processed data
+   React->>User: Interface update
+```
+
 ## Features
 
 - **User Authentication** - Secure login system with token-based authentication (no public registration - user accounts managed by admin)
@@ -31,7 +79,7 @@ SYSMP focuses on **document metadata management** rather than document storage:
 ### Frontend
 
 - **Framework**: React ^18 with TypeScript 5.8.2
-- **Build Tool**: Vite 6.2.2
+- **Build Tool**: Vite 6.2.5
 - **Styling**: Tailwind CSS 3.4.17
 - **Routing**: React Router 6.30.0
 - **HTTP Client**: Axios 1.8.4
