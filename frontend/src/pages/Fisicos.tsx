@@ -1,28 +1,66 @@
-import { useState, useEffect, useMemo } from 'react';
-import { fisicos } from '../Data/fisicos';
-import { user as userData } from '../Data/users';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { fisicosService, userService } from '@/services/api';
+import type { User, Fisicos } from '@/types';
+import { user } from '@/Data/users';
 
 export function Fisicos() {
-  const [fisicosList, setFisicosList] = useState(fisicos);
+  const [users, setUsers] = useState<User[]>([]);
+  const [fisicosList, setFisicosList] = useState<Fisicos[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
-
-  const activeUsers = useMemo(() => userData.filter((user) => user.status === 'active'), []);
+  const [updatingDocuments, setUpdatingDocuments] = useState<string[]>([]);
 
   useEffect(() => {
     loadDocuments();
+    loadAllUser();
   }, []);
 
   const loadDocuments = async () => {
     try {
       setLoading(true);
-      // Por enquanto, usando os dados mockados
-      setFisicosList(fisicos);
+      console.log('inciando carregamento de documentos fisicos...');
 
-      localStorage.setItem('fisicosCount', fisicos.length.toString());
+      const fisicosDocs = await fisicosService.getAll();
+      console.log('Extrajudiciais carregados: ', fisicosDocs);
+
+      const processedFisicos = fisicosDocs.map((doc: Fisicos) => {
+        const receivedDate = new Date(doc.receivedAt);
+        const deliveryDate = new Date(doc.deliveryDeadLine);
+
+        const adjustedReceivedDate = new Date(receivedDate.getTime() + receivedDate.getTimezoneOffset() * 60000);
+        const adjustedDeliveryDate = new Date(deliveryDate.getTime() + deliveryDate.getTimezoneOffset() * 60000);
+
+        return {
+          ...doc,
+          receivedAt: adjustedReceivedDate,
+          deliveryDeadLine: adjustedDeliveryDate,
+        };
+      });
+
+      setFisicosList(processedFisicos);
+
+      const countFisicos = await fisicosService.getCount();
+      console.log('Total de judiciais físicos: ', countFisicos);
+      localStorage.setItem('fisicosCount', countFisicos.toString());
+
     } catch (err) {
       setError('Erro ao carregar documentos judiciais físicos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadAllUser= async () => {
+    try {
+      const allUsers = await userService.getAll();
+      const activeUsers = allUsers.filter(
+        (user) => user.status === 'active' || user.status === "ativo"
+      );
+      setUsers(activeUsers);
+    } catch (error) {
+      console.log("Erro ao carregar usuários: ", error)
+      setError('Erro ao carregar lista de usuários') 
     } finally {
       setLoading(false);
     }
@@ -37,13 +75,33 @@ export function Fisicos() {
     );
   };
 
-  const handleInternalDeliveryChange = (idDocument: string, userId: string) => {
-    setFisicosList(
-      fisicosList.map((doc) =>
-        doc.idDocument === idDocument ? { ...doc, internalDelivery: userId } : doc
-      )
-    );
+  const handleInternalDeliveryChange = async (idDocument: string, userId: number) => {
+    try {
+      setUpdatingDocuments((prev) => [...prev, idDocument]);
+      setFisicosList(
+        fisicosList.map((doc) => 
+          doc.idDocument === idDocument ? {...doc, internalDeliveryUserId: userId} : doc))
+
+      await fisicosService.updateInternalDelivery(idDocument, userId);
+    } catch (error) {
+      console.log('Erro ao atualizar o responsável: ', error);
+      loadDocuments();
+    } finally {
+      setUpdatingDocuments((prev) => prev.filter((id) => id !== idDocument));
+    }
   };
+
+  const calculateDaysRemaining = (deliveryDeadline: Date): number => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const deadline = new Date(deliveryDeadline);
+    deadline.setHours(0, 0, 0, 0);
+
+    const timeDiff = deadline.getTime() - today.getTime();
+
+    return Math.ceil(timeDiff / 86400000);
+  }
 
   if (loading) {
     return (
@@ -128,10 +186,11 @@ export function Fisicos() {
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {fisicosList.map((doc) => {
-                    const isExpired = new Date() > doc.DeliveryDeadline;
-                    const isAlmostDead = doc.countDaysDelivery <= 5 && doc.countDaysDelivery > 0;
-                    const isDelivered = doc.countDaysDelivery <= 0;
+                    const daysRemaining = calculateDaysRemaining(doc.deliveryDeadLine);
 
+                    const isExpired = daysRemaining < 0;
+                    const isAlmostDead = daysRemaining > 0 && daysRemaining <= 3;
+                    const isDelivered = false; // será implementado com botão verde de entregue.
                     return (
                       <tr key={doc.idDocument}>
                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
@@ -151,7 +210,7 @@ export function Fisicos() {
                                   : ''
                           }`}
                         >
-                          {doc.countDaysDelivery}
+                          {daysRemaining}
                         </td>
                         <td
                           className={`whitespace-nowrap px-3 py-4 text-sm text-gray-500 ${
@@ -164,7 +223,7 @@ export function Fisicos() {
                                   : ''
                           }`}
                         >
-                          {doc.DeliveryDeadline.toLocaleDateString('pt-BR')}
+                          {doc.deliveryDeadLine.toLocaleDateString('pt-BR')}
                           {isExpired && (
                             <span className="ml-1">
                               <svg
@@ -183,20 +242,27 @@ export function Fisicos() {
                           )}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <div>
+                          <div className='relative'>
+                            {updatingDocuments.includes(doc.idDocument) && (
+                              <div className='absolute right-2 top-2'>
+                                <div className='animate-spin h-4 w-4 border-b-2 border-blue-500 rounded-full'></div>
+                              </div>
+                            )}
+
                             <select
                               name={`user-${doc.idDocument}`}
                               id={`user-${doc.idDocument}`}
-                              value={doc.internalDelivery}
+                              value={doc.internalDeliveryUserId || ''}
                               onChange={(e) =>
-                                handleInternalDeliveryChange(doc.idDocument, e.target.value)
+                                handleInternalDeliveryChange(doc.idDocument, Number(e.target.value))
                               }
+                              disabled={updatingDocuments.includes(doc.idDocument)}
                               className='mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md'
                             >
                               <option value="">Selecione o usuário</option>
-                              {activeUsers.map((u) => (
-                                <option key={u.id} value={u.id}>
-                                  {u.name}
+                              {users.map((user) => (
+                                <option key={user.id_user} value={user.id_user}>
+                                  {user.name}
                                 </option>
                               ))}
                             </select>
