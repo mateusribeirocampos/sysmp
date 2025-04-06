@@ -42,6 +42,9 @@ routes.get("/extra/edit/:id_extra", ValidateToken, controllerExtra.getExtraById)
 // Rota para atualizar extra
 routes.put("/extra/edit/:id_extra", ValidateToken, controllerExtra.updateExtra);
 
+// Rota para deletar extra
+routes.delete("/extra/delete/:id_extra", ValidateToken, controllerExtra.deleteExtra);
+
 // Rota para carregar físicos
 routes.get("/fisicos", ValidateToken, controllerFisico.listFisico);
 

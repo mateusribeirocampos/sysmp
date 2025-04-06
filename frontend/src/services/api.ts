@@ -118,7 +118,7 @@ export const extrasService = {
   },
 
   delete: async (id: number): Promise<void> => {
-    await api.delete(`/extras/${id}`);
+    await api.delete(`/extra/delete/${id}`);
   },
 };
 
