@@ -22,6 +22,12 @@ export function Dashboard() {
     // Carregar os documentos extras e físicos de forma assíncrona
     const fetchDocuments = async () => {
       try {
+        // Verificar documentos entregues
+        const savedDeliveredExtras = localStorage.getItem('deliveredExtras');
+        const deliveredExtras = savedDeliveredExtras ? JSON.parse(savedDeliveredExtras) : [];
+        const savedDeliveredFisicos = localStorage.getItem('deliveredFisicos');
+        const deliveredFisicos = savedDeliveredFisicos ? JSON.parse(savedDeliveredFisicos) : [];
+
         // Buscar os extras
         const extrasResponse = await extrasService.getAll();
         console.log('Dados de extrajudiciais retornados pela API:', extrasResponse);
@@ -43,10 +49,13 @@ export function Dashboard() {
             ...doc,
             receivedAt: adjustedReceivedDate,
             deliveryDeadLine: adjustedDeliveryDate,
+            isDelivered: deliveredExtras.includes(doc.idDocument)
           };
         });
         
-        setExtrasList(processedExtras);
+        // Filtrar apenas documentos não entregues para a lista
+        const pendingExtras = processedExtras.filter(doc => !doc.isDelivered);
+        setExtrasList(pendingExtras);
         
         // Buscar os físicos
         const fisicosResponse = await fisicosService.getAll();
@@ -69,23 +78,32 @@ export function Dashboard() {
             ...doc,
             receivedAt: adjustedReceivedDate,
             deliveryDeadLine: adjustedDeliveryDate,
+            isDelivered: deliveredFisicos.includes(doc.idDocument)
           };
         });
         
-        setFisicosList(processedFisicos);
+        // Filtrar apenas documentos não entregues para a lista
+        const pendingFisicos = processedFisicos.filter(doc => !doc.isDelivered);
+        setFisicosList(pendingFisicos);
         
-        // Atualizar contadores locais
-        const extrasCount = localStorage.getItem('extrasCount');
-        const fisicosCount = localStorage.getItem('fisicosCount');
+        // Atualizar contadores locais - contando apenas pendentes
         const usersCount = localStorage.getItem('usersCount');
+        
+        // Contar documentos não entregues
+        const pendingExtrasCount = pendingExtras.length;
+        const pendingFisicosCount = pendingFisicos.length;
 
         setCounts((prev) => ({
           ...prev,
-          extras: extrasCount ? parseInt(extrasCount) : 0,
-          fisicos: fisicosCount ? parseInt(fisicosCount) : 0,
+          extras: pendingExtrasCount,
+          fisicos: pendingFisicosCount,
           users: usersCount ? parseInt(usersCount) : 0,
-          pendentes: extrasCount && fisicosCount ? parseInt(extrasCount) + parseInt(fisicosCount) : 0,
+          pendentes: pendingExtrasCount + pendingFisicosCount,
         }));
+        
+        // Atualizar localStorage com contagem atualizada de pendentes
+        localStorage.setItem('pendingExtrasCount', pendingExtrasCount.toString());
+        localStorage.setItem('pendingFisicosCount', pendingFisicosCount.toString());
       } catch (error) {
         console.error('Erro ao carregar documentos:', error);
       }
@@ -95,20 +113,8 @@ export function Dashboard() {
 
     // Opcional: adicionar um listener para atualizações em tempo real
     const handleStorageChange = () => {
-      const updatedExtrasCount = localStorage.getItem('extrasCount');
-      const updatedFisicosCount = localStorage.getItem('fisicosCount');
-      const updatedUsersCount = localStorage.getItem('usersCount');
-
-      setCounts((prev) => ({
-        ...prev,
-        extras: updatedExtrasCount ? parseInt(updatedExtrasCount) : prev.extras,
-        fisicos: updatedFisicosCount ? parseInt(updatedFisicosCount) : prev.fisicos,
-        users: updatedUsersCount ? parseInt(updatedUsersCount) : prev.users,
-        pendentes:
-          updatedExtrasCount && updatedFisicosCount
-            ? parseInt(updatedExtrasCount) + parseInt(updatedFisicosCount)
-            : prev.extras + prev.fisicos,
-      }));
+      // Recarregar documentos quando houver mudanças no localStorage
+      fetchDocuments();
     };
 
     // Ouvir mudanças no localStorage (se estiver em outra aba/janela)
