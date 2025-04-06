@@ -1,20 +1,59 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { extrasService } from '@/services/api';
 import { userService } from '@/services/api';
 import type { User, Extras } from '@/types';
+import { Modal } from '@/components/Modal';
 
 export function Extras() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [extrasList, setExtrasList] = useState<Extras[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [updatingDocuments, setUpdatingDocuments] = useState<string[]>([]);
+  const [deliveredDocuments, setDeliveredDocuments] = useState<string[]>([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [extraToDelete, setExtraToDelete] = useState<number | null>(null);
 
   useEffect(() => {
     loadDocuments();
     loadAllUsers(); // Carregar todos os usuários disponíveis
+    // Carregar documentos entregues do localStorage se existirem
+    const savedDelivered = localStorage.getItem('deliveredExtras');
+    if (savedDelivered) {
+      setDeliveredDocuments(JSON.parse(savedDelivered));
+    }
   }, []);
+
+  function toEdit(id_extra: number) {
+    // Implementar lógica para editar o documento
+    console.log('Editando documento:', id_extra);
+    navigate(`/extra/edit/${id_extra}`);
+  }
+
+  function deleteExtra(id_extra: number) {
+    // Open modal and store the id to delete
+    setExtraToDelete(id_extra);
+    setIsDeleteModalOpen(true);
+  }
+
+  const confirmDeleteExtra = async () => {
+    if (extraToDelete) {
+      try {
+        await extrasService.delete(extraToDelete);
+        // Reload documents after successful deletion
+        loadDocuments();
+      } catch (err) {
+        console.error('Erro ao excluir documento:', err);
+        setError('Erro ao excluir documento');
+      } finally {
+        // Close modal and reset state
+        setIsDeleteModalOpen(false);
+        setExtraToDelete(null);
+      }
+    }
+  };
 
   const loadDocuments = async () => {
     try {
@@ -63,7 +102,7 @@ export function Extras() {
       // Buscar todos os usuários ativos
       const allUsers = await userService.getAll();
       const activeUsers = allUsers.filter(
-        (user) => user.status === 'active' || user.status === 'ativo'
+        (user) => user.status === 'active'
       );
       setUsers(activeUsers);
     } catch (err) {
@@ -212,7 +251,7 @@ export function Extras() {
                     // Definir status
                     const isExpired = daysRemaining < 0; // Prazo expirado (negativo)
                     const isAlmostDead = daysRemaining > 0 && daysRemaining <= 3; // 3 dias ou menos
-                    const isDelivered = false; // Substitua por lógica real baseada em algum campo de status
+                    const isDelivered = deliveredDocuments.includes(doc.idDocument); // Verificar se está entregue
 
                     return (
                       <tr key={doc.idDocument}>
@@ -302,34 +341,57 @@ export function Extras() {
                         </td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                           <div className="flex justify-end space-x-3">
-                            {!isDelivered && (
-                              <button
-                                onClick={() => {
-                                  /* TODO: Implementar entrega */
-                                }}
-                                className="text-white bg-green-600 hover:bg-green-100 border border-transparent hover:text-green-600"
-                                title="Marcar como entregue"
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="h-5 w-5"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                              </button>
-                            )}
                             <button
                               onClick={() => {
+                                if (!isDelivered) {
+                                  setDeliveredDocuments((prev) => {
+                                    const updated = [...prev, doc.idDocument];
+                                    localStorage.setItem('deliveredExtras', JSON.stringify(updated));
+                                    return updated;
+                                  });
+                                }
+                              }}
+                              className={`text-white ${
+                                isDelivered 
+                                  ? 'bg-green-200 cursor-default' // Botão verde mais claro quando entregue
+                                  : 'bg-green-600 hover:bg-green-100 hover:text-green-600'
+                              } border border-transparent`}
+                              title={isDelivered ? "Documento entregue" : "Marcar como entregue"}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (isDelivered || toEdit(doc.id_extra)) {
+                                  setDeliveredDocuments((prev) => {
+                                    localStorage.setItem('deliveredExtras', JSON.stringify(prev));
+                                    return prev;
+                                  });
+                                } else {
+                                  // Redirecionar para a página de edição
+                                  // window.location.href = `/extra/edit/${doc.idDocument}`;
+                                  // Ou usar o navigate do react-router
+                                  window.location.href = `/extra/edit/${doc.id_extra}`;
+                                }
                                 /* TODO: Implementar edição */
                               }}
-                              className="text-white bg-blue-700 hover:bg-slate-100 border border-transparent hover:text-blue-700"
-                              title="Editar documento"
+                              className={`text-white ${
+                                isDelivered 
+                                  ? 'bg-blue-200 cursor-default'
+                                  : 'bg-blue-600 hover:bg-blue-100 hover:text-blue-600'
+                              } border border-transparent`}
+                              title={isDelivered ? "Documento entregue" : "Marcar como entregue"}
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -341,9 +403,7 @@ export function Extras() {
                               </svg>
                             </button>
                             <button
-                              onClick={() => {
-                                /* TODO: Implementar exclusão */
-                              }}
+                              onClick={() => deleteExtra(doc.id_extra)}
                               className="text-white bg-red-600 hover:bg-red-100 border border-transparent hover:text-red-600"
                               title="Excluir documento"
                             >
@@ -371,6 +431,16 @@ export function Extras() {
           </div>
         </div>
       </div>
+      {isDeleteModalOpen && (
+        <Modal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          title="Confirmar exclusão"
+          message="Tem certeza que deseja excluir este documento? Esta ação não pode ser desfeita."
+          onConfirm={confirmDeleteExtra}
+          onCancel={() => setIsDeleteModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

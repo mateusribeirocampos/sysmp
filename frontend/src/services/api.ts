@@ -92,7 +92,7 @@ export const extrasService = {
 
   // Busca um extra pelo ID
   getById: async (id: number): Promise<Extras> => {
-    const response = await api.get<Extras>(`/extras/${id}`);
+    const response = await api.get<Extras>(`/extra/edit/${id}`);
     return response.data;
   },
 
@@ -104,17 +104,13 @@ export const extrasService = {
   },
 
   // Atualiza um extra existente
-  update: async (id: number, documentData: FormData): Promise<Extras> => {
-    const response = await api.put<Extras>(`/extras/${id}`, documentData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+  update: async (id_extra: number, extraData: any): Promise<Extras> => {
+    const response = await api.put<Extras>(`/extra/edit/${id_extra}`, extraData);
     return response.data;
   },
 
   updateInternalDelivery: async (idDocument: string, userId: number): Promise<any> => {
-    const response = await api.put(`/extras/assign`, {
+    const response = await api.put(`/extra/assign`, {
       idDocument: idDocument,
       internalDeliveryUserId: userId,
     });
@@ -122,7 +118,7 @@ export const extrasService = {
   },
 
   delete: async (id: number): Promise<void> => {
-    await api.delete(`/extras/${id}`);
+    await api.delete(`/extra/delete/${id}`);
   },
 };
 
@@ -148,7 +144,7 @@ export const fisicosService = {
 
   // Cria um novo físico
   create: async (documentData: FormData): Promise<Fisicos> => {
-    const response = await api.post<Fisicos>('/fisicos/add', documentData, {
+    const response = await api.post<Fisicos>('/fisico/add', documentData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -158,10 +154,18 @@ export const fisicosService = {
 
   // Atualiza um físico existente
   update: async (id: number, documentData: FormData): Promise<Fisicos> => {
-    const response = await api.put<Fisicos>(`/fisicos/${id}`, documentData, {
+    const response = await api.put<Fisicos>(`/fisico/${id}`, documentData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+    });
+    return response.data;
+  },
+
+  updateInternalDelivery: async (idDocument: string, userId: number): Promise<any> => {
+    const response = await api.put(`/fisicos/assign`, {
+      idDocument: idDocument,
+      internalDeliveryUserId: userId,
     });
     return response.data;
   },
