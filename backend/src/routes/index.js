@@ -37,6 +37,11 @@ routes.post("/extra/add", ValidateToken, controllerExtra.addExtras);
 // Usando rota sem parâmetros no path para evitar problemas com caracteres especiais
 routes.put("/extra/assign", ValidateToken, controllerExtra.assignInternalDelivery);
 
+// Rota para carregar extra para edição
+routes.get("/extra/edit/:id_extra", ValidateToken, controllerExtra.getExtraById);
+// Rota para atualizar extra
+routes.put("/extra/edit/:id_extra", ValidateToken, controllerExtra.updateExtra);
+
 // Rota para carregar físicos
 routes.get("/fisicos", ValidateToken, controllerFisico.listFisico);
 

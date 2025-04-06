@@ -1,7 +1,7 @@
 import { query } from '../config/database/sqlite.config.js'
 
 async function listFisico() {
-  let sql = 'SELECT * FROM fisicos'
+  let sql = 'SELECT * FROM fisicos order by deliveryDeadLine'
   return query(sql);
 }
 

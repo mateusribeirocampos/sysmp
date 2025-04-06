@@ -8,6 +8,9 @@ type DocumentosNoPrazoProps = {
 export function DocumentosNoPrazo({ documents, tipo }: DocumentosNoPrazoProps) {
   console.log(`Documentos recebidos (${tipo}):`, documents);
   
+  // Verificar se temos documentos entregues
+  const temDocumentosEntregues = documents.some(doc => doc.isDelivered);
+  
   // Mostra a estrutura completa do primeiro documento para debug
   if (documents.length > 0) {
     console.log('Estrutura do primeiro documento:', JSON.stringify(documents[0], null, 2));
@@ -27,7 +30,7 @@ export function DocumentosNoPrazo({ documents, tipo }: DocumentosNoPrazoProps) {
       // Calcula os dias restantes, independente se o valor vem da API
       const diasRestantes = calcularDiasRestantes(prazo);
       
-      console.log(`Documento ID: ${doc.idDocument}, Prazo: ${prazo.toISOString()}, Dias API: ${doc.countDaysDeLivery}, Dias calculados: ${diasRestantes}`);
+      console.log(`Documento ID: ${doc.idDocument}, Prazo: ${prazo.toISOString()}, Dias API: ${doc.countDaysDeLivery}, Dias calculados: ${diasRestantes}, Entregue: ${doc.isDelivered ? 'Sim' : 'Não'}`);
       
       // Verifica apenas se o prazo é maior que hoje (futuro) 
       return prazo > hoje;
@@ -65,11 +68,16 @@ export function DocumentosNoPrazo({ documents, tipo }: DocumentosNoPrazoProps) {
                     <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                       Dias Restantes
                     </th>
+                    {temDocumentosEntregues && (
+                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                        Status
+                      </th>
+                    )}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {documents.map((doc) => (
-                    <tr key={doc.idDocument}>
+                    <tr key={doc.idDocument} className={doc.isDelivered ? 'bg-green-50' : ''}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
                         {doc.idDocument}
                       </td>
@@ -79,9 +87,22 @@ export function DocumentosNoPrazo({ documents, tipo }: DocumentosNoPrazoProps) {
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                         {formatDate(doc.deliveryDeadLine)}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        {calcularDiasRestantes(doc.deliveryDeadLine)}
+                      <td className={`whitespace-nowrap px-3 py-4 text-sm ${doc.isDelivered ? 'text-green-600 font-medium' : 'text-gray-500'}`}>
+                        {doc.isDelivered ? 'Entregue' : calcularDiasRestantes(doc.deliveryDeadLine)}
                       </td>
+                      {temDocumentosEntregues && (
+                        <td className="whitespace-nowrap px-3 py-4 text-sm">
+                          {doc.isDelivered ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              Entregue
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                              Pendente
+                            </span>
+                          )}
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -113,12 +134,17 @@ export function DocumentosNoPrazo({ documents, tipo }: DocumentosNoPrazoProps) {
                   <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                     Dias Restantes
                   </th>
+                  {temDocumentosEntregues && (
+                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                      Status
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {documentosNoPrazo.length > 0 ? (
                   documentosNoPrazo.map((doc) => (
-                    <tr key={doc.idDocument}>
+                    <tr key={doc.idDocument} className={doc.isDelivered ? 'bg-green-50' : ''}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
                         {doc.idDocument}
                       </td>
@@ -128,14 +154,27 @@ export function DocumentosNoPrazo({ documents, tipo }: DocumentosNoPrazoProps) {
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                         {formatDate(doc.deliveryDeadLine)}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        {calcularDiasRestantes(doc.deliveryDeadLine)}
+                      <td className={`whitespace-nowrap px-3 py-4 text-sm ${doc.isDelivered ? 'text-green-600 font-medium' : 'text-gray-500'}`}>
+                        {doc.isDelivered ? 'Entregue' : calcularDiasRestantes(doc.deliveryDeadLine)}
                       </td>
+                      {temDocumentosEntregues && (
+                        <td className="whitespace-nowrap px-3 py-4 text-sm">
+                          {doc.isDelivered ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              Entregue
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                              Pendente
+                            </span>
+                          )}
+                        </td>
+                      )}
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={4} className="text-center py-4 text-gray-500">
+                    <td colSpan={temDocumentosEntregues ? 5 : 4} className="text-center py-4 text-gray-500">
                       Não há documentos {tipo} no prazo.
                     </td>
                   </tr>

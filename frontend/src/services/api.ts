@@ -92,7 +92,7 @@ export const extrasService = {
 
   // Busca um extra pelo ID
   getById: async (id: number): Promise<Extras> => {
-    const response = await api.get<Extras>(`/extras/${id}`);
+    const response = await api.get<Extras>(`/extra/edit/${id}`);
     return response.data;
   },
 
@@ -104,12 +104,8 @@ export const extrasService = {
   },
 
   // Atualiza um extra existente
-  update: async (id: number, documentData: FormData): Promise<Extras> => {
-    const response = await api.put<Extras>(`/extras/${id}`, documentData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+  update: async (id_extra: number, extraData: any): Promise<Extras> => {
+    const response = await api.put<Extras>(`/extra/edit/${id_extra}`, extraData);
     return response.data;
   },
 

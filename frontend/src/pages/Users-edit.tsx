@@ -13,7 +13,7 @@ export function UsersEdit() {
   const [userPassword, setUserPassword] = useState('');
   const [userRole, setUserRole] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [userStatus, setUserStatus] = useState<'active' | 'inactive' | 'ativo' | 'inativo'>('active');
+  const [userStatus, setUserStatus] = useState<'active' | 'inactive' >('active');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -225,7 +225,7 @@ export function UsersEdit() {
           name="userStatus"
           id="userStatus"
           value={userStatus}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setUserStatus(e.target.value as 'active' | 'inactive' | 'ativo' | 'inativo')}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setUserStatus(e.target.value as 'active' | 'inactive')}
           className="mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md"
         >
           <option value="active">Sim</option>
