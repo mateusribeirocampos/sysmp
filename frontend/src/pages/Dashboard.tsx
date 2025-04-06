@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Modal } from '../components/Modal';
 import { DocumentosNoPrazo } from '../components/DocumentosNoPrazo';
-import { fisicos } from '../Data/fisicos';
-import { extras } from '../Data/extras';
+import { extrasService, fisicosService } from '@/services/api';
+import { Extras, Fisicos } from '@/types';
 
 export function Dashboard() {
   const { user } = useAuth();
+  const [extrasList, setExtrasList] = useState<Extras[]>([]);
+  const [fisicosList, setFisicosList] = useState<Fisicos[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [counts, setCounts] = useState({
     users: 0,
@@ -17,19 +19,79 @@ export function Dashboard() {
   });
 
   useEffect(() => {
-    const extrasCount = localStorage.getItem('extrasCount');
-    const fisicosCount = localStorage.getItem('fisicosCount');
-    const usersCount = localStorage.getItem('usersCount');
+    // Carregar os documentos extras e físicos de forma assíncrona
+    const fetchDocuments = async () => {
+      try {
+        // Buscar os extras
+        const extrasResponse = await extrasService.getAll();
+        console.log('Dados de extrajudiciais retornados pela API:', extrasResponse);
+        
+        // Processar as datas com o mesmo ajuste usado em Extras.tsx
+        const processedExtras = extrasResponse.map((doc: Extras) => {
+          const receivedDate = new Date(doc.receivedAt);
+          const deliveryDate = new Date(doc.deliveryDeadLine);
 
+          // Ajustar para o timezone local para evitar a defasagem de um dia
+          const adjustedReceivedDate = new Date(
+            receivedDate.getTime() + receivedDate.getTimezoneOffset() * 60000
+          );
+          const adjustedDeliveryDate = new Date(
+            deliveryDate.getTime() + deliveryDate.getTimezoneOffset() * 60000
+          );
 
-    setCounts((prev) => ({
-      ...prev,
-      extras: extrasCount ? parseInt(extrasCount) : 0,
-      fisicos: fisicosCount ? parseInt(fisicosCount) : 0,
-      users: usersCount ? parseInt(usersCount) : 0,
-      pendentes: extrasCount && fisicosCount ? parseInt(extrasCount) + parseInt(fisicosCount) : 0,
-    }));
+          return {
+            ...doc,
+            receivedAt: adjustedReceivedDate,
+            deliveryDeadLine: adjustedDeliveryDate,
+          };
+        });
+        
+        setExtrasList(processedExtras);
+        
+        // Buscar os físicos
+        const fisicosResponse = await fisicosService.getAll();
+        console.log('Dados de físicos retornados pela API:', fisicosResponse);
+        
+        // Processar as datas com o mesmo ajuste usado em Fisicos.tsx
+        const processedFisicos = fisicosResponse.map((doc: Fisicos) => {
+          const receivedDate = new Date(doc.receivedAt);
+          const deliveryDate = new Date(doc.deliveryDeadLine);
 
+          // Ajustar para o timezone local para evitar a defasagem de um dia
+          const adjustedReceivedDate = new Date(
+            receivedDate.getTime() + receivedDate.getTimezoneOffset() * 60000
+          );
+          const adjustedDeliveryDate = new Date(
+            deliveryDate.getTime() + deliveryDate.getTimezoneOffset() * 60000
+          );
+
+          return {
+            ...doc,
+            receivedAt: adjustedReceivedDate,
+            deliveryDeadLine: adjustedDeliveryDate,
+          };
+        });
+        
+        setFisicosList(processedFisicos);
+        
+        // Atualizar contadores locais
+        const extrasCount = localStorage.getItem('extrasCount');
+        const fisicosCount = localStorage.getItem('fisicosCount');
+        const usersCount = localStorage.getItem('usersCount');
+
+        setCounts((prev) => ({
+          ...prev,
+          extras: extrasCount ? parseInt(extrasCount) : 0,
+          fisicos: fisicosCount ? parseInt(fisicosCount) : 0,
+          users: usersCount ? parseInt(usersCount) : 0,
+          pendentes: extrasCount && fisicosCount ? parseInt(extrasCount) + parseInt(fisicosCount) : 0,
+        }));
+      } catch (error) {
+        console.error('Erro ao carregar documentos:', error);
+      }
+    };
+
+    fetchDocuments();
 
     // Opcional: adicionar um listener para atualizações em tempo real
     const handleStorageChange = () => {
@@ -196,12 +258,12 @@ export function Dashboard() {
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Documentos Pendentes">
           <div className="space-y-6">
             <div>
-              <h4 className="text-lg font-medium text-gray-900 mb-4">Judiciais físcios</h4>
-              <DocumentosNoPrazo documents={fisicos} tipo="físicos" />
+              <h4 className="text-lg font-medium text-blue-700 mb-4">Judiciais físicios</h4>
+              <DocumentosNoPrazo documents={fisicosList} tipo="físicos" />
             </div>
             <div>
-              <h4 className="text-lg font-medium text-gray-900 mb-4">Extrajudiciais</h4>
-              <DocumentosNoPrazo documents={extras} tipo="extrajudiciais" />
+              <h4 className="text-lg font-medium text-blue-700 mb-4">Extrajudiciais</h4>
+              <DocumentosNoPrazo documents={extrasList} tipo="extrajudiciais" />
             </div>
           </div>
         </Modal>
