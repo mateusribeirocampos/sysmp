@@ -25,4 +25,9 @@ async function updateExtra(id_extra, receivedAt, idDocument, deliveryDeadLine, i
   return result;
 }
 
-export default { listExtra, addExtras, updateInternalDelivery, getExtraById, updateExtra };
+async function deleteExtra(id_extra) {
+  const result = await repoExtra.deleteExtra(id_extra);
+  return result;
+}
+
+export default { listExtra, addExtras, updateInternalDelivery, getExtraById, updateExtra, deleteExtra };

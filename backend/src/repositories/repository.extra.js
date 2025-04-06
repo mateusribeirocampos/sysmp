@@ -25,4 +25,9 @@ async function updateExtra(id_extra, receivedAt, idDocument, deliveryDeadLine, i
   return query(sql, [receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message, id_extra]);
 }
 
-export default { listExtra, addExtras, updateInternalDelivery, getExtraById, updateExtra };
+async function deleteExtra(id_extra) {
+  let sql = 'DELETE FROM extras WHERE id_extra = ?'
+  return query(sql, [id_extra]);
+}
+
+export default { listExtra, addExtras, updateInternalDelivery, getExtraById, updateExtra, deleteExtra };

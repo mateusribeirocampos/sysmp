@@ -105,4 +105,17 @@ async function updateExtra(req, res) {
   }
 }
 
-export default { listExtra, addExtras, assignInternalDelivery, getExtraById, updateExtra };
+async function deleteExtra(req, res) {
+  const { id_extra } = req.params;
+  try {
+    const result = await serviceExtra.deleteExtra(id_extra);
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error('Erro no deleteExtra: ', error);
+    return res.status(500).json({
+      error: "Erro interno do servidor"
+    });
+  }
+}
+
+export default { listExtra, addExtras, assignInternalDelivery, getExtraById, updateExtra, deleteExtra };
