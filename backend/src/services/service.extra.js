@@ -15,4 +15,19 @@ async function updateInternalDelivery(idDocument, userId) {
   return result;
 }
 
-export default { listExtra, addExtras, updateInternalDelivery };
+async function getExtraById(id_extra) {
+  const result = await repoExtra.getExtraById(id_extra);
+  return result;
+}
+
+async function updateExtra(id_extra, receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message) {
+  const result = await repoExtra.updateExtra(id_extra, receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message);
+  return result;
+}
+
+async function deleteExtra(id_extra) {
+  const result = await repoExtra.deleteExtra(id_extra);
+  return result;
+}
+
+export default { listExtra, addExtras, updateInternalDelivery, getExtraById, updateExtra, deleteExtra };

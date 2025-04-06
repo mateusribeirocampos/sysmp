@@ -1,42 +1,102 @@
-import api, { userService } from '@/services/api';
-import { User } from '@/types';
 import { useEffect, useState } from 'react';
 import { FaArrowLeftLong } from 'react-icons/fa6';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { userService, extrasService } from '@/services/api';
+import type { User } from '@/types';
 
-export function FisicosAdd() {
+export function ExtraEdit() {
+  const { id_extra } = useParams();
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
+  const [userName, setUserName] = useState('');
   const [receivedAt, setReceivedAt] = useState('');
   const [idDocument, setIdDocument] = useState('');
   const [deliveryDeadLine, setDeliveryDeadLine] = useState('');
   const [internalDeliveryUserId, setInternalDeliveryUserId] = useState('');
   const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    loadAllUser();
-  }, []);
+    loadAllUsers();
+    if (id_extra) {
+      loadExtraData(parseInt(id_extra));
+    }
+  }, [id_extra]);
 
-  const loadAllUser = async () => {
+  const loadAllUsers = async () => {
     try {
       setLoading(true);
-      const users = await userService.getAll();
-      const activeUsers = users.filter(
+      const response = await userService.getAll();
+      const activeUsers = response.filter(
         (user) => user.status === 'active' || user.status === 'inactive'
       );
-
       setUsers(activeUsers);
-    } catch (error) {
-      console.log('Erro ao carregar usuários: ', error);
+    } catch (err) {
+      console.error('Erro ao carregar usuários:', err);
       setError('Erro ao carregar lista de usuários');
     } finally {
       setLoading(false);
     }
   };
 
+  const loadExtraData = async (extraId: number) => {
+    try {
+      setLoading(true);
+      const response = await extrasService.getById(extraId);
+      
+      // Handle array or single object response
+      const extraData = Array.isArray(response) ? response[0] : response;
+      
+      if (extraData) {
+        console.log('Documento extrajudicial carregado:', extraData);
+        
+        // Format dates for input fields
+        const receivedDate = extraData.receivedAt ? new Date(extraData.receivedAt).toISOString().split('T')[0] : '';
+        const deadlineDate = extraData.deliveryDeadLine ? new Date(extraData.deliveryDeadLine).toISOString().split('T')[0] : '';
+        
+        setReceivedAt(receivedDate);
+        setIdDocument(extraData.idDocument || '');
+        setDeliveryDeadLine(deadlineDate);
+        setMessage(extraData.message || '');
+        
+        // Set internalDeliveryUserId and load the user name
+        if (extraData.internalDeliveryUserId) {
+          setInternalDeliveryUserId(extraData.internalDeliveryUserId.toString());
+          await loadUserName(extraData.internalDeliveryUserId);
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao carregar documento extrajudicial:', err);
+      setError('Erro ao carregar dados do documento extrajudicial');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadUserName = async (userId: number) => {
+    try {
+      if (userId) {
+        const response = await userService.getById(userId);
+        const userData = Array.isArray(response) ? response[0] : response;
+        
+        if (userData) {
+          console.log('Usuário responsável carregado:', userData.name);
+          setUserName(userData.name || '');
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao carregar usuário:', err);
+    }
+  };
+
   const handleSubmit = async () => {
     try {
+      setError('');
+      setSuccess('');
+      
+      // Validação dos campos
       if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId || !message) {
         setError('Por favor, preencha todos os campos');
         return;
@@ -48,22 +108,31 @@ export function FisicosAdd() {
         return;
       }
 
-      const fisicoData = {
+      // Criar objeto JSON para enviar ao backend
+      const extraData = {
         receivedAt,
         idDocument,
         deliveryDeadLine,
-        internalDeliveryUserId,
+        internalDeliveryUserId: parseInt(internalDeliveryUserId),
         message,
       };
 
-      console.log('Enviando documento judicial fisico: ', fisicoData);
-      const response = await api.post('fisico/add', fisicoData);
-      console.log('Documento judicial fisico criaado com sucesso: ', response.data);
+      console.log('Enviando documento extrajudicial:', extraData);
 
-      alert('Documento judicial físico cadastrado com sucesso!');
-      window.location.href = '/fisicos';
+      // Usar o serviço de extrasService para atualizar
+      if (id_extra) {
+        const response = await extrasService.update(parseInt(id_extra), extraData);
+        console.log('Documento extrajudicial editado com sucesso:', response);
+        
+        setSuccess('Documento extrajudicial editado com sucesso!');
+        
+        // Redirecionar para a lista após 2 segundos
+        setTimeout(() => {
+          navigate('/extras');
+        }, 2000);
+      }
     } catch (error: any) {
-      console.log('Erro ao criar documento: ', error);
+      console.error('Erro ao editar documento:', error);
 
       // Tratamento de erro detalhado
       if (error.response) {
@@ -77,7 +146,7 @@ export function FisicosAdd() {
           }`
         );
       } else {
-        setError('Erro ao criar documento judicial físico. Tente novamente.');
+        setError('Erro ao editar documento extrajudicial. Tente novamente.');
       }
     }
   };
@@ -90,13 +159,9 @@ export function FisicosAdd() {
     );
   }
 
-  if (error) {
-    return <div className="text-center text-red-500 p-4">{error}</div>;
-  }
-
   return (
     <div className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-      <Link to="/fisicos">
+      <Link to="/extras">
         <div className="inline-flex bg-blue-500 hover:bg-blue-700 p-1 rounded-md mb-8 sm:mt-0 sm:ml-2 sm:flex-none">
           <FaArrowLeftLong className="text-2xl text-white" />
         </div>
@@ -105,8 +170,11 @@ export function FisicosAdd() {
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-xl font-semibold text-gray-900">
-            Adicione um documentos judiciais físicos
+            Edite o documento extrajudical
           </h1>
+          {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+          {success && <p className="mt-2 text-sm text-green-600">{success}</p>}
+          {userName && <p className="mt-2 text-sm text-gray-600">Responsável atual: <span className="font-semibold">{userName}</span></p>}
         </div>
       </div>
 
@@ -153,13 +221,13 @@ export function FisicosAdd() {
       </div>
 
       <div className="w-full md:w-1/2 mt-8">
-        <label htmlFor="internalDelivery" className="block text-lg font-m text-gray-700 mb-1">
+        <label htmlFor="internalDeliveryUserId" className="block text-lg font-m text-gray-700 mb-1">
           Distribuição interna:
         </label>
         <div>
           <select
-            name="internalDelivery"
-            id="internalDelivery"
+            name="internalDeliveryUserId"
+            id="internalDeliveryUserId"
             value={internalDeliveryUserId}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               setInternalDeliveryUserId(e.target.value)
@@ -168,7 +236,7 @@ export function FisicosAdd() {
           >
             <option value="0">Selecione o usuário</option>
             {users.map((user) => (
-              <option key={user.id_user} value={user.id_user}>
+              <option key={user.id_user} value={user.id_user.toString()}>
                 {user.name}
               </option>
             ))}
@@ -193,7 +261,7 @@ export function FisicosAdd() {
 
       <div className="mt-4 border-t pt-4">
         <div className="d-flex justify-content-end">
-          <Link to={'/fisicos'}>
+          <Link to={'/extras'}>
             <button className="btn btn-primary me-2">Cancelar</button>
           </Link>
 

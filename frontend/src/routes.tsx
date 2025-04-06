@@ -8,6 +8,7 @@ import { Users } from './pages/Users';
 import { Extras } from './pages/Extras';
 import { Fisicos } from './pages/Fisicos';
 import { ExtraAdd } from './pages/Extra-add';
+import { ExtraEdit } from './pages/Extra-edit';
 import { FisicosAdd } from './pages/Fisicos-add';
 import { UsersAdd } from './pages/Users-add';
 import { UsersEdit } from './pages/Users-edit';
@@ -61,6 +62,7 @@ function App() {
             } />
             <Route path="/extras" element={<Extras />} />
             <Route path="/extra/add" element={<ExtraAdd />} />
+            <Route path="/extra/edit/:id_extra" element={<ExtraEdit />} />
             <Route path="/fisicos" element={<Fisicos />} />
             <Route path="/fisico/add" element={<FisicosAdd />} />
 
