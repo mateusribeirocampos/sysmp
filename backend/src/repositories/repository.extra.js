@@ -1,7 +1,7 @@
 import { query } from '../config/database/sqlite.config.js'
 
 async function listExtra() {
-  let sql = 'SELECT * FROM extras'
+  let sql = 'SELECT * FROM extras order by deliveryDeadLine'
   return query(sql);
 }
 
@@ -15,4 +15,14 @@ async function updateInternalDelivery(idDocument, userId) {
   return query(sql, [userId, idDocument]);
 }
 
-export default { listExtra, addExtras, updateInternalDelivery };
+async function getExtraById(id_extra) {
+  let sql = 'SELECT * FROM extras WHERE id_extra = ?'
+  return query(sql, [id_extra]);
+}
+
+async function updateExtra(id_extra, receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message) {
+  let sql = 'UPDATE extras SET receivedAt = ?, idDocument = ?, deliveryDeadLine = ?, internalDeliveryUserId = ?, message = ? WHERE id_extra = ?'
+  return query(sql, [receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message, id_extra]);
+}
+
+export default { listExtra, addExtras, updateInternalDelivery, getExtraById, updateExtra };

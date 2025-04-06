@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { fisicosService, userService } from '@/services/api';
 import type { User, Fisicos } from '@/types';
-import { user } from '@/Data/users';
 
 export function Fisicos() {
   const [users, setUsers] = useState<User[]>([]);
@@ -55,7 +54,7 @@ export function Fisicos() {
     try {
       const allUsers = await userService.getAll();
       const activeUsers = allUsers.filter(
-        (user) => user.status === 'active' || user.status === "ativo"
+        (user) => user.status === 'active'
       );
       setUsers(activeUsers);
     } catch (error) {
