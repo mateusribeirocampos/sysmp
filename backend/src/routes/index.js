@@ -53,6 +53,10 @@ routes.post("/fisico/add", ValidateToken, controllerFisico.addFisico);
 // Usando rota sem parâmetros no path para evitar problemas com caracteres especiais
 routes.put("/fisico/assign", ValidateToken, controllerFisico.assignInternalDelivery);
 
+routes.get("/fisico/edit/:id_fisico", ValidateToken, controllerFisico.getFisicoById);
+routes.put("/fisico/edit/:id_fisico", ValidateToken, controllerFisico.updateFisico);
+routes.delete("/fisico/delete/:id_fisico", ValidateToken, controllerFisico.deleteFisico);
+
 
 
 export default routes;
