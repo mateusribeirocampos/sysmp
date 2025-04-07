@@ -1,19 +1,53 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { fisicosService, userService } from '@/services/api';
 import type { User, Fisicos } from '@/types';
+import { Modal } from '@/components/Modal';
 
 export function Fisicos() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [fisicosList, setFisicosList] = useState<Fisicos[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [updatingDocuments, setUpdatingDocuments] = useState<string[]>([]);
+  const [deliveredDocuments, setDeliveredDocuments] = useState<string[]>([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [fisicoToDelete, setFisicoToDelete] = useState<number | null>(null);
 
   useEffect(() => {
     loadDocuments();
     loadAllUser();
+    const savedDelivered = localStorage.getItem('deliveredFisicos');
+    if (savedDelivered) {
+      setDeliveredDocuments(JSON.parse(savedDelivered));
+    }
   }, []);
+
+  function toEdit(id_fisico: number) {
+    console.log('Editando documento físico', id_fisico);
+    navigate(`/fisico/edit/${id_fisico}`);
+  }
+
+  function deleteFisico(id_fisico: number) {
+    setFisicoToDelete(id_fisico);
+    setIsDeleteModalOpen(true)
+  }
+
+  const confirmDeleteFisico = async ()=> {
+    if (fisicoToDelete) {
+      try {
+        await fisicosService.delete(fisicoToDelete);
+        loadDocuments();
+      } catch (err) {
+        console.error('Erro ao excluir documento:', err);
+        setError('Erro ao excluir documento');
+      } finally {
+        setIsDeleteModalOpen(false);
+        setFisicoToDelete(null);
+      }
+    }
+  }
 
   const loadDocuments = async () => {
     try {
@@ -27,8 +61,12 @@ export function Fisicos() {
         const receivedDate = new Date(doc.receivedAt);
         const deliveryDate = new Date(doc.deliveryDeadLine);
 
-        const adjustedReceivedDate = new Date(receivedDate.getTime() + receivedDate.getTimezoneOffset() * 60000);
-        const adjustedDeliveryDate = new Date(deliveryDate.getTime() + deliveryDate.getTimezoneOffset() * 60000);
+        const adjustedReceivedDate = new Date(
+          receivedDate.getTime() + receivedDate.getTimezoneOffset() * 60000
+        );
+        const adjustedDeliveryDate = new Date(
+          deliveryDate.getTime() + deliveryDate.getTimezoneOffset() * 60000
+        );
 
         return {
           ...doc,
@@ -42,7 +80,6 @@ export function Fisicos() {
       const countFisicos = await fisicosService.getCount();
       console.log('Total de judiciais físicos: ', countFisicos);
       localStorage.setItem('fisicosCount', countFisicos.toString());
-
     } catch (err) {
       setError('Erro ao carregar documentos judiciais físicos');
     } finally {
@@ -50,16 +87,14 @@ export function Fisicos() {
     }
   };
 
-  const loadAllUser= async () => {
+  const loadAllUser = async () => {
     try {
       const allUsers = await userService.getAll();
-      const activeUsers = allUsers.filter(
-        (user) => user.status === 'active'
-      );
+      const activeUsers = allUsers.filter((user) => user.status === 'active');
       setUsers(activeUsers);
     } catch (error) {
-      console.log("Erro ao carregar usuários: ", error)
-      setError('Erro ao carregar lista de usuários') 
+      console.log('Erro ao carregar usuários: ', error);
+      setError('Erro ao carregar lista de usuários');
     } finally {
       setLoading(false);
     }
@@ -68,8 +103,7 @@ export function Fisicos() {
   const handleMessageChange = (idDocument: string, newMessage: string) => {
     setFisicosList(
       fisicosList.map((doc) =>
-        doc.idDocument === idDocument ?
-      { ...doc,  message: newMessage } : doc
+        doc.idDocument === idDocument ? { ...doc, message: newMessage } : doc
       )
     );
   };
@@ -78,8 +112,10 @@ export function Fisicos() {
     try {
       setUpdatingDocuments((prev) => [...prev, idDocument]);
       setFisicosList(
-        fisicosList.map((doc) => 
-          doc.idDocument === idDocument ? {...doc, internalDeliveryUserId: userId} : doc))
+        fisicosList.map((doc) =>
+          doc.idDocument === idDocument ? { ...doc, internalDeliveryUserId: userId } : doc
+        )
+      );
 
       await fisicosService.updateInternalDelivery(idDocument, userId);
     } catch (error) {
@@ -100,7 +136,7 @@ export function Fisicos() {
     const timeDiff = deadline.getTime() - today.getTime();
 
     return Math.ceil(timeDiff / 86400000);
-  }
+  };
 
   if (loading) {
     return (
@@ -189,7 +225,7 @@ export function Fisicos() {
 
                     const isExpired = daysRemaining < 0;
                     const isAlmostDead = daysRemaining > 0 && daysRemaining <= 3;
-                    const isDelivered = false; // será implementado com botão verde de entregue.
+                    const isDelivered = deliveredDocuments.includes(doc.idDocument);
                     return (
                       <tr key={doc.idDocument}>
                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
@@ -241,10 +277,10 @@ export function Fisicos() {
                           )}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <div className='relative'>
+                          <div className="relative">
                             {updatingDocuments.includes(doc.idDocument) && (
-                              <div className='absolute right-2 top-2'>
-                                <div className='animate-spin h-4 w-4 border-b-2 border-blue-500 rounded-full'></div>
+                              <div className="absolute right-2 top-2">
+                                <div className="animate-spin h-4 w-4 border-b-2 border-blue-500 rounded-full"></div>
                               </div>
                             )}
 
@@ -256,7 +292,7 @@ export function Fisicos() {
                                 handleInternalDeliveryChange(doc.idDocument, Number(e.target.value))
                               }
                               disabled={updatingDocuments.includes(doc.idDocument)}
-                              className='mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md'
+                              className="mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md"
                             >
                               <option value="">Selecione o usuário</option>
                               {users.map((user) => (
@@ -278,34 +314,51 @@ export function Fisicos() {
                         </td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                           <div className="flex justify-end space-x-3">
-                            {!isDelivered && (
-                              <button
-                                onClick={() => {
-                                  /* TODO: Implementar entrega */
-                                }}
-                                className="text-white bg-green-600 hover:bg-green-100 border border-transparent hover:text-green-600"
-                                title="Marcar como entregue"
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="h-5 w-5"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                              </button>
-                            )}
                             <button
                               onClick={() => {
-                                /* TODO: Implementar edição */
+                                if (!isDelivered) {
+                                  setDeliveredDocuments((prev) => {
+                                    const updated = [...prev, doc.idDocument];
+                                    localStorage.setItem(
+                                      'deliveredFisicos',
+                                      JSON.stringify(updated)
+                                    );
+                                    return updated;
+                                  });
+                                }
                               }}
-                              className="text-white bg-blue-700 hover:bg-slate-100 border border-transparent hover:text-blue-700"
-                              title="Editar documento"
+                              className={`text-white ${
+                                isDelivered
+                                  ? 'bg-green-200 cursor-default'
+                                  : 'bg-green-600 hover:bg-green-100 hover:text-green-600'
+                              } border border-transparent
+                                }`}
+                              title={isDelivered ? 'Documento entregue' : 'Marcar como entregue'}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => {
+                                toEdit(doc.id_fisico);
+                              }}
+                              className={`text-white ${
+                                isDelivered
+                                  ? 'bg-blue-200 cursor-default'
+                                  : 'bg-blue-600 hover:bg-blue-100 hover:text-blue-600'
+                              } border border-transparent`}
+                              disabled
+                              title={isDelivered ? 'Documento entregue' : 'Editar documento'}
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -317,9 +370,7 @@ export function Fisicos() {
                               </svg>
                             </button>
                             <button
-                              onClick={() => {
-                                /* TODO: Implementar exclusão */
-                              }}
+                              onClick={() => deleteFisico(doc.id_fisico)}
                               className="text-white bg-red-600 hover:bg-red-100 border border-transparent hover:text-red-600"
                               title="Excluir documento"
                             >
@@ -347,6 +398,16 @@ export function Fisicos() {
           </div>
         </div>
       </div>
+      {isDeleteModalOpen && (
+        <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title='Confirmar exclusão'
+        message='Tem certeza que deseja excluir este documento? Esta ação não pode ser desfeita.'
+        onConfirm={confirmDeleteFisico}
+        onCancel={() => setIsDeleteModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

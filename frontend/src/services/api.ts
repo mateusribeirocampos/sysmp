@@ -138,32 +138,24 @@ export const fisicosService = {
 
   // Busca um físico pelo ID
   getById: async (id: number): Promise<Fisicos> => {
-    const response = await api.get<Fisicos>(`/fisicos/${id}`);
+    const response = await api.get<Fisicos>(`/fisico/edit/${id}`);
     return response.data;
   },
 
   // Cria um novo físico
   create: async (documentData: FormData): Promise<Fisicos> => {
-    const response = await api.post<Fisicos>('/fisico/add', documentData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await api.post<Fisicos>('/fisico/add', documentData);
     return response.data;
   },
 
   // Atualiza um físico existente
-  update: async (id: number, documentData: FormData): Promise<Fisicos> => {
-    const response = await api.put<Fisicos>(`/fisico/${id}`, documentData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+  update: async (id_fisico: number, fisicoData: any): Promise<Fisicos> => {
+    const response = await api.put<Fisicos>(`/fisico/edit/${id_fisico}`, fisicoData);
     return response.data;
   },
 
   updateInternalDelivery: async (idDocument: string, userId: number): Promise<any> => {
-    const response = await api.put(`/fisicos/assign`, {
+    const response = await api.put(`/fisico/assign`, {
       idDocument: idDocument,
       internalDeliveryUserId: userId,
     });
@@ -171,7 +163,7 @@ export const fisicosService = {
   },
 
   delete: async (id: number): Promise<void> => {
-    await api.delete(`/fisicos/${id}`);
+    await api.delete(`/fisico/delete/${id}`);
   },
 };
 

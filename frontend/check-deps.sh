@@ -14,13 +14,20 @@ function check {
         | sed -n 's/.*"\(.*\)".*/\1/p' > $PACKAGES
     echo "--------------------------"
     echo "Checking $1..."
-    fd '(js|ts|json)$' -t f > $FILES
+    fd '(js|ts|tsx|jsx|json)$' -t f > $FILES
     while read PACKAGE
     do
-        if [ -d "node_modules/${PACKAGE}" ]; then
-            fd  -t f '(js|ts|json)$' node_modules/${PACKAGE} >> $FILES
+        # Replace @ and / with escaped versions for grep
+        ESCAPED_PACKAGE=$(echo $PACKAGE | sed 's/\//\\\//g' | sed 's/\@/\\\@/g')
+        
+        # Special case for @types packages which don't get imported directly
+        if [[ $PACKAGE == @types/* ]]; then
+            BASE_PACKAGE=$(echo $PACKAGE | sed 's/\@types\///')
+            RES=$(cat $FILES | xargs -I {} egrep -i "(import|require|loader|plugins).*['\"]${BASE_PACKAGE}[\"']" '{}' | wc -l)
+        else
+            # Look for the package name in imports
+            RES=$(cat $FILES | xargs -I {} egrep -i "(import|require|loader|plugins).*['\"]${ESCAPED_PACKAGE}[\"'\/]" '{}' | wc -l)
         fi
-        RES=$(cat $FILES | xargs -I {} egrep -i "(import|require|loader|plugins|${PACKAGE}).*['\"](${PACKAGE}|.?\d+)[\"']" '{}' | wc -l)
 
         if [ $RES = 0 ]
         then
@@ -33,4 +40,4 @@ function check {
 
 check "dependencies"
 check "devDependencies"
-check "peerDependencies" 
+check "peerDependencies"
