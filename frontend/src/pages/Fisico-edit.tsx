@@ -1,11 +1,11 @@
+import { fisicosService, userService } from '@/services/api';
+import { User } from '@/types';
 import { useEffect, useState } from 'react';
 import { FaArrowLeftLong } from 'react-icons/fa6';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { userService, extrasService } from '@/services/api';
-import type { User } from '@/types';
 
-export function ExtraEdit() {
-  const { id_extra } = useParams();
+export function FisicoEdit() {
+  const { id_fisico } = useParams();
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [userName, setUserName] = useState('');
@@ -14,89 +14,87 @@ export function ExtraEdit() {
   const [deliveryDeadLine, setDeliveryDeadLine] = useState('');
   const [internalDeliveryUserId, setInternalDeliveryUserId] = useState('');
   const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    loadAllUsers();
-    if (id_extra) {
-      loadExtraData(parseInt(id_extra));
+    loadAllUser();
+    if (id_fisico) {
+      loadFisicoData(parseInt(id_fisico));
     }
-  }, [id_extra]);
+  }, [id_fisico]);
 
-  const loadAllUsers = async () => {
+  const loadAllUser = async () => {
     try {
       setLoading(true);
-      const response = await userService.getAll();
-      const activeUsers = response.filter(
+      const users = await userService.getAll();
+      const activeUsers = users.filter(
         (user) => user.status === 'active' || user.status === 'inactive'
       );
+
       setUsers(activeUsers);
-    } catch (err) {
-      console.error('Erro ao carregar usuários:', err);
+    } catch (error) {
+      console.log('Erro ao carregar usuários: ', error);
       setError('Erro ao carregar lista de usuários');
     } finally {
       setLoading(false);
     }
   };
 
-  const loadExtraData = async (extraId: number) => {
+  const loadFisicoData = async (fisicoId: number) => {
     try {
       setLoading(true);
-      const response = await extrasService.getById(extraId);
-      
-      // Handle array or single object response
-      const extraData = Array.isArray(response) ? response[0] : response;
-      
-      if (extraData) {
-        console.log('Documento extrajudicial carregado:', extraData);
-        
-        // Format dates for input fields
-        const receivedDate = extraData.receivedAt ? new Date(extraData.receivedAt).toISOString().split('T')[0] : '';
-        const deadlineDate = extraData.deliveryDeadLine ? new Date(extraData.deliveryDeadLine).toISOString().split('T')[0] : '';
-        
+      const response = await fisicosService.getById(fisicoId);
+
+      const fisicoData = Array.isArray(response) ? response[0] : response;
+
+      if (fisicoData) {
+        console.log('documento judicial físico carregado: ', fisicoData);
+
+        const receivedDate = fisicoData.receivedAt ? new Date(fisicoData.receivedAt).toISOString().split('T')[0] : '';
+        const deadlineDate = fisicoData.deliveryDeadLine ? new Date(fisicoData.deliveryDeadLine).toISOString().split('T')[0] : '';
+
         setReceivedAt(receivedDate);
-        setIdDocument(extraData.idDocument || '');
+        setIdDocument(fisicoData.idDocument || '');
         setDeliveryDeadLine(deadlineDate);
-        setMessage(extraData.message || '');
-        
-        // Set internalDeliveryUserId and load the user name
-        if (extraData.internalDeliveryUserId) {
-          setInternalDeliveryUserId(extraData.internalDeliveryUserId.toString());
-          await loadUserName(extraData.internalDeliveryUserId);
+        setMessage(fisicoData.message || '');
+
+        if (fisicoData.internalDeliveryUserId) {
+          setInternalDeliveryUserId(fisicoData.internalDeliveryUserId.toString());
+          await loadUserName(fisicoData.internalDeliveryUserId);
         }
       }
     } catch (err) {
-      console.error('Erro ao carregar documento extrajudicial:', err);
-      setError('Erro ao carregar dados do documento extrajudicial');
+      console.log('Erro ao carregar documento judicial físico: ', err);
+      setError('Erro ao carregar dados do documento judicial físico')
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const loadUserName = async (userId: number) => {
-    try {
-      if (userId) {
-        const response = await userService.getById(userId);
-        const userData = Array.isArray(response) ? response[0] : response;
-        
-        if (userData) {
-          console.log('Usuário responsável carregado:', userData.name);
-          setUserName(userData.name || '');
+    const loadUserName = async (userId: number) => {
+      try {
+        if (userId) {
+          const response = await userService.getById(userId);
+          const userData = Array.isArray(response) ? response[0] : response;
+          
+          if (userData) {
+            console.log('Usuário responsável carregado:', userData.name);
+            setUserName(userData.name || '');
+          }
         }
+      } catch (err) {
+        console.error('Erro ao carregar usuário:', err);
       }
-    } catch (err) {
-      console.error('Erro ao carregar usuário:', err);
-    }
-  };
+    };
 
   const handleSubmit = async () => {
     try {
       setError('');
       setSuccess('');
-      
-      // Validação dos campos
+
+
       if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId || !message) {
         setError('Por favor, preencha todos os campos');
         return;
@@ -108,8 +106,7 @@ export function ExtraEdit() {
         return;
       }
 
-      // Criar objeto JSON para enviar ao backend
-      const extraData = {
+      const fisicoData = {
         receivedAt,
         idDocument,
         deliveryDeadLine,
@@ -117,22 +114,21 @@ export function ExtraEdit() {
         message,
       };
 
-      console.log('Enviando documento extrajudicial:', extraData);
+      console.log('Enviando documento judicial fisico: ', fisicoData);
 
-      // Usar o serviço de extrasService para atualizar
-      if (id_extra) {
-        const response = await extrasService.update(parseInt(id_extra), extraData);
-        console.log('Documento extrajudicial editado com sucesso:', response);
+      if (id_fisico) {
+        const response = await fisicosService.update(parseInt(id_fisico), fisicoData);
+        console.log('docuemnto judicial físico editado com sucesso: ', response);
         
-        setSuccess('Documento extrajudicial editado com sucesso!');
-        
-        // Redirecionar para a lista após 2 segundos
+        setSuccess('Documento judicial físico editado com sucesso!');
+
+
         setTimeout(() => {
-          navigate('/extras');
+          navigate('/fisicos');
         }, 2000);
       }
     } catch (error: any) {
-      console.error('Erro ao editar documento:', error);
+      console.log('Erro ao criar documento: ', error);
 
       // Tratamento de erro detalhado
       if (error.response) {
@@ -146,7 +142,7 @@ export function ExtraEdit() {
           }`
         );
       } else {
-        setError('Erro ao editar documento judicial físico. Tente novamente.');
+        setError('Erro ao criar documento judicial físico. Tente novamente.');
       }
     }
   };
@@ -159,9 +155,13 @@ export function ExtraEdit() {
     );
   }
 
+  if (error) {
+    return <div className="text-center text-red-500 p-4">{error}</div>;
+  }
+
   return (
     <div className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-      <Link to="/extras">
+      <Link to="/fisicos">
         <div className="inline-flex bg-blue-500 hover:bg-blue-700 p-1 rounded-md mb-8 sm:mt-0 sm:ml-2 sm:flex-none">
           <FaArrowLeftLong className="text-2xl text-white" />
         </div>
@@ -170,7 +170,7 @@ export function ExtraEdit() {
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-xl font-semibold text-gray-900">
-            Edite o documento extrajudical
+            Edite o documento judicial físico
           </h1>
           {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
           {success && <p className="mt-2 text-sm text-green-600">{success}</p>}
@@ -221,13 +221,13 @@ export function ExtraEdit() {
       </div>
 
       <div className="w-full md:w-1/2 mt-8">
-        <label htmlFor="internalDeliveryUserId" className="block text-lg font-m text-gray-700 mb-1">
+        <label htmlFor="internalDelivery" className="block text-lg font-m text-gray-700 mb-1">
           Distribuição interna:
         </label>
         <div>
           <select
-            name="internalDeliveryUserId"
-            id="internalDeliveryUserId"
+            name="internalDelivery"
+            id="internalDelivery"
             value={internalDeliveryUserId}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               setInternalDeliveryUserId(e.target.value)
@@ -236,7 +236,7 @@ export function ExtraEdit() {
           >
             <option value="0">Selecione o usuário</option>
             {users.map((user) => (
-              <option key={user.id_user} value={user.id_user.toString()}>
+              <option key={user.id_user} value={user.id_user}>
                 {user.name}
               </option>
             ))}
@@ -261,7 +261,7 @@ export function ExtraEdit() {
 
       <div className="mt-4 border-t pt-4">
         <div className="d-flex justify-content-end">
-          <Link to={'/extras'}>
+          <Link to={'/fisicos'}>
             <button className="btn btn-primary me-2">Cancelar</button>
           </Link>
 

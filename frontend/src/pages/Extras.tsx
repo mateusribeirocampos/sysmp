@@ -101,9 +101,7 @@ export function Extras() {
       setLoading(true);
       // Buscar todos os usuários ativos
       const allUsers = await userService.getAll();
-      const activeUsers = allUsers.filter(
-        (user) => user.status === 'active'
-      );
+      const activeUsers = allUsers.filter((user) => user.status === 'active');
       setUsers(activeUsers);
     } catch (err) {
       console.log('Erro ao carregar usuários:', err);
@@ -346,17 +344,20 @@ export function Extras() {
                                 if (!isDelivered) {
                                   setDeliveredDocuments((prev) => {
                                     const updated = [...prev, doc.idDocument];
-                                    localStorage.setItem('deliveredExtras', JSON.stringify(updated));
+                                    localStorage.setItem(
+                                      'deliveredExtras',
+                                      JSON.stringify(updated)
+                                    );
                                     return updated;
                                   });
                                 }
                               }}
                               className={`text-white ${
-                                isDelivered 
-                                  ? 'bg-green-200 cursor-default' // Botão verde mais claro quando entregue
+                                isDelivered
+                                  ? 'bg-green-200 cursor-default'
                                   : 'bg-green-600 hover:bg-green-100 hover:text-green-600'
                               } border border-transparent`}
-                              title={isDelivered ? "Documento entregue" : "Marcar como entregue"}
+                              title={isDelivered ? 'Documento entregue' : 'Marcar como entregue'}
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -373,25 +374,15 @@ export function Extras() {
                             </button>
                             <button
                               onClick={() => {
-                                if (isDelivered || toEdit(doc.id_extra)) {
-                                  setDeliveredDocuments((prev) => {
-                                    localStorage.setItem('deliveredExtras', JSON.stringify(prev));
-                                    return prev;
-                                  });
-                                } else {
-                                  // Redirecionar para a página de edição
-                                  // window.location.href = `/extra/edit/${doc.idDocument}`;
-                                  // Ou usar o navigate do react-router
-                                  window.location.href = `/extra/edit/${doc.id_extra}`;
-                                }
-                                /* TODO: Implementar edição */
+                                toEdit(doc.id_extra);
                               }}
                               className={`text-white ${
-                                isDelivered 
+                                isDelivered
                                   ? 'bg-blue-200 cursor-default'
                                   : 'bg-blue-600 hover:bg-blue-100 hover:text-blue-600'
                               } border border-transparent`}
-                              title={isDelivered ? "Documento entregue" : "Marcar como entregue"}
+                              disabled
+                              title={isDelivered ? 'Documento entregue' : 'Editar documento'}
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"

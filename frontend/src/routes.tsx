@@ -9,7 +9,8 @@ import { Extras } from './pages/Extras';
 import { Fisicos } from './pages/Fisicos';
 import { ExtraAdd } from './pages/Extra-add';
 import { ExtraEdit } from './pages/Extra-edit';
-import { FisicosAdd } from './pages/Fisicos-add';
+import { FisicoAdd } from './pages/Fisico-add';
+import { FisicoEdit } from './pages/Fisico-edit';
 import { UsersAdd } from './pages/Users-add';
 import { UsersEdit } from './pages/Users-edit';
 import { AdminRoute } from './components/AdminRoute';
@@ -64,7 +65,8 @@ function App() {
             <Route path="/extra/add" element={<ExtraAdd />} />
             <Route path="/extra/edit/:id_extra" element={<ExtraEdit />} />
             <Route path="/fisicos" element={<Fisicos />} />
-            <Route path="/fisico/add" element={<FisicosAdd />} />
+            <Route path="/fisico/add" element={<FisicoAdd />} />
+            <Route path="/fisico/edit/:id_fisico" element={<FisicoEdit />} />
 
           </Route>
         </Routes>
