@@ -15,4 +15,19 @@ async function updateInternalDelivery(idDocument, userId) {
   return result;
 }
 
-export default { listFisico, addFisico, updateInternalDelivery };
+async function getFisicoById(id_fisico) {
+  const result = await repoFisico.getFisicoById(id_fisico);
+  return result;
+}
+
+async function updateFisico(id_fisico, receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message) {
+  const result = await repoFisico.updateFisico(id_fisico, receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message);
+  return result;
+}
+
+async function deleteFisico(id_fisico) {
+  const result = await repoFisico.deleteFisico(id_fisico);
+  return result;
+}
+
+export default { listFisico, addFisico, updateInternalDelivery, getFisicoById, updateFisico, deleteFisico };

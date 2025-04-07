@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { FaArrowLeftLong } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 
-export function FisicosAdd() {
+export function FisicoAdd() {
   const [users, setUsers] = useState<User[]>([]);
   const [receivedAt, setReceivedAt] = useState('');
   const [idDocument, setIdDocument] = useState('');
