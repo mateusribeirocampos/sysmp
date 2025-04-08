@@ -88,4 +88,9 @@ async function editUserStatus(id, status) {
   return result;
 }
 
-export default { login, addUser, listUsers, editUserById, getUserById, editUserStatus };
+async function deleteUser(id) {
+  const result = await repoUser.deleteUser(id);
+  return result;
+}
+
+export default { login, addUser, listUsers, editUserById, getUserById, editUserStatus, deleteUser };

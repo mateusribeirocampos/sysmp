@@ -61,6 +61,12 @@ function App() {
               <UsersEdit />
             </AdminRoute>
             } />
+            <Route 
+            path="/users/delete/:id"
+            element={<AdminRoute>
+              <UsersEdit />
+            </AdminRoute>
+            } />
             <Route path="/extras" element={<Extras />} />
             <Route path="/extra/add" element={<ExtraAdd />} />
             <Route path="/extra/edit/:id_extra" element={<ExtraEdit />} />
