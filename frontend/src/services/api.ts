@@ -72,7 +72,7 @@ export const userService = {
 
   // Deleta um usuário pelo ID
   delete: async (id: number): Promise<void> => {
-    await api.delete(`/users/${id}`);
+    await api.delete(`/users/delete/${id}`);
   },
 };
 

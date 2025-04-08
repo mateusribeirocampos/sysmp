@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { userService } from '@/services/api';
 import type { User } from '@/types';
+import { Modal } from '@/components/Modal';
 
 export function Users() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
+  const [userToDelete, setUserToDelete] = useState<number | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     loadUsers();
@@ -32,6 +35,26 @@ export function Users() {
       setLoading(false);
     }
   };
+
+  function deleteUser(id_user: number) {
+    setUserToDelete(id_user);
+    setIsDeleteModalOpen(true);
+  }
+
+  const confirmDeleteUser = async () => {
+    if (userToDelete) {
+      try {
+        await userService.delete(userToDelete);
+        loadUsers();
+      } catch (err) {
+        console.error('Erro ao excluir usuário: ', err);
+        setError('Erro ao excluir usuário');
+      } finally {
+        setIsDeleteModalOpen(false);
+        setUserToDelete(null)
+      }
+    }
+  }
 
   function handleEdit(userId: number) {
     navigate(`/users/edit/${userId}`);
@@ -192,7 +215,7 @@ export function Users() {
 
                           <button
                             onClick={() => {
-                              /* TODO: Implementar exclusão */
+                              deleteUser(user.id_user)
                             }}
                             className="text-white bg-red-600 hover:bg-red-100 border border-transparent hover:text-red-600"
                             title="Excluir documento"
@@ -220,6 +243,16 @@ export function Users() {
           </div>
         </div>
       </div>
+      {isDeleteModalOpen && (
+        <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title='Confirmar exclusão'
+        message='Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.'
+        onConfirm={confirmDeleteUser}
+        onCancel={() => setIsDeleteModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

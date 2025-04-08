@@ -119,4 +119,26 @@ async function editUserStatus(req, res) {
   }
 }
 
-export default { login, addUser, listUsers, editUserById, getUserById, editUserStatus };
+async function deleteUser(req, res) {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "ID do usuário é obrigatório" });
+    }
+
+    const result = await serviceUser.deleteUser(id);
+
+    if (!result) {
+      return res.status(404).json({ error: "Usuário não encontrado" });
+    }
+
+    return res.status(200).json({ message: "Usuário excluído com sucesso" });
+  } catch (error) {
+    console.error('Erro no deleteUser:', error);
+    return res.status(500).json({ error: "Erro interno do servidor" });
+  }
+}
+
+
+export default { login, addUser, listUsers, editUserById, getUserById, editUserStatus, deleteUser };
