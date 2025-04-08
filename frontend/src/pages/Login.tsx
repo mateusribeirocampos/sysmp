@@ -1,9 +1,7 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import type { LoginCredentials } from '@/types'
-
-const logoPath = import.meta.env.VITE_LOGO_PATH
 
 export function Login() {
   const navigate = useNavigate()
@@ -42,11 +40,10 @@ export function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <img
-            className="mx-auto h-12 w-auto"
-            src={logoPath}
-            alt="SYSMP"
-          />
+          <h1 className="text-center text-4xl font-bold text-blue-600">Sistema Interno</h1>
+          <p className="mt-2 text-center text-gray-600">
+            Entre com seus dados para acessar o sistema
+          </p>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Entre na sua conta
           </h2>
@@ -105,16 +102,7 @@ export function Login() {
             </button>
           </div>
         </form>
-
-        <div className="text-center">
-          <Link
-            to="/register"
-            className="font-medium text-blue-600 hover:text-blue-500"
-          >
-            Não tem uma conta? Registre-se
-          </Link>
-        </div>
       </div>
     </div>
   )
-} 
+}
