@@ -31,3 +31,7 @@ backend/.env
 
 .vscode
 .cursor
+
+
+# banco de dados
+backend/src/config/database/scipt-database.md
