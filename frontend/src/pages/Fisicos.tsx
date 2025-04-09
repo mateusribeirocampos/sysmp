@@ -31,10 +31,10 @@ export function Fisicos() {
 
   function deleteFisico(id_fisico: number) {
     setFisicoToDelete(id_fisico);
-    setIsDeleteModalOpen(true)
+    setIsDeleteModalOpen(true);
   }
 
-  const confirmDeleteFisico = async ()=> {
+  const confirmDeleteFisico = async () => {
     if (fisicoToDelete) {
       try {
         await fisicosService.delete(fisicoToDelete);
@@ -47,7 +47,7 @@ export function Fisicos() {
         setFisicoToDelete(null);
       }
     }
-  }
+  };
 
   const loadDocuments = async () => {
     try {
@@ -164,7 +164,7 @@ export function Fisicos() {
           <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
             <button
               type="button"
-              className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
+              className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
             >
               Adicionar documento
             </button>
@@ -180,41 +180,41 @@ export function Fisicos() {
                   <tr>
                     <th
                       scope="col"
-                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                      className="py-2 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-6"
                     >
                       Data da Comunicação
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                      className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
                     >
                       Número ID
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                      className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
                     >
                       Dias até o prazo
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                      className="px-2. py-2 text-left text-sm font-semibold text-gray-900"
                     >
                       Prazo de entrega
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                      className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
                     >
                       Distribuição interna
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                      className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
                     >
                       Mensagem
                     </th>
-                    <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                    <th scope="col" className="relative py-2 pl-2 pr-42 sm:pr-6">
                       <span className="sr-only">Ações</span>
                     </th>
                   </tr>
@@ -224,41 +224,62 @@ export function Fisicos() {
                     const daysRemaining = calculateDaysRemaining(doc.deliveryDeadLine);
 
                     const isExpired = daysRemaining < 0;
+                    const isZeroTerm = daysRemaining == 0;
                     const isAlmostDead = daysRemaining > 0 && daysRemaining <= 3;
                     const isDelivered = deliveredDocuments.includes(doc.idDocument);
                     return (
                       <tr key={doc.idDocument}>
-                        <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                        <td className="whitespace-nowrap py-2 pl-2 pr-2 text-sm font-medium text-gray-900 sm:pl-6">
                           {doc.receivedAt.toLocaleDateString('pt-BR')}
                         </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">
                           {doc.idDocument}
                         </td>
                         <td
-                          className={`whitespace-nowrap px-3 py-4 text-sm text-gray-500 ${
+                          className={`text-center whitespace-nowrap px-2 py-2 text-sm text-gray-500 ${
                             isExpired
-                              ? 'bg-red-100 text-red-800'
+                              ? 'bg-red-200 text-red-800'
                               : isDelivered
                                 ? 'bg-green-100 text-green-800'
                                 : isAlmostDead
                                   ? 'bg-yellow-100 text-yellow-800'
-                                  : ''
+                                  : isZeroTerm
+                                    ? 'bg-red-100 text-red-600'
+                                    : ''
                           }`}
                         >
                           {daysRemaining}
                         </td>
                         <td
-                          className={`whitespace-nowrap px-3 py-4 text-sm text-gray-500 ${
+                          className={`text-center whitespace-nowrap px-2 py-2 text-sm text-gray-500 ${
                             isExpired
-                              ? 'bg-red-100 text-red-800'
+                              ? 'bg-red-200 text-red-800'
                               : isDelivered
                                 ? 'bg-green-100 text-green-800'
                                 : isAlmostDead
                                   ? 'bg-yellow-100 text-yellow-800'
-                                  : ''
+                                  : isZeroTerm
+                                    ? 'bg-red-100 text-red-600'
+                                    : ''
                           }`}
                         >
                           {doc.deliveryDeadLine.toLocaleDateString('pt-BR')}
+                          {isZeroTerm && (
+                            <span className="ml-1">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4 inline"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M3,0 C2.44772,0 2,0.447715 2,1 C2,1.55228 2.44772,2 3,2 L3,3.17157 C3,3.96722 3.31607,4.73028 3.87868,5.29289 L6.58579,8 L3.87868,10.7071 C3.31607,11.2697 3,12.0328 3,12.8284 L3,14 C2.44772,14 2,14.4477 2,15 C2,15.5523 2.44772,16 3,16 L13,16 C13.5523,16 14,15.5523 14,15 C14,14.4477 13.5523,14 13,14 L13,12.8284 C13,12.0328 12.6839,11.2697 12.1213,10.7071 L9.41421,8 L12.1213,5.29289 C12.6839,4.73028 13,3.96722 13,3.17157 L13,2 C13.5523,2 14,1.55228 14,1 C14,0.447715 13.5523,0 13,0 L3,0 Z M11,2 L5,2 L5,3.17157 C5,3.43679 5.10536,3.69114 5.29289,3.87868 L5.41421,4 L10.5858,4 L10.7071,3.87868 C10.8946,3.69114 11,3.43679 11,3.17157 L11,2 Z M8,9.41421 L5.29289,12.1213 C5.10536,12.3089 5,12.5632 5,12.8284 L5,14 L11,14 L11,12.8284 C11,12.5632 10.8946,12.3089 10.7071,12.1213 L8,9.41421 Z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </span>
+                          )}
                           {isExpired && (
                             <span className="ml-1">
                               <svg
@@ -276,7 +297,7 @@ export function Fisicos() {
                             </span>
                           )}
                         </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                           <div className="relative">
                             {updatingDocuments.includes(doc.idDocument) && (
                               <div className="absolute right-2 top-2">
@@ -303,7 +324,7 @@ export function Fisicos() {
                             </select>
                           </div>
                         </td>
-                        <td className="whitespace-normal px-3 py-4 text-sm text-gray-500">
+                        <td className="whitespace-normal px-2 py-2 text-sm text-gray-500">
                           <textarea
                             value={doc.message}
                             onChange={(e) => handleMessageChange(doc.idDocument, e.target.value)}
@@ -312,7 +333,7 @@ export function Fisicos() {
                             style={{ resize: 'both' }}
                           />
                         </td>
-                        <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                        <td className="relative whitespace-nowrap py-2 pl-2 pr-2 text-right text-sm font-medium sm:pr-6">
                           <div className="flex justify-end space-x-3">
                             <button
                               onClick={() => {
@@ -357,7 +378,7 @@ export function Fisicos() {
                                   ? 'bg-blue-200 cursor-default'
                                   : 'bg-blue-600 hover:bg-blue-100 hover:text-blue-600'
                               } border border-transparent`}
-                              disabled
+                              disabled={isDelivered}
                               title={isDelivered ? 'Documento entregue' : 'Editar documento'}
                             >
                               <svg
@@ -400,12 +421,12 @@ export function Fisicos() {
       </div>
       {isDeleteModalOpen && (
         <Modal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        title='Confirmar exclusão'
-        message='Tem certeza que deseja excluir este documento? Esta ação não pode ser desfeita.'
-        onConfirm={confirmDeleteFisico}
-        onCancel={() => setIsDeleteModalOpen(false)}
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          title="Confirmar exclusão"
+          message="Tem certeza que deseja excluir este documento? Esta ação não pode ser desfeita."
+          onConfirm={confirmDeleteFisico}
+          onCancel={() => setIsDeleteModalOpen(false)}
         />
       )}
     </div>
