@@ -35,7 +35,7 @@ export function FisicoEdit() {
 
       setUsers(activeUsers);
     } catch (error) {
-      console.log('Erro ao carregar usuários: ', error);
+      //console.log('Erro ao carregar usuários: ', error);
       setError('Erro ao carregar lista de usuários');
     } finally {
       setLoading(false);
@@ -50,7 +50,7 @@ export function FisicoEdit() {
       const fisicoData = Array.isArray(response) ? response[0] : response;
 
       if (fisicoData) {
-        console.log('documento judicial físico carregado: ', fisicoData);
+        //console.log('documento judicial físico carregado: ', fisicoData);
 
         const receivedDate = fisicoData.receivedAt ? new Date(fisicoData.receivedAt).toISOString().split('T')[0] : '';
         const deadlineDate = fisicoData.deliveryDeadLine ? new Date(fisicoData.deliveryDeadLine).toISOString().split('T')[0] : '';
@@ -66,7 +66,7 @@ export function FisicoEdit() {
         }
       }
     } catch (err) {
-      console.log('Erro ao carregar documento judicial físico: ', err);
+      //console.log('Erro ao carregar documento judicial físico: ', err);
       setError('Erro ao carregar dados do documento judicial físico')
     } finally {
       setLoading(false);
@@ -80,12 +80,12 @@ export function FisicoEdit() {
           const userData = Array.isArray(response) ? response[0] : response;
           
           if (userData) {
-            console.log('Usuário responsável carregado:', userData.name);
+            //console.log('Usuário responsável carregado:', userData.name);
             setUserName(userData.name || '');
           }
         }
       } catch (err) {
-        console.error('Erro ao carregar usuário:', err);
+        //console.error('Erro ao carregar usuário:', err);
       }
     };
 
@@ -114,26 +114,27 @@ export function FisicoEdit() {
         message,
       };
 
-      console.log('Enviando documento judicial fisico: ', fisicoData);
+      //console.log('Enviando documento judicial fisico: ', fisicoData);
 
       if (id_fisico) {
         const response = await fisicosService.update(parseInt(id_fisico), fisicoData);
-        console.log('docuemnto judicial físico editado com sucesso: ', response);
-        
-        setSuccess('Documento judicial físico editado com sucesso!');
+        //console.log('docuemnto judicial físico editado com sucesso: ', response);
 
+        if (response) {
+          setSuccess('Documento judicial físico editado com sucesso!');
+        }
 
         setTimeout(() => {
           navigate('/fisicos');
         }, 2000);
       }
     } catch (error: any) {
-      console.log('Erro ao criar documento: ', error);
+      //console.log('Erro ao criar documento: ', error);
 
       // Tratamento de erro detalhado
       if (error.response) {
-        console.error('Status do erro:', error.response.status);
-        console.error('Dados do erro:', error.response.data);
+        //console.error('Status do erro:', error.response.status);
+        //console.error('Dados do erro:', error.response.data);
         setError(
           `Erro ${error.response.status}: ${
             typeof error.response.data === 'string'

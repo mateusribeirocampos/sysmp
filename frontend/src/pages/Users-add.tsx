@@ -33,13 +33,13 @@ export function UsersAdd() {
         status: userStatus as 'active' | 'inactive'
       };
 
-      console.log(
-        "Name: " + userName,
-        "email: " + userEmail,
-        "senha: " + userPassword,
-        "função: " + userRole,
-        "Ativo: " + userStatus
-      )
+      //console.log(
+      //  "Name: " + userName,
+      // "email: " + userEmail,
+      //  "senha: " + userPassword,
+      //  "função: " + userRole,
+      //  "Ativo: " + userStatus
+      //)
 
       // Enviar para a API usando o userService
       await userService.create(userData);

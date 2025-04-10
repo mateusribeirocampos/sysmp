@@ -18,7 +18,7 @@ export function Login() {
     setLoading(true)
 
     try {
-      console.log('Tentando login com:', { email, password })
+      //console.log('Tentando login com:', { email, password })
       const credentials: LoginCredentials = { email, password }
       
       // Usa apenas o login do AuthContext
@@ -26,7 +26,7 @@ export function Login() {
       navigate("/")
       
     } catch (error: any) {
-      console.error('Erro no login:', error)
+      //console.error('Erro no login:', error)
       if (error.response?.data?.error) {
         setError(error.response.data.error)
       } else {

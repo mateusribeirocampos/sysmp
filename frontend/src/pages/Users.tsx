@@ -19,17 +19,17 @@ export function Users() {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      console.log('Iniciando carregamento de usuários...');
+      //console.log('Iniciando carregamento de usuários...');
 
       const users = await userService.getAll();
-      console.log('Usuários carregados:', users);
+      //console.log('Usuários carregados:', users);
       setUsers(users);
 
       const count = await userService.getCount();
-      console.log('Total de usuários:', count);
+      //console.log('Total de usuários:', count);
       localStorage.setItem('usersCount', count.toString());
     } catch (err) {
-      console.error('Erro ao carregar usuários:', err);
+      //console.error('Erro ao carregar usuários:', err);
       setError('Erro ao carregar usuários');
     } finally {
       setLoading(false);
@@ -47,7 +47,7 @@ export function Users() {
         await userService.delete(userToDelete);
         loadUsers();
       } catch (err) {
-        console.error('Erro ao excluir usuário: ', err);
+        //console.error('Erro ao excluir usuário: ', err);
         setError('Erro ao excluir usuário');
       } finally {
         setIsDeleteModalOpen(false);
@@ -63,7 +63,7 @@ export function Users() {
   async function handleStatusEdit(userId: number, status: string) {
     try {
       const newStatus = status === 'active' ? 'inactive' : 'active';
-      console.log("New status: " + newStatus);
+      //console.log("New status: " + newStatus);
       await userService.updateStatus(userId, newStatus);
       
       // Atualiza o estado local dos usuários
@@ -74,7 +74,7 @@ export function Users() {
         return user;
       }));
     } catch (error: any) {
-      console.error('Erro ao atualizar status:', error);
+      //console.error('Erro ao atualizar status:', error);
       if (error.response) {
         // Erro da API
         setError(`Erro ao atualizar status: ${error.response.data.error || 'Erro desconhecido'}`);
@@ -116,7 +116,7 @@ export function Users() {
           <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
             <button
               type="button"
-              className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
+              className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
             >
               Adicionar usuário
             </button>
@@ -184,12 +184,11 @@ export function Users() {
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <button
-                          //onClick={() => handleEdit(user.id_user)}
                           onClick={() => handleStatusEdit(user.id_user, user.status)}
                           className={`px-3 py-1 rounded-md ${
                             user.status === 'active'
-                              ? 'bg-red-600 hover:bg-red-700 text-white'
-                              : 'bg-green-600 hover:bg-green-700 text-white'
+                              ? 'bg-white text-gray-400 hover:bg-red-100 hover:text-red-600 boder border-gray-200'
+                              : 'bg-white text-gray-400 hover:bg-green-100 hover:text-green-600 border border-gray-200'
                           }`}
                         >
                           {user.status === 'active' ? 'Desativar' : 'Ativar'}
@@ -200,7 +199,7 @@ export function Users() {
 
                           <button
                             onClick={() => handleEdit(user.id_user)}
-                            className="text-white bg-blue-700 hover:bg-slate-100 border border-transparent hover:text-blue-700"
+                            className='rounded-full p-1.5 bg-white text-gray-400 hover:bg-blue-50 hover:text-blue-600 border border-gray-200'
                             title="Editar documento"
                           >
                             <svg
@@ -217,7 +216,7 @@ export function Users() {
                             onClick={() => {
                               deleteUser(user.id_user)
                             }}
-                            className="text-white bg-red-600 hover:bg-red-100 border border-transparent hover:text-red-600"
+                            className="rounded-full p-1.5 bg-white text-gray-400 hover:bg-red-50 hover:text-red-600 border border-gray-200"
                             title="Excluir documento"
                           >
                             <svg

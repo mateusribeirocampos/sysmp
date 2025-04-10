@@ -6,19 +6,19 @@ type DocumentosNoPrazoProps = {
 };
 
 export function DocumentosNoPrazo({ documents, tipo }: DocumentosNoPrazoProps) {
-  console.log(`Documentos recebidos (${tipo}):`, documents);
+  //console.log(`Documentos recebidos (${tipo}):`, documents);
   
   // Verificar se temos documentos entregues
   const temDocumentosEntregues = documents.some(doc => doc.isDelivered);
   
   // Mostra a estrutura completa do primeiro documento para debug
   if (documents.length > 0) {
-    console.log('Estrutura do primeiro documento:', JSON.stringify(documents[0], null, 2));
+    //console.log('Estrutura do primeiro documento:', JSON.stringify(documents[0], null, 2));
   }
   
   // Filtra documentos no prazo (não vencidos)
   const hoje = new Date();
-  console.log("Data atual:", hoje.toISOString());
+  //console.log("Data atual:", hoje.toISOString());
   
   const documentosNoPrazo = documents.filter(doc => {
     try {
@@ -28,23 +28,23 @@ export function DocumentosNoPrazo({ documents, tipo }: DocumentosNoPrazoProps) {
         new Date(doc.deliveryDeadLine);
       
       // Calcula os dias restantes, independente se o valor vem da API
-      const diasRestantes = calcularDiasRestantes(prazo);
+      //const diasRestantes = calcularDiasRestantes(prazo);
       
-      console.log(`Documento ID: ${doc.idDocument}, Prazo: ${prazo.toISOString()}, Dias API: ${doc.countDaysDeLivery}, Dias calculados: ${diasRestantes}, Entregue: ${doc.isDelivered ? 'Sim' : 'Não'}`);
+      //console.log(`Documento ID: ${doc.idDocument}, Prazo: ${prazo.toISOString()}, Dias API: ${doc.countDaysDeLivery}, Dias calculados: ${diasRestantes}, Entregue: ${doc.isDelivered ? 'Sim' : 'Não'}`);
       
       // Verifica apenas se o prazo é maior que hoje (futuro) 
       return prazo > hoje;
     } catch (error) {
-      console.error(`Erro ao processar documento ${doc.idDocument}:`, error);
+      //console.error(`Erro ao processar documento ${doc.idDocument}:`, error);
       return false;
     }
   });
   
-  console.log(`Documentos filtrados (${tipo}):`, documentosNoPrazo);
+  //console.log(`Documentos filtrados (${tipo}):`, documentosNoPrazo);
 
   // Se não houver documentos após a filtragem, tenta mostrar todos
   if (documentosNoPrazo.length === 0 && documents.length > 0) {
-    console.log(`Nenhum documento passou no filtro. Exibindo todos os ${documents.length} documentos.`);
+    //console.log(`Nenhum documento passou no filtro. Exibindo todos os ${documents.length} documentos.`);
     return (
       <div className="overflow-hidden">
         <div className="flow-root">
@@ -215,7 +215,7 @@ function calcularDiasRestantes(dataPrazo: Date | string | undefined): number {
     // Converter para dias (1 dia = 24 * 60 * 60 * 1000 ms)
     return Math.ceil(diff / 86400000); // Usar o mesmo formato que as outras páginas
   } catch (error) {
-    console.error('Erro ao calcular dias restantes:', error);
+    //console.error('Erro ao calcular dias restantes:', error);
     return 0;
   }
 }
@@ -227,7 +227,7 @@ function formatDate(date: Date | string | undefined): string {
     const dateObj = date instanceof Date ? date : new Date(date);
     return dateObj.toLocaleDateString('pt-BR');
   } catch (error) {
-    console.error('Erro ao formatar data:', date, error);
+    //console.error('Erro ao formatar data:', date, error);
     return 'Formato de data inválido';
   }
 }

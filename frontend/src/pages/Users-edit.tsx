@@ -27,35 +27,21 @@ export function UsersEdit() {
     try {
       if (!id) return;
       
-      console.log('Carregando dados do usuário:', id);
+      //console.log('Carregando dados do usuário:', id);
       const response = await userService.getById(parseInt(id));
-      console.log('Dados do usuário carregados:', response);
+      //console.log('Dados do usuário carregados:', response);
       
       // Verifica se a resposta é um array e pega o primeiro item
       const userData = Array.isArray(response) ? response[0] : response;
       
-      if (userData) {
-        console.log('Atualizando estados com os dados:', {
-          name: userData.name,
-          email: userData.email,
-          role: userData.role,
-          status: userData.status
-        });
-        
+      if (userData) {        
         setUserName(userData.name || '');
         setUserEmail(userData.email || '');
         setUserRole(userData.role || '');
         setUserStatus(userData.status === 'active' ? 'active' : 'inactive');
-        
-        console.log('Estados atualizados:', {
-          userName,
-          userEmail,
-          userRole,
-          userStatus
-        });
       }
     } catch (err) {
-      console.error('Erro ao carregar usuário:', err);
+      //console.error('Erro ao carregar usuário:', err);
       setError('Erro ao carregar dados do usuário');
     } finally {
       setLoading(false);
@@ -81,14 +67,14 @@ export function UsersEdit() {
         ...(userPassword && { password: userPassword }) // Inclui password apenas se foi preenchido
       };
 
-      console.log('Atualizando usuário:', userData);
+      //console.log('Atualizando usuário:', userData);
       await userService.update(parseInt(id), userData);
-      console.log('Usuário atualizado com sucesso');
+      //console.log('Usuário atualizado com sucesso');
 
       // Redirecionar para lista de usuários
       navigate('/users');
     } catch (error: any) {
-      console.error('Erro ao atualizar usuário:', error);
+      //console.error('Erro ao atualizar usuário:', error);
       setError(error.response?.data?.error || 'Erro ao atualizar usuário');
     }
   };

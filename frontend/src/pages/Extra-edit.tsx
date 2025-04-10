@@ -34,7 +34,7 @@ export function ExtraEdit() {
       );
       setUsers(activeUsers);
     } catch (err) {
-      console.error('Erro ao carregar usuários:', err);
+      //console.error('Erro ao carregar usuários:', err);
       setError('Erro ao carregar lista de usuários');
     } finally {
       setLoading(false);
@@ -50,7 +50,7 @@ export function ExtraEdit() {
       const extraData = Array.isArray(response) ? response[0] : response;
       
       if (extraData) {
-        console.log('Documento extrajudicial carregado:', extraData);
+        //console.log('Documento extrajudicial carregado:', extraData);
         
         // Format dates for input fields
         const receivedDate = extraData.receivedAt ? new Date(extraData.receivedAt).toISOString().split('T')[0] : '';
@@ -68,7 +68,7 @@ export function ExtraEdit() {
         }
       }
     } catch (err) {
-      console.error('Erro ao carregar documento extrajudicial:', err);
+      //console.error('Erro ao carregar documento extrajudicial:', err);
       setError('Erro ao carregar dados do documento extrajudicial');
     } finally {
       setLoading(false);
@@ -82,12 +82,12 @@ export function ExtraEdit() {
         const userData = Array.isArray(response) ? response[0] : response;
         
         if (userData) {
-          console.log('Usuário responsável carregado:', userData.name);
+          //console.log('Usuário responsável carregado:', userData.name);
           setUserName(userData.name || '');
         }
       }
     } catch (err) {
-      console.error('Erro ao carregar usuário:', err);
+      setError('Erro ao carregar usuário responsável');
     }
   };
 
@@ -117,27 +117,28 @@ export function ExtraEdit() {
         message,
       };
 
-      console.log('Enviando documento extrajudicial:', extraData);
+      //console.log('Enviando documento extrajudicial:', extraData);
 
       // Usar o serviço de extrasService para atualizar
       if (id_extra) {
         const response = await extrasService.update(parseInt(id_extra), extraData);
-        console.log('Documento extrajudicial editado com sucesso:', response);
+        //console.log('Documento extrajudicial editado com sucesso:', response);
         
+        if (response) {
         setSuccess('Documento extrajudicial editado com sucesso!');
-        
+        }
         // Redirecionar para a lista após 2 segundos
         setTimeout(() => {
           navigate('/extras');
         }, 2000);
       }
     } catch (error: any) {
-      console.error('Erro ao editar documento:', error);
+      //console.error('Erro ao editar documento:', error);
 
       // Tratamento de erro detalhado
       if (error.response) {
-        console.error('Status do erro:', error.response.status);
-        console.error('Dados do erro:', error.response.data);
+        //console.error('Status do erro:', error.response.status);
+        //console.error('Dados do erro:', error.response.data);
         setError(
           `Erro ${error.response.status}: ${
             typeof error.response.data === 'string'
