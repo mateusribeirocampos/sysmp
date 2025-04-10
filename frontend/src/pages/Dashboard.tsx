@@ -8,6 +8,7 @@ import { Extras, Fisicos } from '@/types';
 
 export function Dashboard() {
   const { user } = useAuth();
+  const [error, setError] = useState('');
   const [extrasList, setExtrasList] = useState<Extras[]>([]);
   const [fisicosList, setFisicosList] = useState<Fisicos[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,7 +31,7 @@ export function Dashboard() {
 
         // Buscar os extras
         const extrasResponse = await extrasService.getAll();
-        console.log('Dados de extrajudiciais retornados pela API:', extrasResponse);
+        //console.log('Dados de extrajudiciais retornados pela API:', extrasResponse);
         
         // Processar as datas com o mesmo ajuste usado em Extras.tsx
         const processedExtras = extrasResponse.map((doc: Extras) => {
@@ -59,7 +60,7 @@ export function Dashboard() {
         
         // Buscar os físicos
         const fisicosResponse = await fisicosService.getAll();
-        console.log('Dados de físicos retornados pela API:', fisicosResponse);
+        //console.log('Dados de físicos retornados pela API:', fisicosResponse);
         
         // Processar as datas com o mesmo ajuste usado em Fisicos.tsx
         const processedFisicos = fisicosResponse.map((doc: Fisicos) => {
@@ -105,7 +106,8 @@ export function Dashboard() {
         localStorage.setItem('pendingExtrasCount', pendingExtrasCount.toString());
         localStorage.setItem('pendingFisicosCount', pendingFisicosCount.toString());
       } catch (error) {
-        console.error('Erro ao carregar documentos:', error);
+        //console.error('Erro ao carregar documentos:', error);
+        setError('Erro ao carregar documentos');
       }
     };
 
@@ -124,6 +126,10 @@ export function Dashboard() {
       window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
+
+  if (error) {
+    return <div className="text-center text-red-500 p-4">{error}</div>;
+  };
 
   return (
     <div className="px-4 sm:px-6 lg:px-8">

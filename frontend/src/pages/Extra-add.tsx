@@ -38,23 +38,23 @@ export function ExtraAdd() {
       };
     
       // Log para debug
-      console.log("Enviando documento extrajudicial:", extraData);
+      //console.log("Enviando documento extrajudicial:", extraData);
     
       // Enviar para API - modifique para usar JSON em vez de FormData
       const response = await api.post('extra/add', extraData);
-      console.log('Documento extrajudicial criado com sucesso:', response.data);
-      
+      //console.log('Documento extrajudicial criado com sucesso:', response.data);
+      if (response) {
       // Feedback e navegação após sucesso
       alert('Documento extrajudicial cadastrado com sucesso!');
       window.location.href = '/extras';
-      
+      }
     } catch (error: any) {
-      console.error("Erro ao criar documento:", error);
+      //console.error("Erro ao criar documento:", error);
       
       // Tratamento de erro detalhado
       if (error.response) {
-        console.error("Status do erro:", error.response.status);
-        console.error("Dados do erro:", error.response.data);
+        //console.error("Status do erro:", error.response.status);
+        //console.error("Dados do erro:", error.response.data);
         setError(`Erro ${error.response.status}: ${
           typeof error.response.data === 'string' 
             ? error.response.data 
@@ -79,7 +79,7 @@ export function ExtraAdd() {
       setUsers(activeUsers);
 
     } catch (err) {
-      console.log("Erro ao carregar usuários: ", err);
+      //console.log("Erro ao carregar usuários: ", err);
       setError("Erro ao carregar lista de usuários");
     } finally {
       setLoading(false);

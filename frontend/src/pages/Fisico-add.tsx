@@ -28,7 +28,7 @@ export function FisicoAdd() {
 
       setUsers(activeUsers);
     } catch (error) {
-      console.log('Erro ao carregar usuários: ', error);
+      //console.log('Erro ao carregar usuários: ', error);
       setError('Erro ao carregar lista de usuários');
     } finally {
       setLoading(false);
@@ -56,19 +56,20 @@ export function FisicoAdd() {
         message,
       };
 
-      console.log('Enviando documento judicial fisico: ', fisicoData);
+      //console.log('Enviando documento judicial fisico: ', fisicoData);
       const response = await api.post('fisico/add', fisicoData);
-      console.log('Documento judicial fisico criaado com sucesso: ', response.data);
-
-      alert('Documento judicial físico cadastrado com sucesso!');
-      window.location.href = '/fisicos';
+      //console.log('Documento judicial fisico criaado com sucesso: ', response.data);
+      if (response) {
+        alert('Documento judicial físico cadastrado com sucesso!');
+        window.location.href = '/fisicos';
+      }
     } catch (error: any) {
-      console.log('Erro ao criar documento: ', error);
+      //console.log('Erro ao criar documento: ', error);
 
       // Tratamento de erro detalhado
       if (error.response) {
-        console.error('Status do erro:', error.response.status);
-        console.error('Dados do erro:', error.response.data);
+        //console.error('Status do erro:', error.response.status);
+        //console.error('Dados do erro:', error.response.data);
         setError(
           `Erro ${error.response.status}: ${
             typeof error.response.data === 'string'
