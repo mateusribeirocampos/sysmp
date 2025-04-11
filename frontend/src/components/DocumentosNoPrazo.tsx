@@ -17,23 +17,23 @@ export function DocumentosNoPrazo({ documents, tipo }: DocumentosNoPrazoProps) {
   }
   
   // Filtra documentos no prazo (não vencidos)
-  const hoje = new Date();
+  //const hoje = new Date();
   //console.log("Data atual:", hoje.toISOString());
   
   const documentosNoPrazo = documents.filter(doc => {
     try {
-      // Converte a string de data para objeto Date se necessário
+      {/*  Converte a string de data para objeto Date se necessário
       const prazo = doc.deliveryDeadLine instanceof Date ? 
         doc.deliveryDeadLine : 
         new Date(doc.deliveryDeadLine);
       
-      // Calcula os dias restantes, independente se o valor vem da API
-      //const diasRestantes = calcularDiasRestantes(prazo);
+      Calcula os dias restantes, independente se o valor vem da API
+      const diasRestantes = calcularDiasRestantes(prazo);
       
-      //console.log(`Documento ID: ${doc.idDocument}, Prazo: ${prazo.toISOString()}, Dias API: ${doc.countDaysDeLivery}, Dias calculados: ${diasRestantes}, Entregue: ${doc.isDelivered ? 'Sim' : 'Não'}`);
-      
-      // Verifica apenas se o prazo é maior que hoje (futuro) 
-      return prazo > hoje;
+      console.log(`Documento ID: ${doc.idDocument}, Prazo: ${prazo.toISOString()}, Dias API: ${doc.countDaysDeLivery}, Dias calculados: ${diasRestantes}, Entregue: ${doc.isDelivered ? 'Sim' : 'Não'}`);
+      */}
+      //Incluir todos os documentos não entregues, independentemente da data do prazo
+      return !doc.isDelivered;
     } catch (error) {
       //console.error(`Erro ao processar documento ${doc.idDocument}:`, error);
       return false;
@@ -43,7 +43,7 @@ export function DocumentosNoPrazo({ documents, tipo }: DocumentosNoPrazoProps) {
   //console.log(`Documentos filtrados (${tipo}):`, documentosNoPrazo);
 
   // Se não houver documentos após a filtragem, tenta mostrar todos
-  if (documentosNoPrazo.length === 0 && documents.length > 0) {
+  if (documentosNoPrazo.length === 0 && documents.length >= 0) {
     //console.log(`Nenhum documento passou no filtro. Exibindo todos os ${documents.length} documentos.`);
     return (
       <div className="overflow-hidden">

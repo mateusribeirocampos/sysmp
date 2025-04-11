@@ -47,9 +47,9 @@ export const userService = {
   },
 
   getById: async (id: number): Promise<User> => {
-    console.log('Chamando API para buscar usuário:', id);
+    //console.log('Chamando API para buscar usuário:', id);
     const response = await api.get<User>(`/users/edit/${id}`);
-    console.log('Resposta da API:', response.data);
+    //console.log('Resposta da API:', response.data);
     return response.data;
   },
 
@@ -59,7 +59,7 @@ export const userService = {
   },
 
   updateStatus: async (id: number, status: string) => {
-    console.log('chamando api para atualizar status do usuário:', id, status);
+    //console.log('chamando api para atualizar status do usuário:', id, status);
     const response = await api.put(`/users/${id}/status`, { status });
     return response.data;
   },

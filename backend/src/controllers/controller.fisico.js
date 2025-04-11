@@ -33,7 +33,7 @@ async function addFisico(req, res) {
     
     return res.status(201).json(result);
   } catch (error) {
-    console.error('Erro ao adicionar extra:', error);
+    //console.error('Erro ao adicionar extra:', error);
     return res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
@@ -47,7 +47,7 @@ async function assignInternalDelivery(req, res) {
       return res.status(400).json({ error: 'ID do documento e ID do usuário são obrigatórios' });
     }
     
-    console.log(`Tentando atribuir documento ${idDocument} ao usuário ${internalDeliveryUserId}`);
+    //console.log(`Tentando atribuir documento ${idDocument} ao usuário ${internalDeliveryUserId}`);
     
     const result = await serviceFisico.updateInternalDelivery(idDocument, internalDeliveryUserId);
     
@@ -57,7 +57,7 @@ async function assignInternalDelivery(req, res) {
       data: result
     });
   } catch (error) {
-    console.error('Erro ao atribuir responsável:', error);
+    //console.error('Erro ao atribuir responsável:', error);
     return res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
@@ -68,7 +68,7 @@ async function getFisicoById(req, res) {
     const result = await serviceFisico.getFisicoById(id_fisico);
     return res.status(200).json(result);
   } catch (error) {
-    console.error('Erro no getFisicoById: ', error);
+    //console.error('Erro no getFisicoById: ', error);
     return res.status(500).json({
       error: "Erro interno do servidor"
     });

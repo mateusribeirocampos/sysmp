@@ -249,8 +249,17 @@ export function Fisicos() {
       <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="relative rounded-md shadow-sm w-full sm:w-64">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 text-gray-400"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                clipRule="evenodd"
+              />
             </svg>
           </div>
           <input
@@ -299,9 +308,11 @@ export function Fisicos() {
                       <div className="flex items-center group">
                         Data da Comunicação
                         <span className="ml-2 invisible group-hover:visible">
-                          {sortConfig.key === 'receivedAt' ? (
-                            sortConfig.direction === 'asc' ? '↑' : '↓'
-                          ) : '↕'}
+                          {sortConfig.key === 'receivedAt'
+                            ? sortConfig.direction === 'asc'
+                              ? '↑'
+                              : '↓'
+                            : '↕'}
                         </span>
                       </div>
                     </th>
@@ -313,9 +324,11 @@ export function Fisicos() {
                       <div className="flex items-center group">
                         Número ID
                         <span className="ml-2 invisible group-hover:visible">
-                          {sortConfig.key === 'idDocument' ? (
-                            sortConfig.direction === 'asc' ? '↑' : '↓'
-                          ) : '↕'}
+                          {sortConfig.key === 'idDocument'
+                            ? sortConfig.direction === 'asc'
+                              ? '↑'
+                              : '↓'
+                            : '↕'}
                         </span>
                       </div>
                     </th>
@@ -333,9 +346,11 @@ export function Fisicos() {
                       <div className="flex items-center group">
                         Prazo de entrega
                         <span className="ml-2 invisible group-hover:visible">
-                          {sortConfig.key === 'deliveryDeadLine' ? (
-                            sortConfig.direction === 'asc' ? '↑' : '↓'
-                          ) : '↕'}
+                          {sortConfig.key === 'deliveryDeadLine'
+                            ? sortConfig.direction === 'asc'
+                              ? '↑'
+                              : '↓'
+                            : '↕'}
                         </span>
                       </div>
                     </th>
@@ -360,7 +375,9 @@ export function Fisicos() {
                   {currentItems.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="px-3 py-4 text-center text-sm text-gray-500">
-                        {searchTerm ? 'Nenhum documento encontrado para esta busca.' : 'Nenhum documento disponível.'}
+                        {searchTerm
+                          ? 'Nenhum documento encontrado para esta busca.'
+                          : 'Nenhum documento disponível.'}
                       </td>
                     </tr>
                   ) : (
@@ -372,22 +389,26 @@ export function Fisicos() {
                       const isAlmostDead = daysRemaining > 0 && daysRemaining <= 3;
                       const isDelivered = deliveredDocuments.includes(doc.idDocument);
                       return (
-                        <tr 
+                        <tr
                           key={doc.idDocument}
                           className="hover:bg-gray-50 transition-colors duration-150 ease-in-out"
                         >
                           <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                             {doc.receivedAt.toLocaleDateString('pt-BR')}
                           </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                          <td
+                            className={`whitespace-nowrap px-2 py-2 text-sm text-gray-500 ${
+                              isDelivered ? 'bg-green-100 text-green-800' : 'text-gray-500'
+                            }`}
+                          >
                             {doc.idDocument}
                           </td>
                           <td
                             className={`text-center whitespace-nowrap px-3 py-4 text-sm ${
-                              isExpired
-                                ? 'bg-red-200 text-red-800'
-                                : isDelivered
-                                  ? 'bg-green-100 text-green-800'
+                              isDelivered
+                                ? 'bg-green-100 text-green-800'
+                                : isExpired
+                                  ? 'bg-red-200 text-red-800'
                                   : isAlmostDead
                                     ? 'bg-yellow-100 text-yellow-800'
                                     : isZeroTerm
@@ -399,10 +420,10 @@ export function Fisicos() {
                           </td>
                           <td
                             className={`text-center whitespace-nowrap px-3 py-4 text-sm ${
-                              isExpired
-                                ? 'bg-red-200 text-red-800'
-                                : isDelivered
-                                  ? 'bg-green-100 text-green-800'
+                              isDelivered
+                                ? 'bg-green-100 text-green-800'
+                                : isExpired
+                                  ? 'bg-red-200 text-red-800'
                                   : isAlmostDead
                                     ? 'bg-yellow-100 text-yellow-800'
                                     : isZeroTerm
@@ -457,7 +478,10 @@ export function Fisicos() {
                                 id={`user-${doc.idDocument}`}
                                 value={doc.internalDeliveryUserId || ''}
                                 onChange={(e) =>
-                                  handleInternalDeliveryChange(doc.idDocument, Number(e.target.value))
+                                  handleInternalDeliveryChange(
+                                    doc.idDocument,
+                                    Number(e.target.value)
+                                  )
                                 }
                                 disabled={updatingDocuments.includes(doc.idDocument)}
                                 className="block w-full rounded-md border-gray-300 py-1.5 pl-3 pr-10 text-sm focus:border-blue-500 focus:ring-blue-500"
@@ -597,15 +621,27 @@ export function Fisicos() {
               </p>
             </div>
             <div>
-              <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+              <nav
+                className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                aria-label="Pagination"
+              >
                 <button
                   onClick={() => paginate(1)}
                   disabled={currentPage === 1}
                   className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Primeira</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
                 <button
@@ -614,27 +650,37 @@ export function Fisicos() {
                   className="relative inline-flex items-center border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Anterior</span>
-                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
+                  <svg
+                    className="h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
-                
+
                 {/* Mostrar números de página com elipses inteligentes */}
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
-                  .filter(page => {
+                  .filter((page) => {
                     // Sempre mostrar a primeira e última página
                     if (page === 1 || page === totalPages) return true;
-                    
+
                     // Sempre mostrar páginas próximas à atual
                     if (Math.abs(page - currentPage) <= 1) return true;
-                    
+
                     // Não mostrar outras páginas (serão elipses)
                     return false;
                   })
                   .map((page, index, array) => {
                     // Adicionar elipses quando necessário
                     const showEllipsisBefore = index > 0 && page - array[index - 1] > 1;
-                    
+
                     return (
                       <Fragment key={page}>
                         {showEllipsisBefore && (
@@ -655,15 +701,25 @@ export function Fisicos() {
                       </Fragment>
                     );
                   })}
-                
+
                 <button
                   onClick={() => paginate(currentPage + 1)}
                   disabled={currentPage === totalPages}
                   className="relative inline-flex items-center border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Próximo</span>
-                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+                  <svg
+                    className="h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
                 <button
@@ -672,8 +728,17 @@ export function Fisicos() {
                   className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Última</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M4.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 000 1.414z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 000 1.414z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
               </nav>
