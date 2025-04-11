@@ -1,13 +1,19 @@
+import { createServer } from 'http';
 import express from 'express';
 import cors from 'cors';
 import routes from './routes/index.js';
 import config from './config/index.js';
 import logger from './config/logger.js';
 import { testPostgresConnection } from './config/database/test-connection.js';
+import { initializeSocket } from './socket.js';
 
 console.log("Iniciando o servidor...");
 
 const app = express();
+const httpServer = createServer(app);
+
+// Inicializa o Socket.IO
+const io = initializeSocket(httpServer);
 
 // Configuração do CORS baseada no ambiente
 const allowedOrigins = [
@@ -61,7 +67,7 @@ testPostgresConnection()
   .then(connectionSuccessful => {
     console.log("Resultado do teste de conexão:", connectionSuccessful ? "Sucesso" : "Falha");
     if (connectionSuccessful) {
-      app.listen(PORT, () => {
+      httpServer.listen(PORT, () => {
         console.log(`Servidor iniciado na porta ${PORT}`);
         logger.info(`Servidor rodando na porta ${PORT}`);
       });

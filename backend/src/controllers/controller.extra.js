@@ -1,4 +1,5 @@
 import serviceExtra from "../services/service.extra.js";
+import { io } from '../socket.js';
 
 async function listExtra(req, res) {
   try {
@@ -30,6 +31,9 @@ async function addExtras(req, res) {
       internalDeliveryUserId, 
       message
     );
+
+    // Após sucesso, emite evento para todos os clientes
+    io.emit('data-changed', { type: 'extra', action: 'create' });
     
     return res.status(201).json(result);
   } catch (error) {
@@ -93,6 +97,9 @@ async function updateExtra(req, res) {
       internalDeliveryUserId, 
       message
     );
+
+    // Após sucesso, emite evento para todos os clientes
+    io.emit('data-changed', { type: 'extra', action: 'update', id: id_extra });
     
     return res.status(200).json({ 
       success: true, 
@@ -109,6 +116,10 @@ async function deleteExtra(req, res) {
   const { id_extra } = req.params;
   try {
     const result = await serviceExtra.deleteExtra(id_extra);
+
+    // Após sucesso, emite evento para todos os clientes
+    io.emit('data-changed', { type: 'extra', action: 'delete', id: id_extra });
+
     return res.status(200).json(result);
   } catch (error) {
     console.error('Erro no deleteExtra: ', error);

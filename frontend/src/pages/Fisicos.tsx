@@ -3,6 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { fisicosService, userService } from '@/services/api';
 import type { User, Fisicos } from '@/types';
 import { Modal } from '@/components/Modal';
+import { useSocketEvent } from '../services/websocket';
+
+// Definição do tipo para os eventos de WebSocket
+interface WebSocketEvent {
+  type: 'extra' | 'fisico' | 'user';
+  action: 'create' | 'update' | 'delete';
+  id?: string | number;
+}
 
 export function Fisicos() {
   const navigate = useNavigate();
@@ -33,6 +41,15 @@ export function Fisicos() {
       setDeliveredDocuments(JSON.parse(savedDelivered));
     }
   }, []);
+
+  // Adicionar esta parte para escutar eventos de WebSocket
+  useSocketEvent<WebSocketEvent>('data-changed', (data) => {
+    // Quando recebe notificação de mudança nos dados, recarrega os dados
+    if (data.type === 'fisico') {
+      console.log('Dados de documentos físicos alterados:', data);
+      loadDocuments();
+    }
+  });
 
   // Update total pages when the list or items per page changes
   useEffect(() => {
