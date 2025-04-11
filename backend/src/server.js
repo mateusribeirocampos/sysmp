@@ -43,6 +43,11 @@ app.use(cors({
 // Middleware para processar JSON
 app.use(express.json());
 
+// Health check endpoint para Render
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', message: 'Server is running' });
+});
+
 // Rotas
 app.use(routes);
 
