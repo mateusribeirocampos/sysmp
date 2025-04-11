@@ -4,6 +4,14 @@ import { extrasService } from '@/services/api';
 import { userService } from '@/services/api';
 import type { User, Extras } from '@/types';
 import { Modal } from '@/components/Modal';
+import { useSocketEvent } from '../services/websocket';
+
+// Definição do tipo para os eventos de WebSocket
+interface WebSocketEvent {
+  type: 'extra' | 'fisico' | 'user';
+  action: 'create' | 'update' | 'delete';
+  id?: string | number;
+}
 
 export function Extras() {
   const navigate = useNavigate();
@@ -35,6 +43,15 @@ export function Extras() {
       setDeliveredDocuments(JSON.parse(savedDelivered));
     }
   }, []);
+
+  // Adicionar esta parte para escutar eventos de WebSocket
+  useSocketEvent<WebSocketEvent>('data-changed', (data) => {
+    // Quando recebe notificação de mudança nos dados, recarrega os dados
+    if (data.type === 'extra') {
+      console.log('Dados de extras alterados:', data);
+      loadDocuments();
+    }
+  });
 
   // Atualiza o total de páginas quando a lista ou termos por página muda
   useEffect(() => {
@@ -462,7 +479,7 @@ export function Extras() {
                                 >
                                   <path
                                     fillRule="evenodd"
-                                    d="M3,0 C2.44772,0 2,0.447715 2,1 C2,1.55228 2.44772,2 3,2 L3,3.17157 C3,3.96722 3.31607,4.73028 3.87868,5.29289 L6.58579,8 L3.87868,10.7071 C3.31607,11.2697 3,12.0328 3,12.8284 L3,14 C2.44772,14 2,14.4477 2,15 C2,15.5523 2.44772,16 3,16 L13,16 C13.5523,16 14,15.5523 14,15 C14,14.4477 13.5523,14 13,14 L13,12.8284 C13,12.0328 12.6839,11.2697 12.1213,10.7071 L9.41421,8 L12.1213,5.29289 C12.6839,4.73028 13,3.96722 13,3.17157 L13,2 C13.5523,2 14,1.55228 14,1 C14,0.447715 13.5523,0 13,0 L3,0 Z M11,2 L5,2 L5,3.17157 C5,3.43679 5.10536,3.69114 5.29289,3.87868 L5.41421,4 L10.5858,4 L10.7071,3.87868 C10.8946,3.69114 11,3.43679 11,3.17157 L11,2 Z M8,9.41421 L5.29289,12.1213 C5.10536,12.3089 5,12.5632 5,12.8284 L5,14 L11,14 L11,12.8284 C11,12.5632 10.8946,12.3089 10.7071,12.1213 L8,9.41421 Z"
+                                    d="M3,0 C2.44772,0 2,0.447715 2,1 C2,1.55228 2.44772,2 3,2 L3,3.17157 C3,3.96722 3.31607,4.73028 3.87868,5.29289 L6.58579,8 L3.87868,10.7071 C3.31607,11.2697 3,12.0328 3,12.8284 L3,14 C2.44772,14 2,14.4477 2,15 C2,15.5523 2.44772,16 3,16 L13,16 C13.5523,16 14,15.5523 14,15 C14,14.4477 13.5523,14 13,14 L13,12.8284 C13,12.0328 12.6839,11.2697 12.1213,10.7071 L9.41421,8 L12.1213,5.29289 C12.6839,4.73028 13,3.96722 13,3.17157 L13,2 C13.5523,2 14,1.55228 14,1 C14,0.447715 13.5523,0 13,0 L3,0 Z M11,2 L5,2 L5,3.17157 C5,3.43679 5,3.69114 5.29289,3.87868 L5.41421,4 L10.5858,4 L10.7071,3.87868 C10.8946,3.69114 11,3.43679 11,3.17157 L11,2 Z M8,9.41421 L5.29289,12.1213 C5.10536,12.3089 5,12.5632 5,12.8284 L5,14 L11,14 L11,12.8284 C11,12.5632 10.8946,12.3089 10.7071,12.1213 L8,9.41421 Z"
                                     clipRule="evenodd"
                                   />
                                 </svg>
@@ -737,7 +754,7 @@ export function Extras() {
                   >
                     <path
                       fillRule="evenodd"
-                      d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                      d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 011.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
                       clipRule="evenodd"
                     />
                   </svg>
