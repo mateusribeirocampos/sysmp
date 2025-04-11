@@ -5,7 +5,7 @@ async function listExtra(req, res) {
     const result = await serviceExtra.listExtra();
     return res.status(200).json(result);
   } catch (error) {
-    console.error('Erro no listExtra: ', error);
+    //console.error('Erro no listExtra: ', error);
     return res.status(500).json({
       error: "Erro interno do servidor"
     });
@@ -33,7 +33,7 @@ async function addExtras(req, res) {
     
     return res.status(201).json(result);
   } catch (error) {
-    console.error('Erro ao adicionar extra:', error);
+    //console.error('Erro ao adicionar extra:', error);
     return res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
@@ -47,7 +47,7 @@ async function assignInternalDelivery(req, res) {
       return res.status(400).json({ error: 'ID do documento e ID do usuário são obrigatórios' });
     }
     
-    console.log(`Tentando atribuir documento ${idDocument} ao usuário ${internalDeliveryUserId}`);
+    //console.log(`Tentando atribuir documento ${idDocument} ao usuário ${internalDeliveryUserId}`);
     
     const result = await serviceExtra.updateInternalDelivery(idDocument, internalDeliveryUserId);
     
@@ -57,7 +57,7 @@ async function assignInternalDelivery(req, res) {
       data: result
     });
   } catch (error) {
-    console.error('Erro ao atribuir responsável:', error);
+    //console.error('Erro ao atribuir responsável:', error);
     return res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
@@ -68,7 +68,7 @@ async function getExtraById(req, res) {
     const result = await serviceExtra.getExtraById(id_extra);
     return res.status(200).json(result);
   } catch (error) {
-    console.error('Erro no getExtraById: ', error);
+    //console.error('Erro no getExtraById: ', error);
     return res.status(500).json({
       error: "Erro interno do servidor"
     });

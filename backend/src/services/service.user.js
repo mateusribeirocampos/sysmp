@@ -8,16 +8,16 @@ async function hashPassword(password) {
 }
 
 async function login(email, password) {
-  console.log('Tentando login com email:', email);
+  //console.log('Tentando login com email:', email);
   const user = await repoUser.listByEmail(email);
-  console.log('Usuário encontrado:', user ? 'Sim' : 'Não');
+  //console.log('Usuário encontrado:', user ? 'Sim' : 'Não');
 
   if (!user || Object.keys(user).length === 0) {
-    console.log('Usuário não encontrado ou vazio');
+    //console.log('Usuário não encontrado ou vazio');
     return null;
   }
 
-  console.log('Verificando senha...');
+  //console.log('Verificando senha...');
   let isValidPassword;
   
   // Verifica se a senha está hasheada
@@ -33,10 +33,10 @@ async function login(email, password) {
     }
   }
   
-  console.log('Senha válida:', isValidPassword ? 'Sim' : 'Não');
+  //console.log('Senha válida:', isValidPassword ? 'Sim' : 'Não');
 
   if (!isValidPassword) {
-    console.log('Senha inválida');
+    //console.log('Senha inválida');
     return null;
   }
 
@@ -53,7 +53,7 @@ async function login(email, password) {
       token
     };
     
-    console.log('Login bem sucedido, retornando:', { ...result, token: 'HIDDEN' });
+    //console.log('Login bem sucedido, retornando:', { ...result, token: 'HIDDEN' });
     return result;
   } catch (error) {
     console.error('Erro ao criar token:', error);

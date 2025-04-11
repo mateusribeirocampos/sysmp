@@ -180,47 +180,48 @@ export function Extras() {
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
-    } 
+    }
     setSortConfig({ key, direction });
-  }
+  };
 
   // Filtrar por documentos
   const filteredDocuments = extrasList
-  .filter((doc) => {
-    if (!searchTerm) return true;
-    const searchLower = searchTerm.toLowerCase();
-    return(
-      doc.idDocument.toLowerCase().includes(searchLower) || (doc.message && doc.message.toLowerCase().includes(searchLower))
-    );
-  })
-  .sort((a, b) => {
-    if (!sortConfig.key) return 0;
+    .filter((doc) => {
+      if (!searchTerm) return true;
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        doc.idDocument.toLowerCase().includes(searchLower) ||
+        (doc.message && doc.message.toLowerCase().includes(searchLower))
+      );
+    })
+    .sort((a, b) => {
+      if (!sortConfig.key) return 0;
 
-    const aValue = a[sortConfig.key];
-    const bValue = b[sortConfig.key];
+      const aValue = a[sortConfig.key];
+      const bValue = b[sortConfig.key];
 
-    // Verifica se os valores são undefinied ou null
-    if (aValue === undefined || aValue === null) {
-      return sortConfig.direction === 'asc' ? -1 : 1; 
-    }
-    if (bValue === undefined || bValue === null) {
-      return sortConfig.direction === 'asc' ? -1 : 1; 
-    }
-    if (aValue < bValue) {
-      return sortConfig.direction === 'asc' ? -1 : 1;
-    }
-    if (aValue > bValue) {
-      return sortConfig.direction === 'asc' ? 1 : -1;
-    }
-    return 0;
-  });
+      // Verifica se os valores são undefinied ou null
+      if (aValue === undefined || aValue === null) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (bValue === undefined || bValue === null) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
 
   // pegar os itens da página atual
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredDocuments.slice(indexOfFirstItem,indexOfLastItem);
+  const currentItems = filteredDocuments.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Navegação das páginas 
+  // Navegação das páginas
   const paginate = (pageNumber: number) => {
     if (pageNumber < 1) pageNumber = 1;
     if (pageNumber > totalPages) pageNumber = totalPages;
@@ -265,39 +266,50 @@ export function Extras() {
         </Link>
       </div>
 
-      <div className='mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
-        <div className='relative rounded-md shadow-sm w-full sm:w-64'>
-          <div className='pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3'>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+      <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="relative rounded-md shadow-sm w-full sm:w-64">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 text-gray-400"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                clipRule="evenodd"
+              />
             </svg>
           </div>
-          <input type="text" 
-          className='block w-full rounded-md border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500 sm:text-sm'
-          placeholder="Buscar documentos..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1);
-          }}
+          <input
+            type="text"
+            className="block w-full rounded-md border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            placeholder="Buscar documentos..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
           />
         </div>
         <div className="flex items-center">
-          <span className='text-sm text-gray-700'>Mostrar</span>
-          <select 
-          className='mx-2 rounded-md border-gray-300 py-1 text-sm focurs:border-blue-500 focus:ring-blue-500'
-          value={itemsPerPage}
-          onChange={(e) => {setItemsPerPage(Number(e.target.value));
-            setCurrentPage(1);
-          }}
+          <span className="text-sm text-gray-700">Mostrar</span>
+          <select
+            className="mx-2 rounded-md border-gray-300 py-1 text-sm focurs:border-blue-500 focus:ring-blue-500"
+            value={itemsPerPage}
+            onChange={(e) => {
+              setItemsPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
           >
-            {[5,10,25,50].map((pageSize) => (
+            {[5, 10, 25, 50].map((pageSize) => (
               <option key={pageSize} value={pageSize}>
                 {pageSize}
               </option>
             ))}
           </select>
-          <span className='text-sm text-gray-700'>Itens por página</span>
+          <span className="text-sm text-gray-700">Itens por página</span>
         </div>
       </div>
 
@@ -305,7 +317,7 @@ export function Extras() {
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
             <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-              <table id='extras-table' className="min-w-full divide-y divide-gray-300">
+              <table id="extras-table" className="min-w-full divide-y divide-gray-300">
                 <thead className="bg-gray-50">
                   <tr>
                     <th
@@ -316,9 +328,11 @@ export function Extras() {
                       <div className="flex items-center group">
                         Data da Comunicação
                         <span className="ml-2 invisible group-hover:visible">
-                          {sortConfig.key === 'receivedAt' ? (
-                            sortConfig.direction === 'asc' ? '↑' : '↓'
-                          ) : '↕'}
+                          {sortConfig.key === 'receivedAt'
+                            ? sortConfig.direction === 'asc'
+                              ? '↑'
+                              : '↓'
+                            : '↕'}
                         </span>
                       </div>
                     </th>
@@ -330,9 +344,11 @@ export function Extras() {
                       <div className="flex items-center group">
                         Número ID
                         <span className="ml-2 invisible group-hover:visible">
-                          {sortConfig.key === 'idDocument' ? (
-                            sortConfig.direction === 'asc' ? '↑' : '↓'
-                          ) : '↕'}
+                          {sortConfig.key === 'idDocument'
+                            ? sortConfig.direction === 'asc'
+                              ? '↑'
+                              : '↓'
+                            : '↕'}
                         </span>
                       </div>
                     </th>
@@ -350,9 +366,11 @@ export function Extras() {
                       <div className="flex items-center group">
                         Prazo de entrega
                         <span className="ml-2 invisible group-hover:visible">
-                          {sortConfig.key === 'deliveryDeadLine' ? (
-                            sortConfig.direction === 'asc' ? '↑' : '↓'
-                          ) : '↕'}
+                          {sortConfig.key === 'deliveryDeadLine'
+                            ? sortConfig.direction === 'asc'
+                              ? '↑'
+                              : '↓'
+                            : '↕'}
                         </span>
                       </div>
                     </th>
@@ -377,7 +395,9 @@ export function Extras() {
                   {currentItems.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="px-3 py-4 text-center text-sm text-gray-500">
-                        {searchTerm ? 'Nenhum documento encontrado para esta busca.' : 'Nenhum documento disponível.'}
+                        {searchTerm
+                          ? 'Nenhum documento encontrado para esta busca.'
+                          : 'Nenhum documento disponível.'}
                       </td>
                     </tr>
                   ) : (
@@ -389,22 +409,26 @@ export function Extras() {
                       const isAlmostDead = daysRemaining > 0 && daysRemaining <= 3;
                       const isDelivered = deliveredDocuments.includes(doc.idDocument);
                       return (
-                        <tr 
+                        <tr
                           key={doc.idDocument}
                           className="hover:bg-gray-50 transition-colors duration-150 ease-in-out"
                         >
                           <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                             {doc.receivedAt.toLocaleDateString('pt-BR')}
                           </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                          <td
+                            className={`whitespace-nowrap px-2 py-2 text-sm text-gray-500 ${
+                              isDelivered ? 'bg-green-100 text-green-800' : 'text-gray-500'
+                            }`}
+                          >
                             {doc.idDocument}
                           </td>
                           <td
                             className={`text-center whitespace-nowrap px-3 py-4 text-sm ${
-                              isExpired
-                                ? 'bg-red-200 text-red-800'
-                                : isDelivered
-                                  ? 'bg-green-100 text-green-800'
+                              isDelivered
+                                ? 'bg-green-100 text-green-800'
+                                : isExpired
+                                  ? 'bg-red-200 text-red-800'
                                   : isAlmostDead
                                     ? 'bg-yellow-100 text-yellow-800'
                                     : isZeroTerm
@@ -416,10 +440,10 @@ export function Extras() {
                           </td>
                           <td
                             className={`text-center whitespace-nowrap px-3 py-4 text-sm ${
-                              isExpired
-                                ? 'bg-red-200 text-red-800'
-                                : isDelivered
-                                  ? 'bg-green-100 text-green-800'
+                              isDelivered
+                                ? 'bg-green-100 text-green-800'
+                                : isExpired
+                                  ? 'bg-red-200 text-red-800'
                                   : isAlmostDead
                                     ? 'bg-yellow-100 text-yellow-800'
                                     : isZeroTerm
@@ -474,7 +498,10 @@ export function Extras() {
                                 id={`user-${doc.idDocument}`}
                                 value={doc.internalDeliveryUserId || ''}
                                 onChange={(e) =>
-                                  handleInternalDeliveryChange(doc.idDocument, Number(e.target.value))
+                                  handleInternalDeliveryChange(
+                                    doc.idDocument,
+                                    Number(e.target.value)
+                                  )
                                 }
                                 disabled={updatingDocuments.includes(doc.idDocument)}
                                 className="block w-full rounded-md border-gray-300 py-1.5 pl-3 pr-10 text-sm focus:border-blue-500 focus:ring-blue-500"
@@ -614,15 +641,27 @@ export function Extras() {
               </p>
             </div>
             <div>
-              <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+              <nav
+                className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                aria-label="Pagination"
+              >
                 <button
                   onClick={() => paginate(1)}
                   disabled={currentPage === 1}
                   className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Primeira</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
                 <button
@@ -631,27 +670,37 @@ export function Extras() {
                   className="relative inline-flex items-center border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Anterior</span>
-                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
+                  <svg
+                    className="h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
-                
+
                 {/* Mostrar números de página com elipses inteligentes */}
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
-                  .filter(page => {
+                  .filter((page) => {
                     // Sempre mostrar a primeira e última página
                     if (page === 1 || page === totalPages) return true;
-                    
+
                     // Sempre mostrar páginas próximas à atual
                     if (Math.abs(page - currentPage) <= 1) return true;
-                    
+
                     // Não mostrar outras páginas (serão elipses)
                     return false;
                   })
                   .map((page, index, array) => {
                     // Adicionar elipses quando necessário
                     const showEllipsisBefore = index > 0 && page - array[index - 1] > 1;
-                    
+
                     return (
                       <Fragment key={page}>
                         {showEllipsisBefore && (
@@ -672,15 +721,25 @@ export function Extras() {
                       </Fragment>
                     );
                   })}
-                
+
                 <button
                   onClick={() => paginate(currentPage + 1)}
                   disabled={currentPage === totalPages}
                   className="relative inline-flex items-center border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Próximo</span>
-                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+                  <svg
+                    className="h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
                 <button
@@ -689,8 +748,17 @@ export function Extras() {
                   className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Última</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M4.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 000 1.414z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 000 1.414z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
               </nav>

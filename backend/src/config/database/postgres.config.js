@@ -16,7 +16,7 @@ if (process.env.DATABASE_URL) {
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
   });
-  console.log('Utilizando conexão via DATABASE_URL');
+  //console.log('Utilizando conexão via DATABASE_URL');
 } else {
   // Usar parâmetros individuais (para desenvolvimento local)
   pool = new Pool({
@@ -26,7 +26,7 @@ if (process.env.DATABASE_URL) {
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT || 5432,
   });
-  console.log('Utilizando conexão via parâmetros individuais');
+  //console.log('Utilizando conexão via parâmetros individuais');
 }
 
 // Função para executar consultas SQL
@@ -35,7 +35,7 @@ async function query(text, params) {
     const result = await pool.query(text, params);
     return result.rows;
   } catch (error) {
-    console.error('Erro na execução da query:', error);
+    //console.error('Erro na execução da query:', error);
     throw error;
   }
 }
@@ -46,7 +46,7 @@ async function queryOne(text, params) {
     const result = await pool.query(text, params);
     return result.rows[0];
   } catch (error) {
-    console.error('Erro na execução da query:', error);
+    //console.error('Erro na execução da query:', error);
     throw error;
   }
 }
@@ -57,7 +57,7 @@ async function mutate(text, params) {
     const result = await pool.query(text, params);
     return result;
   } catch (error) {
-    console.error('Erro na execução da mutação:', error);
+    //console.error('Erro na execução da mutação:', error);
     throw error;
   }
 }
