@@ -136,7 +136,7 @@ export function ExtraAdd() {
           type="text"
           className="mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md"
           name="idDocument"
-          placeholder="9999999-99.9999.9.99.9999"
+          placeholder="99.99.9999.9999999/9999-99"
           id="idDocument"
           value={idDocument}
           onChange={(e) => setIdDocument(e.target.value)}
