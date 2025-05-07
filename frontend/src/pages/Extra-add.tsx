@@ -51,8 +51,9 @@ export function ExtraAdd() {
     } catch (error: any) {
       //console.error("Erro ao criar documento:", error);
       
-      // Tratamento de erro detalhado
-      if (error.response) {
+      if (error.response && error.response.status === 409) {
+        setError('Já existe um documento cadastrado com esse número. Por favor, verifique o número digitado!');
+      } else if (error.response) {
         //console.error("Status do erro:", error.response.status);
         //console.error("Dados do erro:", error.response.data);
         setError(`Erro ${error.response.status}: ${

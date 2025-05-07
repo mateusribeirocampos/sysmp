@@ -116,7 +116,11 @@ export function Extras() {
         };
       });
 
-      setExtrasList(processedExtras); // Usar os dados processados
+      setExtrasList(processedExtras);
+
+      if (processedExtras.length === 0) {
+        localStorage.removeItem('deliveredExtras');
+      }
 
       const countExtras = await extrasService.getCount();
       //console.log('Total de extrajudiciais: ', countExtras);

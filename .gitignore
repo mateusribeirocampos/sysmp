@@ -39,3 +39,4 @@ backend/src/config/database/scipt-database.md
 backend/src/config/database/sqlite
 backend/src/config/database/migrations
 backend/src/config/database/migrations/migrate-data.js
+backend/src/config/RLSsupabase.sql
