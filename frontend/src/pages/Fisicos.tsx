@@ -109,6 +109,10 @@ export function Fisicos() {
 
       setFisicosList(processedFisicos);
 
+      if (processedFisicos.length === 0) {
+        localStorage.removeItem('deliveredFisicos');
+      }
+
       const countFisicos = await fisicosService.getCount();
       //console.log('Total de judiciais físicos: ', countFisicos);
       localStorage.setItem('fisicosCount', countFisicos.toString());
