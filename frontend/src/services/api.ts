@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { User, Extras, Fisicos, AuthResponse, LoginCredentials } from '@/types';
+import type { User, Extras, Fisicos, Suspensos, AuthResponse, LoginCredentials } from '@/types';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL.replace(/\/$/, ''),
@@ -164,6 +164,46 @@ export const fisicosService = {
 
   delete: async (id: number): Promise<void> => {
     await api.delete(`/fisico/delete/${id}`);
+  },
+};
+
+export const suspensoService = {
+  // Contagem de suspensos
+  getCount: async (): Promise<number> => {
+    const response = await api.get<Suspensos[]>('/suspensos');
+    return response.data.length;
+  },
+  // Busca todos os suspensos
+  getAll: async (): Promise<Suspensos[]> => {
+    const response = await api.get<Suspensos[]>('/suspensos');
+    return response.data;
+  },
+  // Busca um suspenso pelo ID
+  getById: async (id: number): Promise<Suspensos> => {
+    const response = await api.get<Suspensos>(`/suspenso/edit/${id}`);
+    return response.data;
+  },
+  // Cria um novo suspenso
+  create: async (documentData: FormData): Promise<Suspensos> => {
+    const response = await api.post<Suspensos>('/suspenso/add', documentData);
+    return response.data;
+  },
+
+  update: async (id_suspenso: number, suspensoData: any): Promise<Suspensos> => {
+    const response = await api.put<Suspensos>(`/suspenso/edit/${id_suspenso}`, suspensoData);
+    return response.data;
+  },
+  // Atualiza o usuário interno de entrega
+  updateInternalDelivery: async (idDocument: string, userId: number): Promise<any> => {
+    const response = await api.put(`/suspenso/assign`, {
+      idDocument: idDocument,
+      internalDeliveryUserId: userId,
+    });
+    return response.data;
+  },
+  // Deleta um suspenso pelo ID
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/suspenso/delete/${id}`);
   },
 };
 

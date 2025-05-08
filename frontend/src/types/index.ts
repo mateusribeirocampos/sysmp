@@ -28,6 +28,17 @@ export interface Fisicos {
   isDelivered?: boolean; // Add the isDelivered property as optional
 }
 
+export interface Suspensos {
+  id_suspenso: number
+  receivedAt: Date
+  idDocument: string
+  countDaysDeLivery: number
+  deliveryDeadLine: Date
+  internalDeliveryUserId: number
+  message: string;
+  isDelivered?: boolean;
+}
+
 export interface AuthResponse {
   token: string
   user: User

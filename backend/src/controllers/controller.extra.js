@@ -20,7 +20,7 @@ async function addExtras(req, res) {
     const { receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message } = req.body;
     
     // Verificar se todos os campos estão presentes
-    if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId || !message) {
+    if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId) {
       return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
     }
     
@@ -85,7 +85,7 @@ async function updateExtra(req, res) {
     const { receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message } = req.body;
     
     // Verificar se todos os campos estão presentes
-    if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId || !message) {
+    if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId) {
       return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
     }
     

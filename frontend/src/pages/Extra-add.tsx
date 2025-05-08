@@ -17,7 +17,7 @@ export function ExtraAdd() {
   const handleSubmit = async () => {
     try {
       // Validação dos campos
-      if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId || !message) {
+      if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId) {
         setError('Por favor, preencha todos os campos');
         return;
       }

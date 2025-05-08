@@ -7,6 +7,9 @@ import { Dashboard } from './pages/Dashboard';
 import { Users } from './pages/Users';
 import { Extras } from './pages/Extras';
 import { Fisicos } from './pages/Fisicos';
+import { Suspensos } from './pages/Suspensos'
+import { SuspensoAdd } from './pages/Suspenso-add';
+import { SuspensoEdit } from './pages/Suspenso-edit';
 import { ExtraAdd } from './pages/Extra-add';
 import { ExtraEdit } from './pages/Extra-edit';
 import { FisicoAdd } from './pages/Fisico-add';
@@ -73,6 +76,10 @@ function App() {
             <Route path="/fisicos" element={<Fisicos />} />
             <Route path="/fisico/add" element={<FisicoAdd />} />
             <Route path="/fisico/edit/:id_fisico" element={<FisicoEdit />} />
+
+            <Route path="/suspensos" element={<Suspensos />} />
+            <Route path="/suspenso/add" element={<SuspensoAdd />} />
+            <Route path="/suspenso/edit/:id_suspenso" element={<SuspensoEdit />} />
 
           </Route>
         </Routes>

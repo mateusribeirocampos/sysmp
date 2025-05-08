@@ -1,43 +1,100 @@
-import api, { userService } from '@/services/api';
-import { User } from '@/types';
 import { useEffect, useState } from 'react';
 import { FaArrowLeftLong } from 'react-icons/fa6';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { userService, suspensoService } from '@/services/api';
+import type { User } from '@/types';
 
-export function FisicoAdd() {
+export function SuspensoEdit(){
+  const { id_suspenso } = useParams();
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
+  const [userName, setUserName] = useState('');
   const [receivedAt, setReceivedAt] = useState('');
   const [idDocument, setIdDocument] = useState('');
   const [deliveryDeadLine, setDeliveryDeadLine] = useState('');
   const [internalDeliveryUserId, setInternalDeliveryUserId] = useState('');
   const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState('');
+
 
   useEffect(() => {
-    loadAllUser();
-  }, []);
+    loadAllUsers();
+    if (id_suspenso) {
+      loadSuspensoData(parseInt(id_suspenso));
+    }
+  }, [id_suspenso]);
 
-  const loadAllUser = async () => {
+  const loadAllUsers = async () => {
     try {
       setLoading(true);
-      const users = await userService.getAll();
-      const activeUsers = users.filter(
+      const response = await userService.getAll();
+      const activeUsers = response.filter(
         (user) => user.status === 'active' || user.status === 'inactive'
       );
-
       setUsers(activeUsers);
-    } catch (error) {
-      //console.log('Erro ao carregar usuários: ', error);
+    } catch (err) {
+      //console.error('Erro ao carregar usuários:', err);
       setError('Erro ao carregar lista de usuários');
     } finally {
       setLoading(false);
     }
   };
 
+  const loadSuspensoData = async (extraId: number) => {
+    try {
+      setLoading(true);
+      const response = await suspensoService.getById(extraId);
+      const suspensoData = Array.isArray(response) ? response[0] : response;
+      
+      if (suspensoData) {
+        //console.log('Documento extrajudicial carregado:', extraData);
+        const receivedDate = suspensoData.receivedAt ? new Date(suspensoData.receivedAt).toISOString().split('T')[0] : '';
+        const deadlineDate = suspensoData.deliveryDeadLine ? new Date(suspensoData.deliveryDeadLine).toISOString().split('T')[0] : '';
+        
+        setReceivedAt(receivedDate);
+        setIdDocument(suspensoData.idDocument || '');
+        setDeliveryDeadLine(deadlineDate);
+        setMessage(suspensoData.message || '');
+        
+        // Set internalDeliveryUserId and load the user name
+        if (suspensoData.internalDeliveryUserId) {
+          setInternalDeliveryUserId(suspensoData.internalDeliveryUserId.toString());
+          await loadUserName(suspensoData.internalDeliveryUserId);
+        }
+      }
+    } catch (err) {
+      //console.error('Erro ao carregar documento extrajudicial:', err);
+      setError('Erro ao carregar dados do documento feito suspenso');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadUserName = async (userId: number) => {
+    try {
+      if (userId) {
+        const response = await userService.getById(userId);
+        const userData = Array.isArray(response) ? response[0] : response;
+        
+        if (userData) {
+          //console.log('Usuário responsável carregado:', userData.name);
+          setUserName(userData.name || '');
+        }
+      }
+    } catch (err) {
+      setError('Erro ao carregar usuário responsável');
+    }
+  };
+
   const handleSubmit = async () => {
     try {
-      if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId) {
+      setError('');
+      setSuccess('');
+      
+      // Validação dos campos
+      if (!receivedAt || !idDocument || !deliveryDeadLine) {
         setError('Por favor, preencha todos os campos');
         return;
       }
@@ -48,27 +105,35 @@ export function FisicoAdd() {
         return;
       }
 
-      const fisicoData = {
+      // Criar objeto JSON para enviar ao backend
+      const suspensoData = {
         receivedAt,
         idDocument,
         deliveryDeadLine,
-        internalDeliveryUserId,
+        internalDeliveryUserId: parseInt(internalDeliveryUserId),
         message,
       };
 
-      //console.log('Enviando documento judicial fisico: ', fisicoData);
-      const response = await api.post('fisico/add', fisicoData);
-      //console.log('Documento judicial fisico criaado com sucesso: ', response.data);
-      if (response) {
-        alert('Documento judicial físico cadastrado com sucesso!');
-        window.location.href = '/fisicos';
+      //console.log('Enviando documento extrajudicial:', extraData);
+
+      // Usar o serviço de extrasService para atualizar
+      if (id_suspenso) {
+        const response = await suspensoService.update(parseInt(id_suspenso), suspensoData);
+        //console.log('Documento extrajudicial editado com sucesso:', response);
+        
+        if (response) {
+        setSuccess('Documento feito suspenso editado com sucesso!');
+        }
+        // Redirecionar para a lista após 2 segundos
+        setTimeout(() => {
+          navigate('/suspensos');
+        }, 2000);
       }
     } catch (error: any) {
-      //console.log('Erro ao criar documento: ', error);
+      //console.error('Erro ao editar documento:', error);
 
-      if (error.response && error.response.status === 409) {
-        setError('Já existe um documento cadastrado com esse número. Por favor, verifique o número digitado!');
-      } else if (error.response) {
+      // Tratamento de erro detalhado
+      if (error.response) {
         //console.error('Status do erro:', error.response.status);
         //console.error('Dados do erro:', error.response.data);
         setError(
@@ -79,7 +144,7 @@ export function FisicoAdd() {
           }`
         );
       } else {
-        setError('Erro ao criar documento judicial físico. Tente novamente.');
+        setError('Erro ao editar documento judicial físico. Tente novamente.');
       }
     }
   };
@@ -92,13 +157,9 @@ export function FisicoAdd() {
     );
   }
 
-  if (error) {
-    return <div className="text-center text-red-500 p-4">{error}</div>;
-  }
-
   return (
     <div className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-      <Link to="/fisicos">
+      <Link to="/suspensos">
         <div className="inline-flex bg-blue-500 hover:bg-blue-700 p-1 rounded-md mb-8 sm:mt-0 sm:ml-2 sm:flex-none">
           <FaArrowLeftLong className="text-2xl text-white" />
         </div>
@@ -107,8 +168,11 @@ export function FisicoAdd() {
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-xl font-semibold text-gray-900">
-            Adicione um documentos judiciais físicos
+            Edite o documento feito suspenso
           </h1>
+          {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+          {success && <p className="mt-2 text-sm text-green-600">{success}</p>}
+          {userName && <p className="mt-2 text-sm text-gray-600">Responsável atual: <span className="font-semibold">{userName}</span></p>}
         </div>
       </div>
 
@@ -155,13 +219,13 @@ export function FisicoAdd() {
       </div>
 
       <div className="w-full md:w-1/2 mt-8">
-        <label htmlFor="internalDelivery" className="block text-lg font-m text-gray-700 mb-1">
+        <label htmlFor="internalDeliveryUserId" className="block text-lg font-m text-gray-700 mb-1">
           Distribuição interna:
         </label>
         <div>
           <select
-            name="internalDelivery"
-            id="internalDelivery"
+            name="internalDeliveryUserId"
+            id="internalDeliveryUserId"
             value={internalDeliveryUserId}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               setInternalDeliveryUserId(e.target.value)
@@ -170,7 +234,7 @@ export function FisicoAdd() {
           >
             <option value="0">Selecione o usuário</option>
             {users.map((user) => (
-              <option key={user.id_user} value={user.id_user}>
+              <option key={user.id_user} value={user.id_user.toString()}>
                 {user.name}
               </option>
             ))}
@@ -195,7 +259,7 @@ export function FisicoAdd() {
 
       <div className="mt-4 border-t pt-4">
         <div className="d-flex justify-content-end">
-          <Link to={'/fisicos'}>
+          <Link to={'/suspensos'}>
             <button className="btn btn-primary me-2">Cancelar</button>
           </Link>
 
