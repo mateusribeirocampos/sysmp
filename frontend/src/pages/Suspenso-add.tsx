@@ -1,104 +1,92 @@
-import api, { userService } from '@/services/api';
+import api, {userService} from '@/services/api';
 import { User } from '@/types';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaArrowLeftLong } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 
-export function FisicoAdd() {
+export function SuspensoAdd() {
   const [users, setUsers] = useState<User[]>([]);
   const [receivedAt, setReceivedAt] = useState('');
   const [idDocument, setIdDocument] = useState('');
   const [deliveryDeadLine, setDeliveryDeadLine] = useState('');
   const [internalDeliveryUserId, setInternalDeliveryUserId] = useState('');
   const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    loadAllUser();
-  }, []);
 
-  const loadAllUser = async () => {
-    try {
-      setLoading(true);
-      const users = await userService.getAll();
-      const activeUsers = users.filter(
-        (user) => user.status === 'active' || user.status === 'inactive'
-      );
-
-      setUsers(activeUsers);
-    } catch (error) {
-      //console.log('Erro ao carregar usuários: ', error);
-      setError('Erro ao carregar lista de usuários');
-    } finally {
-      setLoading(false);
+const handleSubmit = async () => {
+  try {
+    if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId) {
+      setError('Por favor, preencha todos os campos');
+      return;
     }
-  };
-
-  const handleSubmit = async () => {
-    try {
-      if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId) {
-        setError('Por favor, preencha todos os campos');
-        return;
-      }
-
-      // Verificar se o usuário selecionou um usuário válido (não 0)
-      if (internalDeliveryUserId === '0') {
-        setError('Por favor, selecione um usuário para distribuição interna');
-        return;
-      }
-
-      const fisicoData = {
-        receivedAt,
-        idDocument,
-        deliveryDeadLine,
-        internalDeliveryUserId,
-        message,
-      };
-
-      //console.log('Enviando documento judicial fisico: ', fisicoData);
-      const response = await api.post('fisico/add', fisicoData);
-      //console.log('Documento judicial fisico criaado com sucesso: ', response.data);
-      if (response) {
-        alert('Documento judicial físico cadastrado com sucesso!');
-        window.location.href = '/fisicos';
-      }
-    } catch (error: any) {
-      //console.log('Erro ao criar documento: ', error);
-
-      if (error.response && error.response.status === 409) {
-        setError('Já existe um documento cadastrado com esse número. Por favor, verifique o número digitado!');
-      } else if (error.response) {
-        //console.error('Status do erro:', error.response.status);
-        //console.error('Dados do erro:', error.response.data);
-        setError(
-          `Erro ${error.response.status}: ${
-            typeof error.response.data === 'string'
-              ? error.response.data
-              : error.response.data.message || error.response.data.error || 'Erro no servidor'
-          }`
-        );
-      } else {
-        setError('Erro ao criar documento judicial físico. Tente novamente.');
-      }
+  
+    if (internalDeliveryUserId === '0') {
+      setError('Por favor, selecione um usuário para distribuição interna');
+      return;
     }
-  };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    );
+    const suspensoData = {
+      receivedAt,
+      idDocument,
+      deliveryDeadLine,
+      internalDeliveryUserId,
+      message
+    };
+    const response = await api.post('suspenso/add', suspensoData);
+    if (response) {
+    alert('Documento feito suspenso cadastrado com sucesso!');
+    window.location.href = '/suspensos';
+    }
+  } catch (error: any) {
+    if (error.response && error.response.status === 409) {
+      setError('Já existe um documento cadastrado com esse número. Por favor, verifique o número digitado!');
+    } else if (error.response) {
+      setError(`Erro ${error.response.status}: ${
+        typeof error.response.data === 'string' 
+          ? error.response.data 
+          : error.response.data.message || error.response.data.error || 'Erro no servidor'
+      }`);
+    } else {
+      setError('Erro ao criar documento feito suspenso. Tente novamente.');
+    }
   }
+};
 
-  if (error) {
-    return <div className="text-center text-red-500 p-4">{error}</div>;
+useEffect(() => {
+  loadUsers();
+}, []);
+
+const loadUsers = async () => {
+  try {
+    setLoading(true);
+    const users = await userService.getAll();
+    const activeUsers = users.filter(user => user.status === 'active' || user.status === 'inactive');
+    setUsers(activeUsers);
+  } catch (err) {
+
+    setError("Erro ao carregar lista de usuários");
+  } finally {
+    setLoading(false);
   }
+} 
+
+if (loading) {
+  return (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    </div>
+  );
+}
+
+if (error) {
+  return <div className="text-center text-red-500 p-4">{error}</div>;
+};
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-      <Link to="/fisicos">
+      <Link to="/suspensos">
         <div className="inline-flex bg-blue-500 hover:bg-blue-700 p-1 rounded-md mb-8 sm:mt-0 sm:ml-2 sm:flex-none">
           <FaArrowLeftLong className="text-2xl text-white" />
         </div>
@@ -107,13 +95,13 @@ export function FisicoAdd() {
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-xl font-semibold text-gray-900">
-            Adicione um documentos judiciais físicos
+            Adicione um documento feito suspenso
           </h1>
         </div>
       </div>
 
       <div className="w-full md:w-1/2 mt-8">
-        <label htmlFor="receivedAt" className="block text-lg font-medium text-gray-700 mb-1">
+        <label htmlFor="idDocument" className="block text-lg font-medium text-gray-700 mb-1">
           Data da comunicação:
         </label>
         <input
@@ -133,7 +121,7 @@ export function FisicoAdd() {
           type="text"
           className="mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md"
           name="idDocument"
-          placeholder="9999999-99.9999.9.99.9999"
+          placeholder="99.99.9999.9999999/9999-99"
           id="idDocument"
           value={idDocument}
           onChange={(e) => setIdDocument(e.target.value)}
@@ -141,27 +129,27 @@ export function FisicoAdd() {
       </div>
 
       <div className="w-full md:w-1/2 mt-8">
-        <label htmlFor="deliveryDeadLine" className="block text-lg font-medium text-gray-700 mb-1">
+        <label htmlFor="idDocument" className="block text-lg font-medium text-gray-700 mb-1">
           Prazo de entrega:
         </label>
         <input
           type="date"
           className="mt-1 block w-full rounded-md border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-md"
-          name="deliveryDeadLine"
-          id="deliveryDeadLine"
+          name="DeliveryDeadline"
+          id="DeliveryDeadline"
           value={deliveryDeadLine}
           onChange={(e) => setDeliveryDeadLine(e.target.value)}
         />
       </div>
 
       <div className="w-full md:w-1/2 mt-8">
-        <label htmlFor="internalDelivery" className="block text-lg font-m text-gray-700 mb-1">
+        <label htmlFor="internalDeliveryUserId" className="block text-lg font-m text-gray-700 mb-1">
           Distribuição interna:
         </label>
         <div>
           <select
-            name="internalDelivery"
-            id="internalDelivery"
+            name="internalDeliveryUserId"
+            id="internalDeliveryUserId"
             value={internalDeliveryUserId}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               setInternalDeliveryUserId(e.target.value)
@@ -170,7 +158,7 @@ export function FisicoAdd() {
           >
             <option value="0">Selecione o usuário</option>
             {users.map((user) => (
-              <option key={user.id_user} value={user.id_user}>
+              <option key={user.id_user} value={user.id_user.toString()}>
                 {user.name}
               </option>
             ))}
@@ -178,7 +166,7 @@ export function FisicoAdd() {
         </div>
       </div>
       <div className="w-full md:w-1/2 mt-8">
-        <label htmlFor="message" className="block text-lg font-m text-gray-700 mb-1">
+        <label htmlFor="idDocument" className="block text-lg font-m text-gray-700 mb-1">
           Mensagem:
         </label>
         <div>
@@ -195,7 +183,7 @@ export function FisicoAdd() {
 
       <div className="mt-4 border-t pt-4">
         <div className="d-flex justify-content-end">
-          <Link to={'/fisicos'}>
+          <Link to={'/suspensos'}>
             <button className="btn btn-primary me-2">Cancelar</button>
           </Link>
 
@@ -206,4 +194,4 @@ export function FisicoAdd() {
       </div>
     </div>
   );
-}
+};

@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Modal } from '../components/Modal';
 import { DocumentosNoPrazo } from '../components/DocumentosNoPrazo';
-import { extrasService, fisicosService } from '@/services/api';
-import { Extras, Fisicos } from '@/types';
+import { extrasService, fisicosService, suspensoService } from '@/services/api';
+import { Extras, Fisicos, Suspensos } from '@/types';
 
 export function Dashboard() {
   const { user } = useAuth();
@@ -16,6 +16,7 @@ export function Dashboard() {
     users: 0,
     extras: 0,
     fisicos: 0,
+    suspensos: 0,
     pendentes: 0,
   });
 
@@ -28,6 +29,9 @@ export function Dashboard() {
         const deliveredExtras = savedDeliveredExtras ? JSON.parse(savedDeliveredExtras) : [];
         const savedDeliveredFisicos = localStorage.getItem('deliveredFisicos');
         const deliveredFisicos = savedDeliveredFisicos ? JSON.parse(savedDeliveredFisicos) : [];
+        // salva na constante savedDeliveredSuspensos o que estava no localStorare
+        const savedDeliveredSuspensos = localStorage.getItem('deliveredSuspensos');
+        const deliveredSuspensos = savedDeliveredSuspensos ? JSON.parse(savedDeliveredSuspensos) : [];
 
         // Buscar os extras
         const extrasResponse = await extrasService.getAll();
@@ -86,18 +90,44 @@ export function Dashboard() {
         // Filtrar apenas documentos não entregues para a lista
         const pendingFisicos = processedFisicos.filter(doc => !doc.isDelivered);
         setFisicosList(pendingFisicos);
-        
+
+        // Buscar os suspensos
+        const suspensosResponse = await suspensoService.getAll();
+        const processedSuspensos = suspensosResponse.map((doc: Suspensos) => {
+          const receivedDate = new Date(doc.receivedAt);
+          const deliveryDate = new Date(doc.deliveryDeadLine);
+
+          // Ajustar para o timezone local para evitar a defasagem de um dia
+          const adjustedReceivedDate = new Date(
+            receivedDate.getTime() + receivedDate.getTimezoneOffset() * 60000
+          );
+          const adjustedDeliveryDate = new Date(
+            deliveryDate.getTime() + deliveryDate.getTimezoneOffset() * 60000
+          );
+
+          return {
+            ...doc,
+            receivedAt: adjustedReceivedDate,
+            deliveryDeadLine: adjustedDeliveryDate,
+            isDelivered: deliveredSuspensos.includes(doc.idDocument),
+          };
+        });
+        // Filtrar apenas documentos não entregues para a lista
+        const pendingSuspensos = processedSuspensos.filter(doc => !doc.isDelivered);
+
         // Atualizar contadores locais - contando apenas pendentes
         const usersCount = localStorage.getItem('usersCount');
         
         // Contar documentos não entregues
         const pendingExtrasCount = pendingExtras.length;
         const pendingFisicosCount = pendingFisicos.length;
+        const pendingSuspensosCount = pendingSuspensos.length;
 
         setCounts((prev) => ({
           ...prev,
           extras: pendingExtrasCount,
           fisicos: pendingFisicosCount,
+          suspensos: pendingSuspensosCount,
           users: usersCount ? parseInt(usersCount) : 0,
           pendentes: pendingExtrasCount + pendingFisicosCount,
         }));
@@ -105,6 +135,7 @@ export function Dashboard() {
         // Atualizar localStorage com contagem atualizada de pendentes
         localStorage.setItem('pendingExtrasCount', pendingExtrasCount.toString());
         localStorage.setItem('pendingFisicosCount', pendingFisicosCount.toString());
+        localStorage.setItem('pendingSuspensosCount', pendingSuspensosCount.toString());
       } catch (error) {
         //console.error('Erro ao carregar documentos:', error);
         setError('Erro ao carregar documentos');
@@ -229,6 +260,38 @@ export function Dashboard() {
                   <dl>
                     <dt className="text-sm font-medium text-gray-500 truncate">Total de físicos</dt>
                     <dd className="text-lg font-medium text-gray-900">{counts.fisicos}</dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Link>
+
+        <Link to="/suspensos">
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <svg
+                    className="h-6 w-6 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                </div>
+                <div className="ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-sm font-medium text-gray-500 truncate">
+                      Total Feitos Suspensos
+                    </dt>
+                    <dd className="text-lg font-medium text-gray-900">{counts.suspensos}</dd>
                   </dl>
                 </div>
               </div>
