@@ -18,7 +18,6 @@ export function SuspensoEdit(){
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
 
-
   useEffect(() => {
     loadAllUsers();
     if (id_suspenso) {
