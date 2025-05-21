@@ -6,7 +6,6 @@ async function listSuspenso(req, res) {
     const result = await serviceSuspenso.listSuspenso();
     return res.status(200).json(result);
   } catch (error) {
-    console.error('Erro no listSuspenso: ', error);
     return res.status(500).json({
       error: "Erro interno do servidor"
     });
@@ -17,10 +16,8 @@ async function addSuspenso(req, res) {
   try {
     const { receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message } = req.body;
 
-    console.log(receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message);
-    
-    if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId) {
-      return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+    if (!receivedAt || !idDocument || !deliveryDeadLine) {
+      return res.status(400).json({ error: 'Campos são obrigatórios' });
     }
     
     const result = await serviceSuspenso.addSuspenso(receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message);
@@ -69,13 +66,12 @@ async function updateSuspenso(req, res) {
   try { 
     const { receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message } = req.body;
     
-    if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId) {
-      return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+    if (!receivedAt || !idDocument || !deliveryDeadLine) {
+      return res.status(400).json({ error: 'Campos são obrigatórios' });
     }
 
     const result = await serviceSuspenso.updateSuspenso(id_suspenso, receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message);
 
-    // Após sucesso, emite evento para todos os clientes
     io.emit('data-changed', { type: 'suspenso', action: 'update', id: id_suspenso });
   
     return res.status(200).json({ 
@@ -84,7 +80,6 @@ async function updateSuspenso(req, res) {
       data: result
     });
   } catch (error) {
-    console.error('Erro ao atualizar suspenso:', error);
     return res.status(500).json({
       error: "Erro interno do servidor"
     });
@@ -96,12 +91,10 @@ async function deleteSuspenso(req, res) {
   try {
     const result = await serviceSuspenso.deleteSuspenso(id_suspenso);
 
-    // Após sucesso, emite evento para todos os clientes
     io.emit('data-changed', { type: 'suspenso', action: 'delete', id: id_suspenso });
 
     return res.status(200).json(result);
   } catch (error) {
-    console.error('Erro no deleteSuspenso: ', error);
     return res.status(500).json({
       error: "Erro interno do servidor"
     });

@@ -569,7 +569,7 @@ export function Fisicos() {
                                     ? 'bg-blue-100 text-blue-400 cursor-default'
                                     : 'bg-white text-gray-400 hover:bg-blue-50 hover:text-blue-600 border border-gray-200'
                                 }`}
-                                disabled={isDelivered}
+                                //disabled={isDelivered}
                                 title={isDelivered ? 'Documento entregue' : 'Editar documento'}
                               >
                                 <svg

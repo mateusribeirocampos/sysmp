@@ -14,13 +14,11 @@ async function listExtra(req, res) {
   }
 }
 
-// No controller do backend
 async function addExtras(req, res) {
   try {
     const { receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message } = req.body;
     
-    // Verificar se todos os campos estão presentes
-    if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId) {
+    if (!receivedAt || !idDocument || !deliveryDeadLine) {
       return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
     }
     
@@ -32,7 +30,6 @@ async function addExtras(req, res) {
       message
     );
 
-    // Após sucesso, emite evento para todos os clientes
     io.emit('data-changed', { type: 'extra', action: 'create' });
     
     return res.status(201).json(result);
@@ -42,7 +39,6 @@ async function addExtras(req, res) {
   }
 }
 
-// Função modificada para receber parâmetros no corpo da requisição
 async function assignInternalDelivery(req, res) {
   try {
     const { idDocument, internalDeliveryUserId } = req.body;
@@ -84,8 +80,7 @@ async function updateExtra(req, res) {
   try {
     const { receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message } = req.body;
     
-    // Verificar se todos os campos estão presentes
-    if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId) {
+    if (!receivedAt || !idDocument || !deliveryDeadLine) {
       return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
     }
     
@@ -98,7 +93,6 @@ async function updateExtra(req, res) {
       message
     );
 
-    // Após sucesso, emite evento para todos os clientes
     io.emit('data-changed', { type: 'extra', action: 'update', id: id_extra });
     
     return res.status(200).json({ 
@@ -117,7 +111,6 @@ async function deleteExtra(req, res) {
   try {
     const result = await serviceExtra.deleteExtra(id_extra);
 
-    // Após sucesso, emite evento para todos os clientes
     io.emit('data-changed', { type: 'extra', action: 'delete', id: id_extra });
 
     return res.status(200).json(result);

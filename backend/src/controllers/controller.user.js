@@ -22,7 +22,6 @@ async function login(req, res) {
       message: "Login realizado com sucesso"
     });
   } catch (error) {
-    //console.error('Erro no login:', error);
     return res.status(500).json({ error: "Erro interno do servidor" });
   }
 }
@@ -46,7 +45,6 @@ async function addUser(req, res) {
       user: result
     });
   } catch (error) {
-    //console.error('Erro no addUser:', error);
     return res.status(500).json({ error: "Erro interno do servidor" });
   }
 }
@@ -56,7 +54,6 @@ async function listUsers(req, res) {
     const result = await serviceUser.listUsers();
     return res.status(200).json(result);
   } catch (error) {
-    console.error('Erro no listUsers:', error);
     return res.status(500).json({ error: "Erro interno do servidor" });
   }
 }
@@ -78,7 +75,6 @@ async function editUserById(req, res) {
 
     return res.status(200).json({ message: "Usuário editado com sucesso" });
   } catch (error) {
-    //console.error('Erro no editUser:', error);
     return res.status(500).json({ error: "Erro interno do servidor" });
   }
 }
@@ -89,7 +85,6 @@ async function getUserById(req, res) {
     const result = await serviceUser.getUserById(id);
     return res.status(200).json(result);
   } catch (error) {
-    //console.error('Erro no getUserById:', error);
     return res.status(500).json({ error: "Erro interno do servidor" });
   }
 }
@@ -114,7 +109,6 @@ async function editUserStatus(req, res) {
       status: status
     });
   } catch (error) {
-    //console.error('Erro no editUserStatus:', error);
     return res.status(500).json({ error: "Erro interno do servidor" });
   }
 }
@@ -135,10 +129,8 @@ async function deleteUser(req, res) {
 
     return res.status(200).json({ message: "Usuário excluído com sucesso" });
   } catch (error) {
-    //console.error('Erro no deleteUser:', error);
     return res.status(500).json({ error: "Erro interno do servidor" });
   }
 }
-
 
 export default { login, addUser, listUsers, editUserById, getUserById, editUserStatus, deleteUser };
