@@ -31,7 +31,3 @@ async function deleteSuspenso(id_suspenso) {
 }
 
 export default { listSuspenso, addSuspenso, updateInternalDelivery, getSuspensoById, updateSuspenso, deleteSuspenso };
-
-
-
-

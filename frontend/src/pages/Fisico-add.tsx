@@ -37,23 +37,23 @@ export function FisicoAdd() {
 
   const handleSubmit = async () => {
     try {
-      if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId) {
-        setError('Por favor, preencha todos os campos');
+      if (!receivedAt || !idDocument || !deliveryDeadLine) {
+        setError('Por favor, preencha os campos obrigatórios');
         return;
       }
 
       // Verificar se o usuário selecionou um usuário válido (não 0)
-      if (internalDeliveryUserId === '0') {
+      /*if (internalDeliveryUserId === '0') {
         setError('Por favor, selecione um usuário para distribuição interna');
         return;
-      }
+      }*/
 
       const fisicoData = {
         receivedAt,
         idDocument,
         deliveryDeadLine,
-        internalDeliveryUserId,
-        message,
+        internalDeliveryUserId: internalDeliveryUserId || null,
+        message: message || null,
       };
 
       //console.log('Enviando documento judicial fisico: ', fisicoData);

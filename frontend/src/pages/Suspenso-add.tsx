@@ -17,22 +17,22 @@ export function SuspensoAdd() {
 
 const handleSubmit = async () => {
   try {
-    if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId) {
-      setError('Por favor, preencha todos os campos');
+    if (!receivedAt || !idDocument || !deliveryDeadLine) {
+      setError('Por favor, preencha os campos obrigatórios');
       return;
     }
   
-    if (internalDeliveryUserId === '0') {
+    /*if (internalDeliveryUserId === '0') {
       setError('Por favor, selecione um usuário para distribuição interna');
       return;
-    }
+    }*/
 
     const suspensoData = {
       receivedAt,
       idDocument,
       deliveryDeadLine,
-      internalDeliveryUserId,
-      message
+      internalDeliveryUserId: internalDeliveryUserId || null,
+      message: message || null
     };
     const response = await api.post('suspenso/add', suspensoData);
     if (response) {

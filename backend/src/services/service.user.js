@@ -8,35 +8,25 @@ async function hashPassword(password) {
 }
 
 async function login(email, password) {
-  //console.log('Tentando login com email:', email);
   const user = await repoUser.listByEmail(email);
-  //console.log('Usuário encontrado:', user ? 'Sim' : 'Não');
 
   if (!user || Object.keys(user).length === 0) {
-    //console.log('Usuário não encontrado ou vazio');
     return null;
   }
 
-  //console.log('Verificando senha...');
   let isValidPassword;
   
-  // Verifica se a senha está hasheada
   if (user.password.startsWith('$2')) {
     isValidPassword = await bcrypt.compare(password, user.password);
   } else {
-    // Se a senha não estiver hasheada, compara diretamente e atualiza para hash
     isValidPassword = password === user.password;
     if (isValidPassword) {
-      // Atualiza a senha para versão hasheada
       const hashedPassword = await hashPassword(password);
       await repoUser.updatePassword(user.id_user, hashedPassword);
     }
   }
-  
-  //console.log('Senha válida:', isValidPassword ? 'Sim' : 'Não');
 
   if (!isValidPassword) {
-    //console.log('Senha inválida');
     return null;
   }
 
@@ -53,10 +43,8 @@ async function login(email, password) {
       token
     };
     
-    //console.log('Login bem sucedido, retornando:', { ...result, token: 'HIDDEN' });
     return result;
   } catch (error) {
-    console.error('Erro ao criar token:', error);
     throw new Error('Erro ao processar login');
   }
 }

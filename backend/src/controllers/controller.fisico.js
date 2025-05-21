@@ -5,7 +5,6 @@ async function listFisico(req, res) {
     const result = await serviceFisico.listFisico();
     return res.status(200).json(result);
   } catch (error) {
-    console.error('Erro no listFisico: ', error);
     return res.status(500).json({
       error: "Erro interno do servidor"
     });
@@ -13,13 +12,11 @@ async function listFisico(req, res) {
   }
 }
 
-// No controller do backend
 async function addFisico(req, res) {
   try {
     const { receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message } = req.body;
     
-    // Verificar se todos os campos estão presentes
-    if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId) {
+    if (!receivedAt || !idDocument || !deliveryDeadLine) {
       return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
     }
     
@@ -33,12 +30,10 @@ async function addFisico(req, res) {
     
     return res.status(201).json(result);
   } catch (error) {
-    //console.error('Erro ao adicionar extra:', error);
     return res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
 
-// Função modificada para receber parâmetros no corpo da requisição
 async function assignInternalDelivery(req, res) {
   try {
     const { idDocument, internalDeliveryUserId } = req.body;
@@ -47,7 +42,6 @@ async function assignInternalDelivery(req, res) {
       return res.status(400).json({ error: 'ID do documento e ID do usuário são obrigatórios' });
     }
     
-    //console.log(`Tentando atribuir documento ${idDocument} ao usuário ${internalDeliveryUserId}`);
     
     const result = await serviceFisico.updateInternalDelivery(idDocument, internalDeliveryUserId);
     
@@ -57,7 +51,6 @@ async function assignInternalDelivery(req, res) {
       data: result
     });
   } catch (error) {
-    //console.error('Erro ao atribuir responsável:', error);
     return res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
@@ -68,7 +61,6 @@ async function getFisicoById(req, res) {
     const result = await serviceFisico.getFisicoById(id_fisico);
     return res.status(200).json(result);
   } catch (error) {
-    //console.error('Erro no getFisicoById: ', error);
     return res.status(500).json({
       error: "Erro interno do servidor"
     });
@@ -80,8 +72,7 @@ async function updateFisico(req, res) {
   try {
     const { receivedAt, idDocument, deliveryDeadLine, internalDeliveryUserId, message } = req.body;
     
-    // Verificar se todos os campos estão presentes
-    if (!receivedAt || !idDocument || !deliveryDeadLine || !internalDeliveryUserId) {
+    if (!receivedAt || !idDocument || !deliveryDeadLine) {
       return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
     }
     
