@@ -1,0 +1,15 @@
+name: Supabase Ping
+
+on:
+  schedule:
+    - cron: '0 10 */6 * *'
+  workflow_dispatch:
+
+jobs:
+  supabase-ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Supabase Ping
+        run: |
+          curl -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+               https://supabase.com/dashboard/project/qcriykfyryaubdjdcgeo.supabase.co/rest/v1/users?select=*
