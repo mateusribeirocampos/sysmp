@@ -88,7 +88,7 @@ SYSMP focuses on **document metadata management** rather than document storage:
 
 - **Runtime**: Node.js 22.x
 - **Framework**: Express.js
-- **Database**: SQLite
+- **Database**: SQLite -> PostgreSQL (supabase)
 - **Authentication**: JWT (JSON Web Tokens)
 
 ## Project Structure
@@ -109,7 +109,6 @@ Ensure you have the following installed:
 
 - Node.js 22.11.0
 - npm 9.x+ or yarn 1.x+
-- MongoDB (local or connection string)
 
 ### Frontend Setup
 
