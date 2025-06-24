@@ -2,14 +2,41 @@ name: Supabase Ping
 
 on:
   schedule:
-    - cron: '0 10 */6 * *'
+    - cron: '0 */6 * * *'
   workflow_dispatch:
 
 jobs:
   supabase-ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Supabase Ping
+      - name: Supabase Health Check
         run: |
-          curl -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-               https://supabase.com/dashboard/project/qcriykfyryaubdjdcgeo.supabase.co/rest/v1/users?select=*
+          # Teste simples de conectividade (sem acessar tabelas específicas)
+          response=$(curl -s -w "%{http_code}" -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+                "https://qcriykfyryaubdjdcgeo.supabase.co/rest/v1/" \
+                -o /tmp/response.json)
+
+          echo "Health check response: $response"
+          
+          if [[ "$response" =~ ^2[0-9][0-9]$ ]]; then
+            echo "Supabase is healthy"
+          else
+            echo "Supabase health check failed with status code $response"
+            exit 1
+          fi
+
+      - name: Test Users Table Access
+        run: |
+          # Tenta acessar a tabela users especificamente
+          response=$(curl -s -w "%{http_code}" -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+                "https://qcriykfyryaubdjdcgeo.supabase.co/rest/v1/users?select=count" \
+                -o /tmp/users_response.json)
+
+          echo "Users table response: $response"
+          cat /tmp/users_response.json
+          
+          if [[ "$response" == "200" ]]; then
+            echo "Users table is accessible"
+          else
+            echo "Users table access failed with status code $response"
+          fi
