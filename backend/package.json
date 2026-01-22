@@ -20,7 +20,7 @@
     "jsonwebtoken": "^9.0.0",
     "pg": "^8.14.1",
     "socket.io": "^4.8.1",
-    "sqlite3": "^5.0.2",
+    "sqlite3": "^5.1.5",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
   },
