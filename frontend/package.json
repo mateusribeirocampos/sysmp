@@ -23,6 +23,9 @@
     "react-router-dom": "^6.30.0",
     "socket.io-client": "^4.8.1"
   },
+  "overrides": {
+    "minimatch": ">=9.0.7"
+  },
   "devDependencies": {
     "@eslint/js": "^8.56.0",
     "@types/node": "^22.13.14",
