@@ -27,3 +27,21 @@ jobs:
             cat /tmp/response.json
             exit 1
           fi
+
+      - name: test Users table Acess
+        run: |
+          # Tenta acessar a tabela users especificamente
+          response=$(curl -s -w "%{http_code}" \
+                  -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+                  -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+                  "https://qcriykfyryaubdjdcgeo.supabase.co/rest/v1/users?select=count" \
+                  -o /tmp/users_response.json)
+
+          echo "Users table response: $response"
+          cat /tmp/users_response.json
+
+          if [[ "$response" == "200" ]]; then
+            echo "Users table is accessible"
+          else
+            echo "Users table access failed with status code $response"
+          fi
