@@ -14,47 +14,47 @@ async function listByEmail(email) {
 }
 
 async function addUser(name, email, password, role, status) {
-  let sql = `INSERT INTO users (name, email, password, role, status) VALUES ($1, $2, $3, $4, $5) RETURNING *`;
+  let sql = `INSERT INTO users (name, email, password, role, status) VALUES ($1, $2, $3, $4, $5) RETURNING id_user, name, email, role, status`;
   let params = [name, email, password, role, status];
-  
+
   return mutate(sql, params);
 }
 
 async function updatePassword(userId, hashedPassword) {
-  let sql = `UPDATE users SET password = $1 WHERE id_user = $2 RETURNING *`;
+  let sql = `UPDATE users SET password = $1 WHERE id_user = $2 RETURNING id_user`;
   let params = [hashedPassword, userId];
-  
+
   return mutate(sql, params);
 }
 
 async function ListUsers() {
-  let sql = `SELECT * FROM users`;
+  let sql = `SELECT id_user, name, email, role, status FROM users`;
   return query(sql);
 }
 
-async function editUserById(id, name, email, password, role, status) {  
-  let sql = `UPDATE users SET name = $1, email = $2, password = $3, role = $4, status = $5 WHERE id_user = $6 RETURNING *`;
+async function editUserById(id, name, email, password, role, status) {
+  let sql = `UPDATE users SET name = $1, email = $2, password = $3, role = $4, status = $5 WHERE id_user = $6 RETURNING id_user, name, email, role, status`;
   let params = [name, email, password, role, status, id];
-  
+
   return mutate(sql, params);
 }
 
 async function getUserById(id) {
-  let sql = `SELECT * FROM users WHERE id_user = $1`;
+  let sql = `SELECT id_user, name, email, role, status FROM users WHERE id_user = $1`;
   let params = [id];
 
   return queryOne(sql, params);
 }
 
 async function editUserStatus(id, status) {
-  let sql = `UPDATE users SET status = $1 WHERE id_user = $2 RETURNING *`;
+  let sql = `UPDATE users SET status = $1 WHERE id_user = $2 RETURNING id_user, name, email, role, status`;
   let params = [status, id];
 
   return mutate(sql, params);
 }
 
 async function deleteUser(id) {
-  let sql = `DELETE FROM users WHERE id_user = $1 RETURNING *`;
+  let sql = `DELETE FROM users WHERE id_user = $1 RETURNING id_user, name, email, role, status`;
   let params = [id];
   return mutate(sql, params);
 }

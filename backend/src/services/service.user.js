@@ -14,17 +14,11 @@ async function login(email, password) {
     return null;
   }
 
-  let isValidPassword;
-  
-  if (user.password.startsWith('$2')) {
-    isValidPassword = await bcrypt.compare(password, user.password);
-  } else {
-    isValidPassword = password === user.password;
-    if (isValidPassword) {
-      const hashedPassword = await hashPassword(password);
-      await repoUser.updatePassword(user.id_user, hashedPassword);
-    }
+  if (!user.password.startsWith('$2')) {
+    return null;
   }
+
+  const isValidPassword = await bcrypt.compare(password, user.password);
 
   if (!isValidPassword) {
     return null;
@@ -33,7 +27,7 @@ async function login(email, password) {
   delete user.password;
   
   try {
-    const token = await CreateToken(user.id_user);
+    const token = await CreateToken(user.id_user, user.role);
     
     const { id_user, ...rest } = user;
     

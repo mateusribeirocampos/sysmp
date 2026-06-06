@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import cors from 'cors';
-import express from 'express';
 import dotenv from 'dotenv';
 import {
   ValidateToken,
+  isAdmin,
   GeneralLimiter,
   trackLoginAttempts
 } from '../middleware/index.js';
@@ -16,18 +15,16 @@ dotenv.config({ path: './src/.env' });
 
 const routes = Router();
 
-routes.use(cors());
-routes.use(express.json());
 routes.use(GeneralLimiter);
 
 // Rotas públicas
 routes.post("/login", loginLimiter, trackLoginAttempts, controllerUser.login);
-routes.post("/users/add", ValidateToken, controllerUser.addUser);
-routes.get("/users", ValidateToken, controllerUser.listUsers);
-routes.put("/users/edit/:id", ValidateToken, controllerUser.editUserById);
-routes.get("/users/edit/:id", ValidateToken, controllerUser.getUserById);
-routes.delete("/users/delete/:id", ValidateToken, controllerUser.deleteUser);
-routes.put("/users/:id/status", ValidateToken, controllerUser.editUserStatus);
+routes.post("/users/add", ValidateToken, isAdmin, controllerUser.addUser);
+routes.get("/users", ValidateToken, isAdmin, controllerUser.listUsers);
+routes.put("/users/edit/:id", ValidateToken, isAdmin, controllerUser.editUserById);
+routes.get("/users/edit/:id", ValidateToken, isAdmin, controllerUser.getUserById);
+routes.delete("/users/delete/:id", ValidateToken, isAdmin, controllerUser.deleteUser);
+routes.put("/users/:id/status", ValidateToken, isAdmin, controllerUser.editUserStatus);
 
 // Rota para carregar extrajudiciais
 routes.get("/extras", ValidateToken, controllerExtra.listExtra);

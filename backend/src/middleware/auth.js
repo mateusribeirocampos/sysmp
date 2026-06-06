@@ -27,10 +27,10 @@ const extractTokenFromHeader = (authHeader) => {
 };
 
 // Função principal para criar token
-const CreateToken = async (id_user) => {
+const CreateToken = async (id_user, role) => {
   try {
     const token = jwt.sign(
-      { id: id_user },
+      { id: id_user, role },
       config.jwt.secret,
       {
         expiresIn: config.jwt.expiresIn,
@@ -56,6 +56,7 @@ const ValidateToken = async (req, res, next) => {
     // Adiciona informações do usuário ao request
     req.user = {
       id: decoded.id,
+      role: decoded.role,
       iat: decoded.iat,
       exp: decoded.exp
     };
@@ -77,4 +78,13 @@ const ValidateToken = async (req, res, next) => {
   }
 };
 
-export { CreateToken, ValidateToken, AuthError };
+// Middleware de autorização — apenas admins
+const isAdmin = (req, res, next) => {
+  if (req.user?.role !== 'admin') {
+    logger.warn('Acesso negado: role insuficiente', { userId: req.user?.id, role: req.user?.role });
+    return res.status(403).json({ error: 'Acesso negado: permissão insuficiente' });
+  }
+  next();
+};
+
+export { CreateToken, ValidateToken, isAdmin, AuthError };
