@@ -28,9 +28,14 @@ frontend/.env
 frontend/.env.local
 frontend/.env.*.local
 backend/.env
-backend/.env
+
+# LLM docs
 CLAUDE.md
+AGENTS.md
+GEMINI.md
 SKILL.md
+.codex/
+.agents/
 
 .vscode
 .cursor
