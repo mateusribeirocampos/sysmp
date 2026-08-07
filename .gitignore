@@ -30,7 +30,6 @@ frontend/.env.*.local
 backend/.env
 
 # LLM docs
-CLAUDE.md
 AGENTS.md
 GEMINI.md
 SKILL.md
