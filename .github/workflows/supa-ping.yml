@@ -2,8 +2,11 @@ name: Supabase Ping
 
 on:
   schedule:
-    - cron: '41 9 * * 1,4'
+    - cron: '41 9 * * 1,3,5'
   workflow_dispatch:
+
+permissions:
+  issues: write
 
 jobs:
   supabase-ping:
@@ -44,4 +47,19 @@ jobs:
             echo "Users table is accessible"
           else
             echo "Users table access failed with status code $response"
+            exit 1
+          fi
+
+      - name: Alert on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="Supabase ping falhou - projeto pode pausar"
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number')
+          BODY="O workflow supa-ping falhou em $(date -u +%Y-%m-%dT%H:%M:%SZ). Verifique se o Supabase deste projeto ainda responde antes que ele pause por inatividade. Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" --body "$BODY"
+          else
+            gh issue create --repo "${{ github.repository }}" --title "$TITLE" --body "$BODY"
           fi
