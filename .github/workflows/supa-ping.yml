@@ -33,20 +33,27 @@ jobs:
 
       - name: test Users table Acess
         run: |
-          # Tenta acessar a tabela users especificamente
-          response=$(curl -s -w "%{http_code}" \
-                  -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-                  -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
-                  "https://qcriykfyryaubdjdcgeo.supabase.co/rest/v1/users?select=count" \
-                  -o /tmp/users_response.json)
-
-          echo "Users table response: $response"
+          # Tenta acessar a tabela users especificamente, com retry para blips transitorios
+          success=false
+          for attempt in 1 2 3; do
+            response=$(curl -s -w "%{http_code}" --max-time 30 \
+                    -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+                    -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+                    "https://qcriykfyryaubdjdcgeo.supabase.co/rest/v1/users?select=count" \
+                    -o /tmp/users_response.json)
+            echo "Attempt $attempt: users table response $response"
+            if [[ "$response" == "200" ]]; then
+              success=true
+              break
+            fi
+            sleep 15
+          done
           cat /tmp/users_response.json
 
-          if [[ "$response" == "200" ]]; then
+          if [ "$success" = "true" ]; then
             echo "Users table is accessible"
           else
-            echo "Users table access failed with status code $response"
+            echo "Users table access failed after 3 attempts"
             exit 1
           fi
 
