@@ -2,7 +2,11 @@ name: Supabase Ping
 
 on:
   schedule:
-    - cron: '41 9 * * 1,3,5'
+    # Diário: o agendador do GitHub é best-effort e pode pular um disparo
+    # inteiro, não só atrasar (visto no santarita em 28/09/2026). Rodando
+    # todo dia, um pulo isolado ainda deixa o próximo dia como rede de
+    # segurança contra a pausa do Supabase.
+    - cron: '41 9 * * *'
   workflow_dispatch:
 
 permissions:
