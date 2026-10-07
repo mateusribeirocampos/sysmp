@@ -1,0 +1,35 @@
+-- sysmp: private Express tables; backend role verified BYPASSRLS.
+-- Does not modify service_health. Execute inside the target project.
+BEGIN;
+SET LOCAL lock_timeout='5s';
+SET LOCAL statement_timeout='15s';
+ALTER TABLE public."extras" ENABLE ROW LEVEL SECURITY;
+DROP POLICY "All users can create in extras" ON public."extras";
+DROP POLICY "All users can delete from extras" ON public."extras";
+DROP POLICY "All users can read from extras" ON public."extras";
+DROP POLICY "All users can update in extras" ON public."extras";
+CREATE POLICY "Block direct client access" ON public."extras" AS RESTRICTIVE FOR ALL TO anon, authenticated USING (false) WITH CHECK (false);
+REVOKE ALL PRIVILEGES ON TABLE public."extras" FROM PUBLIC, anon, authenticated;
+ALTER TABLE public."fisicos" ENABLE ROW LEVEL SECURITY;
+DROP POLICY "All users can create in fisicos" ON public."fisicos";
+DROP POLICY "All users can delete from fisicos" ON public."fisicos";
+DROP POLICY "All users can read from fisicos" ON public."fisicos";
+DROP POLICY "All users can update in fisicos" ON public."fisicos";
+CREATE POLICY "Block direct client access" ON public."fisicos" AS RESTRICTIVE FOR ALL TO anon, authenticated USING (false) WITH CHECK (false);
+REVOKE ALL PRIVILEGES ON TABLE public."fisicos" FROM PUBLIC, anon, authenticated;
+ALTER TABLE public."suspensos" ENABLE ROW LEVEL SECURITY;
+DROP POLICY "All users can create in suspensos" ON public."suspensos";
+DROP POLICY "All users can delete from suspensos" ON public."suspensos";
+DROP POLICY "All users can read from suspensos" ON public."suspensos";
+DROP POLICY "All users can update in suspensos" ON public."suspensos";
+CREATE POLICY "Block direct client access" ON public."suspensos" AS RESTRICTIVE FOR ALL TO anon, authenticated USING (false) WITH CHECK (false);
+REVOKE ALL PRIVILEGES ON TABLE public."suspensos" FROM PUBLIC, anon, authenticated;
+ALTER TABLE public."users" ENABLE ROW LEVEL SECURITY;
+DROP POLICY "Admins can manage users" ON public."users";
+DROP POLICY "All users can create users" ON public."users";
+DROP POLICY "All users can delete users" ON public."users";
+DROP POLICY "All users can read users" ON public."users";
+DROP POLICY "All users can update users" ON public."users";
+CREATE POLICY "Block direct client access" ON public."users" AS RESTRICTIVE FOR ALL TO anon, authenticated USING (false) WITH CHECK (false);
+REVOKE ALL PRIVILEGES ON TABLE public."users" FROM PUBLIC, anon, authenticated;
+COMMIT;

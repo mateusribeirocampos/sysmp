@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import type { User, LoginCredentials } from '../types'
 import api from '../services/api'
+import { disconnectSocket } from '../services/websocket'
 
 interface AuthContextType {
   user: User | null
@@ -42,6 +43,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   const logout = () => {
+    disconnectSocket()
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     setUser(null)

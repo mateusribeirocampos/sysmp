@@ -6,7 +6,9 @@ let socket: Socket | null = null;
 
 export const initializeSocket = (): Socket => {
   if (socket === null) {
-    socket = io(import.meta.env.VITE_API_URL);
+    socket = io(import.meta.env.VITE_API_URL, {
+      auth: (callback) => callback({ token: localStorage.getItem('token') })
+    });
     
     // Configurações iniciais
     socket.on('connect', () => {

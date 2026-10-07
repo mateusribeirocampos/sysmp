@@ -10,7 +10,7 @@ async function hashPassword(password) {
 async function login(email, password) {
   const user = await repoUser.listByEmail(email);
 
-  if (!user || Object.keys(user).length === 0) {
+  if (!user || Object.keys(user).length === 0 || user.status !== 'active') {
     return null;
   }
 

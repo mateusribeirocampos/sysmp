@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import logger from '../config/logger.js';
 import config from '../config/index.js';
+import repoUser from '../repositories/repository.user.js';
 
 // Classe de erros customizados
 class AuthError extends Error {
@@ -51,12 +52,19 @@ const ValidateToken = async (req, res, next) => {
   try {
     const token = extractTokenFromHeader(req.headers.authorization);
 
-    const decoded = jwt.verify(token, config.jwt.secret);
+    const decoded = jwt.verify(token, config.jwt.secret, { algorithms: ['HS256'], issuer: config.jwt.issuer });
+    if (typeof decoded !== 'object' || !Number.isSafeInteger(decoded.id) || decoded.id <= 0 || !Number.isSafeInteger(decoded.exp)) {
+      throw new AuthError('Token inválido');
+    }
+    const user = await repoUser.getUserById(decoded.id);
+    if (!user || user.status !== 'active') {
+      throw new AuthError('Usuário não encontrado ou inativo');
+    }
     
     // Adiciona informações do usuário ao request
     req.user = {
       id: decoded.id,
-      role: decoded.role,
+      role: user.role,
       iat: decoded.iat,
       exp: decoded.exp
     };
