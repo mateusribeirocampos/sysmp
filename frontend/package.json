@@ -24,7 +24,8 @@
     "socket.io-client": "^4.8.1"
   },
   "overrides": {
-    "minimatch": ">=9.0.7"
+    "minimatch": ">=9.0.7",
+    "postcss-selector-parser": "7.1.6"
   },
   "devDependencies": {
     "@eslint/js": "^8.56.0",
