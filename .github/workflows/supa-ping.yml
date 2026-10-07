@@ -2,67 +2,36 @@ name: Supabase Ping
 
 on:
   schedule:
-    # Diário: o agendador do GitHub é best-effort e pode pular um disparo
-    # inteiro, não só atrasar (visto no santarita em 28/09/2026). Rodando
-    # todo dia, um pulo isolado ainda deixa o próximo dia como rede de
-    # segurança contra a pausa do Supabase.
-    - cron: '41 9 * * *'
+    # Four real database reads/day; Free plan pausing is not a resettable timer.
+    - cron: '41 3,9,15,21 * * *'
   workflow_dispatch:
+    inputs:
+      notify_on_failure:
+        description: Create or comment on a failure issue
+        type: boolean
+        default: true
 
 permissions:
+  contents: read
   issues: write
 
 jobs:
   supabase-ping:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: Supabase Health Check
-        run: |
-          # GET /auth/v1/health — endpoint de health check do GoTrue, aceita anon key
-          response=$(curl -s -w "%{http_code}" \
-                -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-                "https://qcriykfyryaubdjdcgeo.supabase.co/auth/v1/health" \
-                -o /tmp/response.json)
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
-          echo "Health check response: $response"
-
-          if [[ "$response" =~ ^2[0-9][0-9]$ ]]; then
-            echo "Supabase is healthy"
-            cat /tmp/response.json
-          else
-            echo "Supabase health check failed with status code $response"
-            cat /tmp/response.json
-            exit 1
-          fi
-
-      - name: test Users table Acess
-        run: |
-          # Tenta acessar a tabela users especificamente, com retry para blips transitorios
-          success=false
-          for attempt in 1 2 3; do
-            response=$(curl -s -w "%{http_code}" --max-time 30 \
-                    -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-                    -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
-                    "https://qcriykfyryaubdjdcgeo.supabase.co/rest/v1/users?select=count" \
-                    -o /tmp/users_response.json)
-            echo "Attempt $attempt: users table response $response"
-            if [[ "$response" == "200" ]]; then
-              success=true
-              break
-            fi
-            sleep 15
-          done
-          cat /tmp/users_response.json
-
-          if [ "$success" = "true" ]; then
-            echo "Users table is accessible"
-          else
-            echo "Users table access failed after 3 attempts"
-            exit 1
-          fi
-
+      - name: Verify Supabase database monitoring row
+        env:
+          SUPABASE_PROJECT_REF: qcriykfyryaubdjdcgeo
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: bash .github/scripts/supabase-ping.sh
       - name: Alert on failure
-        if: failure()
+        if: ${{ failure() && (github.event_name != 'workflow_dispatch' || inputs.notify_on_failure) }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
