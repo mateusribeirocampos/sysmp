@@ -16,23 +16,44 @@ if [[ -n "${SUPABASE_URL:-}" ]]; then
   SUPABASE_PROJECT_REF="$url_ref"
 fi
 : "${SUPABASE_PROJECT_REF:?SUPABASE_PROJECT_REF is required}"
-: "${SUPABASE_ANON_KEY:?SUPABASE_ANON_KEY is required}"
+api_key="${SUPABASE_API_KEY:-${SUPABASE_ANON_KEY:-}}"
+if [[ -z "$api_key" ]]; then
+  echo "Supabase API key is required" >&2
+  exit 1
+fi
+monitor_table="${SUPABASE_MONITOR_TABLE:-service_health}"
 
 if [[ ! "$SUPABASE_PROJECT_REF" =~ ^[a-z]{20}$ ]]; then
   echo "Invalid Supabase project reference" >&2
   exit 1
 fi
 
-# Existing workflows use legacy anon JWTs. Refuse a privileged or wrong-project key.
-if ! printf '%s' "$SUPABASE_ANON_KEY" | jq -eR --arg ref "$SUPABASE_PROJECT_REF" \
-  'split(".") | .[1] | @base64d | fromjson | .role == "anon" and .ref == $ref' >/dev/null 2>&1; then
-  echo "Expected a legacy anon key for this project" >&2
-  exit 1
-fi
+headers=(--header "apikey: ${api_key}")
+case "$api_key" in
+  sb_publishable_*) echo "API key type: publishable" ;;
+  sb_secret_*)
+    # Santarita is a private server job; retain its existing credential compatibility.
+    if [[ "$monitor_table" != categories ]]; then
+      echo "Monitoring sentinel requires an anon or publishable key" >&2
+      exit 1
+    fi
+    echo "API key type: secret (existing categories job)"
+    ;;
+  *)
+    if ! printf '%s' "$api_key" | jq -eR --arg ref "$SUPABASE_PROJECT_REF" --arg table "$monitor_table" \
+      'split(".") | .[1] | @base64d | fromjson |
+        .ref == $ref and (.role == "anon" or ($table == "categories" and .role == "service_role"))' >/dev/null 2>&1; then
+      echo "Unexpected key role or project reference" >&2
+      exit 1
+    fi
+    key_role=$(printf '%s' "$api_key" | jq -rR 'split(".") | .[1] | @base64d | fromjson | .role')
+    echo "API key type: legacy ${key_role}"
+    headers+=(--header "Authorization: Bearer ${api_key}")
+    ;;
+esac
 
 response_file=$(mktemp)
 trap 'rm -f "$response_file"' EXIT
-monitor_table="${SUPABASE_MONITOR_TABLE:-service_health}"
 case "$monitor_table" in
   service_health) query='select=id,status,project_ref&id=eq.1&limit=2' ;;
   categories) query='select=id&limit=1' ;;
@@ -56,8 +77,7 @@ for attempt in 1 2 3; do
   : > "$response_file"
   # The conditional prevents bash -e from aborting retries on DNS/timeout errors.
   if http_status=$(curl --silent --show-error --connect-timeout 10 --max-time 30 \
-    --header "apikey: ${SUPABASE_ANON_KEY}" \
-    --header "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+    "${headers[@]}" \
     --output "$response_file" --write-out '%{http_code}' "$url"); then
     curl_status=0
   else

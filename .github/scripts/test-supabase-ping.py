@@ -49,6 +49,7 @@ sys.exit(s.get('exit',0))
             env = dict(os.environ, PATH=tmp + os.pathsep + os.environ['PATH'], FIXTURE_DIR=tmp,
                        SUPABASE_PROJECT_REF=REF, SUPABASE_ANON_KEY=api_key or key(), SUPABASE_MONITOR_TABLE=table)
             env.pop('SUPABASE_URL', None)
+            env.pop('SUPABASE_API_KEY', None)
             if url is not None:
                 env['SUPABASE_URL'] = url
             if ref is None:
@@ -92,6 +93,11 @@ sys.exit(s.get('exit',0))
         self.assertEqual(self.run_ping([{'body': ROW}], url=valid, ref=None), (0, 1, []))
         for invalid in ['https://supabase.com/dashboard/project/' + REF, 'https://zgnrrhmipzyfoykjiwfg.supabase.co']:
             self.assertEqual(self.run_ping([{'body': ROW}], url=invalid), (1, 0, []))
+
+    def test_publishable_key_and_existing_category_job_key(self):
+        self.assertEqual(self.run_ping([{'body': ROW}], api_key='sb_publishable_test'), (0, 1, []))
+        self.assertEqual(self.run_ping([{'body': ROW}], api_key='sb_secret_test'), (1, 0, []))
+        self.assertEqual(self.run_ping([{'body': [{'id': 'category'}]}], api_key=key('service_role'), table='categories'), (0, 1, []))
 
 
 if __name__ == '__main__':
